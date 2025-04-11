@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: instituto_idiomas_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: instituto_idiomas_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: 123
+      MYSQL_ROOT_PASSWORD: 123
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    networks:
+      - inst_network
+
+networks:
+  inst_network:
+    name: inst_network
+    driver: bridge
