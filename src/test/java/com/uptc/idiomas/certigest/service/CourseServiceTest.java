@@ -1,6 +1,7 @@
 package com.uptc.idiomas.certigest.service;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.uptc.idiomas.certigest.dto.CourseDTO;
@@ -33,7 +34,7 @@ public class CourseServiceTest {
         dto.setCourse_name("Curso de Java");
         dto.setCourse_description("Curso básico de Java");
         dto.setLanguage("Español");
-        dto.setCourse_type("DEFAULT");
+        dto.setCourse_type(Course.CourseType.DEFAULT);
 
         // Convertimos el DTO a una entidad Course
         Course course = CourseMapper.INSTANCE.mapCourseDTOToCourse(dto);

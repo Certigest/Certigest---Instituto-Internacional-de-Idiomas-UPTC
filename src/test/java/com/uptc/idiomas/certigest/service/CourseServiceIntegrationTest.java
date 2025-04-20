@@ -1,18 +1,19 @@
 package com.uptc.idiomas.certigest.service;
 
 import com.uptc.idiomas.certigest.dto.CourseDTO;
+import com.uptc.idiomas.certigest.entity.Course;
 import com.uptc.idiomas.certigest.repo.CourseRepo;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application-test.properties") // Configuración específica para pruebas
+@ActiveProfiles("test")
 public class CourseServiceIntegrationTest {
 
     @Autowired
@@ -23,7 +24,7 @@ public class CourseServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        courseRepo.deleteAll(); // Limpiar la base antes de cada prueba
+        courseRepo.deleteAll();
     }
 
     @Test
@@ -33,7 +34,7 @@ public class CourseServiceIntegrationTest {
         dto.setCourse_name("Curso de Inglés");
         dto.setCourse_description("Curso intermedio de Inglés");
         dto.setLanguage("Inglés");
-        dto.setCourse_type("DEFAULT");
+        dto.setCourse_type(Course.CourseType.DEFAULT);
 
         // Act: Guardamos el curso usando el servicio
         CourseDTO result = courseService.addCourseInDb(dto);
