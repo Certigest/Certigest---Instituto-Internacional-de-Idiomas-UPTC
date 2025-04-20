@@ -1,4 +1,3 @@
-
 package com.uptc.idiomas.certigest.entity;
 
 import jakarta.persistence.*;
@@ -14,7 +13,10 @@ public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idLocation;
-    @Column(name = "id_location_f")
-    private Integer idLocationF;
+
+    @ManyToOne
+    @JoinColumn(name = "id_location_f")
+    private Location parent;
+
     private String locationName;
 }
