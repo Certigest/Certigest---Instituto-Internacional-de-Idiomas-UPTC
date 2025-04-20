@@ -1,4 +1,3 @@
-
 package com.uptc.idiomas.certigest.entity;
 
 import jakarta.persistence.*;
@@ -11,29 +10,30 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @IdClass(GroupPersonId.class)
+@Table(name = "Group_Person")
 public class GroupPerson {
 
-    public enum LevelModality { In_person, virtual }
+    public enum LevelModality {
+        In_person, virtual
+    }
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "person_id")
-    private Person person;
+    private Person person_id;
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "group_id")
-    private GroupInst group;
+    private GroupInst group_id;
 
     private Float calification;
     private Date calificationDate;
-    private Date startDate;
-    private Date endDate;
-    private Integer levelCost;
-    private Integer materialCost;
+    private Date start_date;
+    private Date end_date;
+    private Integer level_cost;
+    private Integer material_cost;
 
     @Enumerated(EnumType.STRING)
-    private LevelModality levelModality;
+    private LevelModality LEVEL_MODALITY;
 
-    private String levelDuration;
+    private String level_duration;
 }

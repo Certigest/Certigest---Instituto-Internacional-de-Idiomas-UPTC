@@ -9,21 +9,19 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "group_inst")
+@Table(name = "Group_inst")
 public class GroupInst {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer groupId;
+    private Integer group_id;
 
     @ManyToOne
-    @JoinColumn(name = "level_id")
-    private Level level;
+    private Level level_id;
 
     @ManyToOne
-    @JoinColumn(name = "group_teacher")
-    private Person teacher;
+    private Person group_teacher;
 
-    private String groupName;
+    private String group_name;
     private String schedule;
 }

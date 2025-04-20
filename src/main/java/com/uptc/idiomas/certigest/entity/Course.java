@@ -12,18 +12,20 @@ import java.util.Date;
 @NoArgsConstructor
 public class Course {
 
-    public enum CourseType { KIDS, DEFAULT }
+    public enum CourseType {
+        KIDS, DEFAULT
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idCourse;
+    private Integer id_course;
 
-    private String courseName;
-    private String courseDescription;
+    private String course_name;
+    private String course_description;
 
     @Enumerated(EnumType.STRING)
-    private CourseType courseType;
+    private CourseType course_type;
 
     private String language;
-    private Date creationDate;
+    private Date creation_date;
 }
