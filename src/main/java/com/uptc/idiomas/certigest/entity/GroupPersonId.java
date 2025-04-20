@@ -9,6 +9,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GroupPersonId implements Serializable {
-    private Integer person;
-    private Integer group;
+    private Integer person_id;
+    private Integer group_id;
 }

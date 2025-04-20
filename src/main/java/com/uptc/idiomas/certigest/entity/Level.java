@@ -1,4 +1,3 @@
-
 package com.uptc.idiomas.certigest.entity;
 
 import jakarta.persistence.*;
@@ -13,12 +12,11 @@ public class Level {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer levelId;
+    private Integer level_id;
 
     @ManyToOne
-    @JoinColumn(name = "id_course")
-    private Course course;
+    private Course id_course;
 
-    private String levelName;
-    private String levelDescription;
+    private String level_name;
+    private String level_description;
 }
