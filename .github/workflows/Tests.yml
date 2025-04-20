@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: "17" # O la que uses
+          java-version: "17"
 
       - name: Cache Maven packages
         uses: actions/cache@v3
@@ -28,6 +28,9 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+
+      - name: Give execute permission to mvnw
+        run: chmod +x ./mvnw
 
       - name: Run tests
         run: ./mvnw test
