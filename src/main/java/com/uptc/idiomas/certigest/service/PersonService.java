@@ -1,5 +1,7 @@
 package com.uptc.idiomas.certigest.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -9,14 +11,16 @@ import com.uptc.idiomas.certigest.entity.Location;
 import com.uptc.idiomas.certigest.entity.Person;
 import com.uptc.idiomas.certigest.mapper.LocationMapper;
 import com.uptc.idiomas.certigest.mapper.PersonMapper;
+import com.uptc.idiomas.certigest.repo.LocationRepo;
+import com.uptc.idiomas.certigest.repo.PersonRepo;
 
 @Service
 public class PersonService extends BasicServiceImpl<Person, Integer> {
 
     @Autowired
-    private JpaRepository<Person, Integer> personRepo;
+    private PersonRepo personRepo;
     @Autowired
-    private JpaRepository<Location, Integer> locationRepo;
+    private LocationRepo locationRepo;
 
     @Override
     protected JpaRepository<Person, Integer> getRepo() {
@@ -36,5 +40,40 @@ public class PersonService extends BasicServiceImpl<Person, Integer> {
         Person personSaved = personRepo.save(person);
 
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(personSaved);
+    }
+
+    public PersonDTO getAccountInfoByEmail(String email){
+        Optional<Person> personOpt = personRepo.findByEmail(email);
+        Person personInfo = null;
+        if (personOpt.isPresent())
+            personInfo = personOpt.get();
+        else 
+            personInfo = new Person();
+        return PersonMapper.INSTANCE.mapPersonToPersonDTO(personInfo);
+    }
+
+    public PersonDTO ModifyAccountInfo(PersonDTO personDTO, String email){
+        
+        Optional<Person> personOpt = personRepo.findByEmail(email);
+        Person person = personOpt.get();
+        if (personOpt.isPresent()) {
+
+            person.setFirstName(personDTO.getFirstName());
+            person.setLastName(personDTO.getLastName());
+            Person.DocumentType documentType = Person.DocumentType.valueOf(personDTO.getDocumentType().toUpperCase());
+            person.setDocumentType(documentType);
+            person.setDocument(personDTO.getDocument());
+            person.setPhone(personDTO.getPhone());
+            person.setBirthDate(personDTO.getBirthDate());
+
+            if (personDTO.getLocationId() != null) {
+                Location location = LocationMapper.INSTANCE.mapLocationDTOToLocation(personDTO.getLocationId());
+                if (location.getIdLocation() == null) {
+                    location = locationRepo.save(location);
+                }
+                person.setLocation(location);
+            }
+        }Person updatedPerson = personRepo.save(person);
+        return PersonMapper.INSTANCE.mapPersonToPersonDTO(updatedPerson);
     }
 }
