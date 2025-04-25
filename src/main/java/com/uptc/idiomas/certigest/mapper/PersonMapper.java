@@ -6,7 +6,7 @@ import org.mapstruct.factory.Mappers;
 import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.entity.Person;
 
-@Mapper
+@Mapper(uses = LocationMapper.class)
 public interface PersonMapper {
 
     PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);

@@ -31,18 +31,18 @@ public class CourseServiceTest {
     @Test
     void testAddCourseInDb() {
         CourseDTO dto = new CourseDTO();
-        dto.setCourse_name("Curso de Java");
-        dto.setCourse_description("Curso básico de Java");
-        dto.setLanguage("Español");
+        dto.setCourse_name("Inglés");
+        dto.setCourse_description("Curso básico de Inglés");
+        dto.setLanguage("Inglés");
         dto.setCourse_type(Course.CourseType.DEFAULT);
 
         // Convertimos el DTO a una entidad Course
         Course course = CourseMapper.INSTANCE.mapCourseDTOToCourse(dto);
         Course savedCourse = new Course();
         savedCourse.setId_course(1);
-        savedCourse.setCourse_name("Curso de Java");
-        savedCourse.setCourse_description("Curso básico de Java");
-        savedCourse.setLanguage("Español");
+        savedCourse.setCourse_name("Inglés");
+        savedCourse.setCourse_description("Curso básico de Inglés");
+        savedCourse.setLanguage("Inglés");
         savedCourse.setCourse_type(Course.CourseType.DEFAULT);
 
         // Simulamos la respuesta del repo
@@ -54,8 +54,8 @@ public class CourseServiceTest {
         // Assert: Verificamos que la respuesta sea la esperada
         assertNotNull(result);
         assertEquals(1, result.getId_course());
-        assertEquals("Curso de Java", result.getCourse_name());
-        assertEquals("Español", result.getLanguage());
+        assertEquals("Inglés", result.getCourse_name());
+        assertEquals("Inglés", result.getLanguage());
         assertEquals(Course.CourseType.DEFAULT, result.getCourse_type());
     }
 }
