@@ -13,6 +13,7 @@ import Certificados from './pages/Certificados';
 import Inscripcion from './pages/Inscripcion';
 import Reportes from './pages/Reportes';
 import Cuenta from './pages/Cuenta';
+import EditPersonalAccount from './pages/ModifyAccount';
 
 import './styles/global.css';
 
@@ -50,6 +51,7 @@ function App() {
                 <Route path="/certificados" element={<Certificados />} />
                 <Route path="/inscripcion" element={<Inscripcion />} />
                 <Route path="/reportes" element={<Reportes />} />
+                <Route path="/editar-cuenta" element={<EditPersonalAccount />} />
               </Routes>
             </main>
           </div>
