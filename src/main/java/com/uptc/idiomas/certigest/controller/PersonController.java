@@ -25,9 +25,9 @@ public class PersonController {
 
     @GetMapping("/person/personal-account")
     public ResponseEntity<PersonDTO> getAccountInfo(@AuthenticationPrincipal Jwt jwt){
-        String email = jwt.getClaim("email");
-        PersonDTO personInfo = personService.getAccountInfoByEmail(email);
-        return new ResponseEntity<>(personInfo, HttpStatus.FOUND);
+        String username = jwt.getClaim("preferred_username");
+        PersonDTO personInfo = personService.getAccountInfoByUsername(username);
+        return new ResponseEntity<>(personInfo, HttpStatus.OK);
     }
 
     @PostMapping("/person/modify-personal-account")
