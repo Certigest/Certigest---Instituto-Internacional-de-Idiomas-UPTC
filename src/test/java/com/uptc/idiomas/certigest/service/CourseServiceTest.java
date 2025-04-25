@@ -40,8 +40,8 @@ public class CourseServiceTest {
         Course course = CourseMapper.INSTANCE.mapCourseDTOToCourse(dto);
         Course savedCourse = new Course();
         savedCourse.setId_course(1);
-        savedCourse.setCourse_name("Curso de Java");
-        savedCourse.setCourse_description("Curso básico de Java");
+        savedCourse.setCourse_name("Curso de Python");
+        savedCourse.setCourse_description("Curso básico de Python");
         savedCourse.setLanguage("Español");
         savedCourse.setCourse_type(Course.CourseType.DEFAULT);
 
