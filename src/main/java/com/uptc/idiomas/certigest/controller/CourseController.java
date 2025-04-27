@@ -1,5 +1,7 @@
 package com.uptc.idiomas.certigest.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uptc.idiomas.certigest.dto.CourseDTO;
 import com.uptc.idiomas.certigest.service.CourseService;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 public class CourseController {
@@ -20,4 +23,11 @@ public class CourseController {
         CourseDTO courseCreated = courseService.addCourseInDb(courseDTO);
         return new ResponseEntity<>(courseCreated, HttpStatus.CREATED);
     }
+
+    @GetMapping("/course/all")
+    public ResponseEntity<List<CourseDTO>> getAllCourses() {
+        List<CourseDTO> courses = courseService.getAllCourses();
+        return new ResponseEntity<>(courses, HttpStatus.OK);
+    }
+
 }

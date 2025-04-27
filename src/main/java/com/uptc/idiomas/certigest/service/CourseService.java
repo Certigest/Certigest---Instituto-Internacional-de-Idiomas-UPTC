@@ -1,5 +1,8 @@
 package com.uptc.idiomas.certigest.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -27,4 +30,12 @@ public class CourseService extends BasicServiceImpl<Course, Integer> {
 
         return CourseMapper.INSTANCE.mapCourseToCourseDTO(courseSaved);
     }
+
+    public List<CourseDTO> getAllCourses() {
+        List<Course> courses = courseRepo.findAll();
+        return courses.stream()
+                .map(CourseMapper.INSTANCE::mapCourseToCourseDTO)
+                .collect(Collectors.toList());
+    }
+
 }
