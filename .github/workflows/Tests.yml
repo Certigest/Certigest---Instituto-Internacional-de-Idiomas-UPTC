@@ -1,4 +1,4 @@
-name: Run Spring Boot Tests
+name: Run Spring Boot Unit Tests
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  Course-Tests:
     runs-on: ubuntu-latest
 
     steps:
