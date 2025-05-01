@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  springboot-app:
+    build: .
+    container_name: springboot-app
+    restart: always
+    ports:
+      - "8443:8443"
+    volumes:
+      - /opt/certificates:/opt/certificates
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
