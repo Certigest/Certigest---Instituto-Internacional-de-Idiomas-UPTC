@@ -1,0 +1,109 @@
+{
+	"info": {
+		"_postman_id": "ebe3034c-69c6-41e7-a957-f8b9c5741619",
+		"name": "CertiGest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38405041"
+	},
+	"item": [
+		{
+			"name": "KeycloakToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"access_token\", pm.response.json().access_token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "springboot-app",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "pruebas",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "13687",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://auth.certigestdev.click:8443/realms/inst_idiomas_realm/protocol/openid-connect/token",
+					"protocol": "https",
+					"host": [
+						"auth",
+						"certigestdev",
+						"click"
+					],
+					"port": "8443",
+					"path": [
+						"realms",
+						"inst_idiomas_realm",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener todos los cursos",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://app.certigestdev.click:8443/course/all",
+					"protocol": "https",
+					"host": [
+						"app",
+						"certigestdev",
+						"click"
+					],
+					"port": "8443",
+					"path": [
+						"course",
+						"all"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
