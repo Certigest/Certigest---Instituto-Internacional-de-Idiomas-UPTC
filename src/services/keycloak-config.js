@@ -1,13 +1,13 @@
-// keycloak-config.js
 import Keycloak from 'keycloak-js';
 
 let keycloakInstance;
 
 if (!keycloakInstance) {
   keycloakInstance = new Keycloak({
-    url: 'http://localhost:8081',
+    url: 'https://auth.certigestdev.click:8443/',
     realm: 'inst_idiomas_realm',
     clientId: 'react-client',
+    redirectUri: 'https://d16uzpy2u8y3eb.cloudfront.net/',
   });
 }
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8080/course';
+const BASE_URL = 'https://app.certigestdev.click:8443/course';
 
 export async function createCourse(courseData, token) {
   const response = await axios.post(`${BASE_URL}/createCourse`, courseData, {
