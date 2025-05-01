@@ -1,0 +1,41 @@
+name: Deploy to EC2
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t yourusername/springapp:latest .
+
+      - name: Push image to DockerHub
+        run: docker push yourusername/springapp:latest
+
+      - name: SSH into EC2 and deploy
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull yourusername/springapp:latest
+            docker stop springapp || true
+            docker rm springapp || true
+            docker run -d \
+              --name springapp \
+              -p 8443:8443 \
+              -e DB_URL=${{ secrets.DB_URL }} \
+              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }} \
+              -v /opt/certificates:/opt/certificates \
+              yourusername/springapp:latest
