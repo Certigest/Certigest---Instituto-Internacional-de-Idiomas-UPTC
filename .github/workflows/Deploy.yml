@@ -58,5 +58,6 @@ jobs:
               -e DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
               -e DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
               -e KEY_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }} \
+              -e KEY_STORE=${{ secrets.KEY_STORE }} \
               -v /opt/certificates:/opt/certificates \
               ${{ secrets.DOCKER_USERNAME }}/springapp:latest
