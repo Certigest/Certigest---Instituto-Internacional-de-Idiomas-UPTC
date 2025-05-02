@@ -51,13 +51,11 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/springapp:latest
             docker stop springapp || true
             docker rm springapp || true
-            docker run -d \
-              --name springapp \
-              -p 8443:8443 \
-              -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
-              -e DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
-              -e DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
-              -e KEY_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }} \
-              -e KEY_STORE=${{ secrets.KEY_STORE }} \
+            docker run -d --name springapp -p 8443:8443 \
               -v /opt/certificates:/opt/certificates \
+              -e KEY_STORE="${{ secrets.KEY_STORE }}" \
+              -e KEY_STORE_PASSWORD="${{ secrets.KEY_STORE_PASSWORD }}" \
+              -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+              -e DATABASE_USERNAME="${{ secrets.DATABASE_USERNAME }}" \
+              -e DATABASE_PASSWORD="${{ secrets.DATABASE_PASSWORD }}" \
               ${{ secrets.DOCKER_USERNAME }}/springapp:latest
