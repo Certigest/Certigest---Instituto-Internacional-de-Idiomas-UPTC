@@ -8,7 +8,7 @@ function Header() {
   const navigate = useNavigate();
 
   const goToHome = () => {
-    navigate('/');
+    navigate('/home');
   };
 
   return (

@@ -5,10 +5,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import { ReactKeycloakProvider } from '@react-keycloak/web';
+import keycloak from './services/keycloak-config';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   //<React.StrictMode>
+  <ReactKeycloakProvider authClient={keycloak} initOptions={{ onLoad: 'login-required' }}>
     <App />
+  </ReactKeycloakProvider>
   //</React.StrictMode>
 );
 
