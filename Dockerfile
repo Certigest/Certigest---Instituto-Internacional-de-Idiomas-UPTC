@@ -11,4 +11,4 @@ WORKDIR /app
 COPY --from=builder /build/target/*.jar app.jar
 
 EXPOSE 8443
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
