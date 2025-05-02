@@ -1,39 +1,7 @@
-spring:
-  profiles:
-    active: prod
----
-server:
-  port: 8443
-  ssl:
-    key-store: ${KEY_STORE}
-    key-store-password: ${KEY_STORE_PASSWORD}
-    key-store-type: JKS
-    key-alias: mycert
-
-spring:
-  config:
-    activate:
-      on-profile: prod
-
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: https://auth.certigestdev.click:8443/realms/inst_idiomas_realm
-
-  datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
----
 server:
   port: 8080
 
 spring:
-  config:
-    activate:
-      on-profile: dev
   security:
     oauth2:
       resourceserver:
