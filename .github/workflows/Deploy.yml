@@ -37,10 +37,10 @@ jobs:
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build Docker image
-        run: docker build -t yourusername/springapp:latest .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/springapp:latest .
 
       - name: Push image to DockerHub
-        run: docker push yourusername/springapp:latest
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/springapp:latest
 
       - name: SSH into EC2 and deploy
         uses: appleboy/ssh-action@v1.0.0
@@ -49,15 +49,15 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull yourusername/springapp:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/springapp:latest
             docker stop springapp || true
             docker rm springapp || true
             docker run -d \
               --name springapp \
               -p 8443:8443 \
-              -e DB_URL=${{ secrets.DB_URL }} \
-              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -e KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }} \
+              -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+              -e DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
+              -e DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
+              -e KEY_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }} \
               -v /opt/certificates:/opt/certificates \
-              yourusername/springapp:latest
+              ${{ secrets.DOCKER_USERNAME }}/springapp:latest
