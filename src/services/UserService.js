@@ -7,8 +7,9 @@ import axios from 'axios';
  * @returns {Promise<Object>} Datos del usuario.
  */
 export async function getAccountInfo(token) {
+  const API_HOST = process.env.REACT_APP_API_HOST;
 
-  const response = await axios.get('http://localhost:8080/person/personal-account', {
+  const response = await axios.get(`${API_HOST}/person/personal-account`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -24,8 +25,9 @@ export async function getAccountInfo(token) {
  * @returns {Promise<Object>} Respuesta del backend.
  */
 export async function modifyAccountInfo(token, updatedUser) {
+  const API_HOST = process.env.REACT_APP_API_HOST;
 
-  const response = await axios.post('http://localhost:8080/person/modify-personal-account', updatedUser, {
+  const response = await axios.post(`${API_HOST}/person/modify-personal-account`, updatedUser, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

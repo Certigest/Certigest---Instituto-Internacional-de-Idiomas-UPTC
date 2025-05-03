@@ -154,7 +154,6 @@ const Cursos = () => {
             </div>
           </div>
         );
-          
 
       case "ver":
         return (

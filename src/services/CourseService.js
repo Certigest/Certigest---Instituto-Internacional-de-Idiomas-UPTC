@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8080/course';
+const API_HOST = process.env.REACT_APP_API_HOST;
+
+const BASE_URL = `${API_HOST}/course`;
 
 export async function createCourse(courseData, token) {
   const response = await axios.post(`${BASE_URL}/createCourse`, courseData, {

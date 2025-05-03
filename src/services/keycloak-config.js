@@ -1,14 +1,9 @@
-// keycloak-config.js
 import Keycloak from 'keycloak-js';
 
-let keycloakInstance;
-
-if (!keycloakInstance) {
-  keycloakInstance = new Keycloak({
-    url: 'http://localhost:8081',
-    realm: 'inst_idiomas_realm',
-    clientId: 'react-client',
-  });
-}
+const keycloakInstance = new Keycloak({
+  url: process.env.REACT_APP_KEYCLOAK_URL,
+  realm: process.env.REACT_APP_KEYCLOAK_REALM,
+  clientId: process.env.REACT_APP_KEYCLOAK_CLIENT_ID,
+});
 
 export default keycloakInstance;
