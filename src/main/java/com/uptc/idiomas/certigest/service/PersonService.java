@@ -32,48 +32,46 @@ public class PersonService extends BasicServiceImpl<Person, Integer> {
     }
 
     public PersonDTO addPersonInDb(PersonDTO personDTO) {
-    Location location = LocationMapper.INSTANCE.mapLocationDTOToLocation(personDTO.getLocationId());
+        Location location = LocationMapper.INSTANCE.mapLocationDTOToLocation(personDTO.getLocationId());
 
-    if (location.getIdLocation() == null) {
-        location = locationRepo.save(location);
+        if (location.getIdLocation() == null) {
+            location = locationRepo.save(location);
+        }
+
+        Person person = PersonMapper.INSTANCE.mapPersonDTOToPerson(personDTO);
+        person.setLocation(location);
+
+        Person personSaved = personRepo.save(person);
+
+        String[] nameParts = personDTO.getFirstName().trim().split("\\s+");
+        String[] lastNameParts = personDTO.getLastName().trim().split("\\s+");
+        String baseUsername = nameParts[0].toLowerCase() + lastNameParts[0].toLowerCase();
+
+        int count = 1;
+        String finalUsername;
+        do {
+            finalUsername = baseUsername + count;
+            count++;
+        } while (loginRepo.existsByUserName(finalUsername));
+
+        Login login = new Login();
+        login.setUserName(finalUsername);
+        login.setPerson(personSaved);
+
+        loginRepo.save(login);
+
+        return PersonMapper.INSTANCE.mapPersonToPersonDTO(personSaved);
     }
 
-    Person person = PersonMapper.INSTANCE.mapPersonDTOToPerson(personDTO);
-    person.setLocation(location);
-
-    Person personSaved = personRepo.save(person);
-
-    String[] nameParts = personDTO.getFirstName().trim().split("\\s+");
-    String[] lastNameParts = personDTO.getLastName().trim().split("\\s+");
-    String baseUsername = nameParts[0].toLowerCase() + lastNameParts[0].toLowerCase();
-
-    int count = 1;
-    String finalUsername;
-    do {
-        finalUsername = baseUsername + count;
-        count++;
-    } while (loginRepo.existsByUserName(finalUsername));
-
-    Login login = new Login();
-    login.setUserName(finalUsername);
-    login.setPerson(personSaved);
-
-    loginRepo.save(login);
-
-    return PersonMapper.INSTANCE.mapPersonToPersonDTO(personSaved);
-}
-
-
-    public PersonDTO getAccountInfoByEmail(String email){
+    public PersonDTO getAccountInfoByEmail(String email) {
         Optional<Person> personOpt = personRepo.findByEmail(email);
         Person personInfo = null;
         if (personOpt.isPresent())
             personInfo = personOpt.get();
-        else 
+        else
             personInfo = new Person();
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(personInfo);
     }
-
 
     public PersonDTO getAccountInfoByUsername(String username) {
         Optional<Login> loginOpt = loginRepo.findByUserName(username);
@@ -81,8 +79,8 @@ public class PersonService extends BasicServiceImpl<Person, Integer> {
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(personInfo);
     }
 
-    public PersonDTO ModifyAccountInfo(PersonDTO personDTO, String username){
-        
+    public PersonDTO ModifyAccountInfo(PersonDTO personDTO, String username) {
+
         Optional<Login> personOpt = loginRepo.findByUserName(username);
         Person person = personOpt.map(Login::getPerson).orElseGet(Person::new);
         if (personOpt.isPresent()) {
@@ -102,7 +100,8 @@ public class PersonService extends BasicServiceImpl<Person, Integer> {
                 }
                 person.setLocation(location);
             }
-        }Person updatedPerson = personRepo.save(person);
+        }
+        Person updatedPerson = personRepo.save(person);
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(updatedPerson);
     }
 }
