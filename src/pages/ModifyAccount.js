@@ -25,7 +25,7 @@ export default function Cuenta() {
     };
 
     fetchAccountInfo();
-  }, [keycloak]);
+  }, [keycloak, setAccountInfo]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
