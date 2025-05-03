@@ -13,7 +13,7 @@ import java.util.Date;
 public class Course {
 
     public enum CourseType {
-        KIDS, DEFAULT
+        KIDS, DEFAULT, SKILLS
     }
 
     @Id
