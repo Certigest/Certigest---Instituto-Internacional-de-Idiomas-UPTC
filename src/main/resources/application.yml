@@ -17,6 +17,9 @@
 #     username: ${DATABASE_USERNAME}
 #     password: ${DATABASE_PASSWORD}
 #     driver-class-name: com.mysql.cj.jdbc.Driver
+# app:
+#   cors:
+#     allowed-origin: https://d16uzpy2u8y3eb.cloudfront.net
 # #
 # -------------------------------------------------------------------------------------------
 
@@ -35,3 +38,7 @@ spring:
     username: user
     password: 123
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+app:
+  cors:
+    allowed-origin: http://localhost:3000
