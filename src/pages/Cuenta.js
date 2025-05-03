@@ -2,17 +2,17 @@
 import React, { useEffect, useState } from 'react';
 import { useKeycloak } from '@react-keycloak/web';
 import { getAccountInfo } from '../services/UserService';
+import { useNavigate } from 'react-router-dom';
 
 export default function Cuenta() {
   const { keycloak } = useKeycloak();
   const [accountInfo, setAccountInfo] = useState(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchAccountInfo = async () => {
       if (keycloak?.authenticated) {
         try {
           const data = await getAccountInfo(keycloak.token);
-          console.log(keycloak.token)
           setAccountInfo(data);
 
         } catch (error) {
@@ -65,7 +65,7 @@ export default function Cuenta() {
       </div>
 
       <div className="text-center mt-4">
-        <button className="btn btn-warning fw-bold shadow">Modificar Datos</button>
+        <button className="btn btn-warning fw-bold shadow" onClick={() => navigate('/editar-cuenta')}>Modificar Datos</button>
       </div>
     </div>
   );

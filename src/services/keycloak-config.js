@@ -1,14 +1,9 @@
 import Keycloak from 'keycloak-js';
 
-let keycloakInstance;
-
-if (!keycloakInstance) {
-  keycloakInstance = new Keycloak({
-    url: 'https://auth.certigestdev.click:8443/',
-    realm: 'inst_idiomas_realm',
-    clientId: 'react-client',
-    redirectUri: 'https://d16uzpy2u8y3eb.cloudfront.net/',
-  });
-}
+const keycloakInstance = new Keycloak({
+  url: process.env.REACT_APP_KEYCLOAK_URL,
+  realm: process.env.REACT_APP_KEYCLOAK_REALM,
+  clientId: process.env.REACT_APP_KEYCLOAK_CLIENT_ID,
+});
 
 export default keycloakInstance;

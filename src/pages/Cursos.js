@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useKeycloak } from '@react-keycloak/web';
 import { createCourse, getAllCourses } from '../services/CourseService';
 import img_languajes from '../assets/idiomas.png';
@@ -16,20 +16,20 @@ const Cursos = () => {
   });
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  useEffect(() => {
-    if (tab === "ver" && keycloak?.authenticated) {
-      loadCourses();
-    }
-  }, [tab, keycloak]);
-
-  const loadCourses = async () => {
+  const loadCourses = useCallback(async () => {
     try {
       const data = await getAllCourses(keycloak.token);
       setCourses(data);
     } catch (err) {
       console.error("Error cargando cursos:", err);
     }
-  };
+  }, [keycloak.token]);
+
+  useEffect(() => {
+    if (tab === "ver" && keycloak?.authenticated) {
+      loadCourses();
+    }
+  }, [tab, keycloak, loadCourses]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -42,8 +42,7 @@ const Cursos = () => {
       const token = keycloak.token;
       await createCourse(courseForm, token);
       setMessage({ type: 'success', text: '✅ Curso creado exitosamente.' });
-  
-      // Limpia el formulario
+
       setCourseForm({
         course_name: '',
         course_description: '',
@@ -55,10 +54,9 @@ const Cursos = () => {
       console.error('Error al crear el curso:', error);
       setMessage({ type: 'danger', text: '❌ Ocurrió un error al crear el curso.' });
     }
-  
-    // Oculta el mensaje después de 5 segundos
+
     setTimeout(() => setMessage({ type: '', text: '' }), 5000);
-  };  
+  };
 
   const renderTab = () => {
     switch (tab) {
@@ -156,7 +154,6 @@ const Cursos = () => {
             </div>
           </div>
         );
-          
 
       case "ver":
         return (
