@@ -1,8 +1,5 @@
 package com.uptc.idiomas.certigest.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -13,29 +10,25 @@ import com.uptc.idiomas.certigest.mapper.CourseMapper;
 import com.uptc.idiomas.certigest.repo.CourseRepo;
 
 @Service
-public class CourseService extends BasicServiceImpl<Course, Integer> {
+public class CourseService extends BasicServiceImpl<CourseDTO, Course, Integer> {
 
     @Autowired
     private CourseRepo courseRepo;
+
+    private final CourseMapper mapper = CourseMapper.INSTANCE;
 
     @Override
     protected JpaRepository<Course, Integer> getRepo() {
         return courseRepo;
     }
 
-    public CourseDTO addCourseInDb(CourseDTO courseDTO) {
-        Course course = CourseMapper.INSTANCE.mapCourseDTOToCourse(courseDTO);
-
-        Course courseSaved = courseRepo.save(course);
-
-        return CourseMapper.INSTANCE.mapCourseToCourseDTO(courseSaved);
+    @Override
+    protected Course toEntity(CourseDTO dto) {
+        return mapper.mapCourseDTOToCourse(dto);
     }
 
-    public List<CourseDTO> getAllCourses() {
-        List<Course> courses = courseRepo.findAll();
-        return courses.stream()
-                .map(CourseMapper.INSTANCE::mapCourseToCourseDTO)
-                .collect(Collectors.toList());
+    @Override
+    protected CourseDTO toDTO(Course entity) {
+        return mapper.mapCourseToCourseDTO(entity);
     }
-
 }

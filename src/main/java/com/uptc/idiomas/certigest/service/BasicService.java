@@ -2,11 +2,14 @@ package com.uptc.idiomas.certigest.service;
 
 import java.util.List;
 
-public interface BasicService<T, ID> {
+public interface BasicService<DTO, ENTITY, ID> {
+    DTO create(DTO dto);
 
-    public T create(T dto);
-    public T update(T dto);
-    public T findById(ID id);
-    public List<T> findAll();
-    public void deleteById(ID id);
+    DTO update(DTO dto);
+
+    DTO findById(ID id);
+
+    List<DTO> findAll();
+
+    void deleteById(ID id);
 }
