@@ -63,36 +63,6 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
 
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(personSaved);
     }
-        Location location = LocationMapper.INSTANCE.mapLocationDTOToLocation(personDTO.getLocationId());
-        
-        if (location.getIdLocation() == null) {
-            location = locationRepo.save(location);
-        }
-    
-        Person person = PersonMapper.INSTANCE.mapPersonDTOToPerson(personDTO);
-        person.setLocation(location);
-    
-        Person personSaved = personRepo.save(person);
-    
-        String[] nameParts = personDTO.getFirstName().trim().split("\\s+");
-        String[] lastNameParts = personDTO.getLastName().trim().split("\\s+");
-        String baseUsername = nameParts[0].toLowerCase() + lastNameParts[0].toLowerCase();
-    
-        int count = 1;
-        String finalUsername;
-        do {
-            finalUsername = baseUsername + count;
-            count++;
-        } while (loginRepo.existsByUserName(finalUsername));
-    
-        Login login = new Login();
-        login.setUserName(finalUsername);
-        login.setPerson(personSaved);
-    
-        loginRepo.save(login);
-    
-        return PersonMapper.INSTANCE.mapPersonToPersonDTO(personSaved);
-    }
 
     public PersonDTO getAccountInfoByEmail(String email) {
         Optional<Person> personOpt = personRepo.findByEmail(email);
@@ -110,10 +80,6 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(personInfo);
     }
 
-    public PersonDTO ModifyAccountInfo(PersonDTO personDTO, String username){
-        
-        Person person = getPersonByUserName(username);
-        if (person != null) {
     public PersonDTO ModifyAccountInfo(PersonDTO personDTO, String username) {
 
         Optional<Login> personOpt = loginRepo.findByUserName(username);
