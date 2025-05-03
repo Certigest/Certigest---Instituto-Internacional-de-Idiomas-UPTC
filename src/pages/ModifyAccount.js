@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function Cuenta() {
   const { keycloak } = useKeycloak();
-  const [accountInfo, setAccountInfo] = useState(null);
+  const [setAccountInfo] = useState(null);
   const [editedUser, setEditedUser] = useState(null);
   const [showNotification, setShowNotification] = useState(false);
   const navigate = useNavigate();
