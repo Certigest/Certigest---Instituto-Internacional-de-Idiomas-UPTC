@@ -17,7 +17,7 @@ import com.uptc.idiomas.certigest.repo.LoginRepo;
 import com.uptc.idiomas.certigest.repo.PersonRepo;
 
 @Service
-public class PersonService extends BasicServiceImpl<Person, Integer> {
+public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> {
 
     @Autowired
     private PersonRepo personRepo;
@@ -103,5 +103,17 @@ public class PersonService extends BasicServiceImpl<Person, Integer> {
         }
         Person updatedPerson = personRepo.save(person);
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(updatedPerson);
+    }
+
+    @Override
+    protected Person toEntity(PersonDTO dto) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'toEntity'");
+    }
+
+    @Override
+    protected PersonDTO toDTO(Person entity) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'toDTO'");
     }
 }

@@ -49,7 +49,7 @@ public class CourseServiceTest {
         when(courseRepo.save(any(Course.class))).thenReturn(savedCourse);
 
         // Act: Llamamos al método del servicio
-        CourseDTO result = courseService.addCourseInDb(dto);
+        CourseDTO result = courseService.create(dto);
 
         // Assert: Verificamos que la respuesta sea la esperada
         assertNotNull(result);
