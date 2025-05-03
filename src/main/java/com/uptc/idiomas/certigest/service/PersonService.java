@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.uptc.idiomas.certigest.dto.PersonDTO;
@@ -32,36 +33,36 @@ public class PersonService extends BasicServiceImpl<Person, Integer> {
     }
 
     public PersonDTO addPersonInDb(PersonDTO personDTO) {
-    Location location = LocationMapper.INSTANCE.mapLocationDTOToLocation(personDTO.getLocationId());
-
-    if (location.getIdLocation() == null) {
-        location = locationRepo.save(location);
+        Location location = LocationMapper.INSTANCE.mapLocationDTOToLocation(personDTO.getLocationId());
+        
+        if (location.getIdLocation() == null) {
+            location = locationRepo.save(location);
+        }
+    
+        Person person = PersonMapper.INSTANCE.mapPersonDTOToPerson(personDTO);
+        person.setLocation(location);
+    
+        Person personSaved = personRepo.save(person);
+    
+        String[] nameParts = personDTO.getFirstName().trim().split("\\s+");
+        String[] lastNameParts = personDTO.getLastName().trim().split("\\s+");
+        String baseUsername = nameParts[0].toLowerCase() + lastNameParts[0].toLowerCase();
+    
+        int count = 1;
+        String finalUsername;
+        do {
+            finalUsername = baseUsername + count;
+            count++;
+        } while (loginRepo.existsByUserName(finalUsername));
+    
+        Login login = new Login();
+        login.setUserName(finalUsername);
+        login.setPerson(personSaved);
+    
+        loginRepo.save(login);
+    
+        return PersonMapper.INSTANCE.mapPersonToPersonDTO(personSaved);
     }
-
-    Person person = PersonMapper.INSTANCE.mapPersonDTOToPerson(personDTO);
-    person.setLocation(location);
-
-    Person personSaved = personRepo.save(person);
-
-    String[] nameParts = personDTO.getFirstName().trim().split("\\s+");
-    String[] lastNameParts = personDTO.getLastName().trim().split("\\s+");
-    String baseUsername = nameParts[0].toLowerCase() + lastNameParts[0].toLowerCase();
-
-    int count = 1;
-    String finalUsername;
-    do {
-        finalUsername = baseUsername + count;
-        count++;
-    } while (loginRepo.existsByUserName(finalUsername));
-
-    Login login = new Login();
-    login.setUserName(finalUsername);
-    login.setPerson(personSaved);
-
-    loginRepo.save(login);
-
-    return PersonMapper.INSTANCE.mapPersonToPersonDTO(personSaved);
-}
 
 
     public PersonDTO getAccountInfoByEmail(String email){
@@ -83,9 +84,8 @@ public class PersonService extends BasicServiceImpl<Person, Integer> {
 
     public PersonDTO ModifyAccountInfo(PersonDTO personDTO, String username){
         
-        Optional<Login> personOpt = loginRepo.findByUserName(username);
-        Person person = personOpt.map(Login::getPerson).orElseGet(Person::new);
-        if (personOpt.isPresent()) {
+        Person person = getPersonByUserName(username);
+        if (person != null) {
 
             person.setFirstName(personDTO.getFirstName());
             person.setLastName(personDTO.getLastName());
@@ -104,5 +104,11 @@ public class PersonService extends BasicServiceImpl<Person, Integer> {
             }
         }Person updatedPerson = personRepo.save(person);
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(updatedPerson);
+    }
+
+    public Person getPersonByUserName(String username) {
+        return loginRepo.findByUserName(username)
+            .map(Login::getPerson)
+            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
     }
 }
