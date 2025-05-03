@@ -23,6 +23,7 @@ public class GroupPerson {
 
     @Id
     @ManyToOne
+    @JoinColumn(name = "group_id")
     private GroupInst group_id;
 
     private Float calification;

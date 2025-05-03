@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.uptc.idiomas.certigest.dto.PersonDTO;
@@ -115,5 +116,11 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     protected PersonDTO toDTO(Person entity) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'toDTO'");
+    }
+
+    public Person getPersonByUserName(String username) {
+        return loginRepo.findByUserName(username)
+            .map(Login::getPerson)
+            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
     }
 }

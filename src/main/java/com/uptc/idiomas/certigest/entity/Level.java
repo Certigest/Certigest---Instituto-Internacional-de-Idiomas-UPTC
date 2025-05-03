@@ -15,6 +15,7 @@ public class Level {
     private Integer level_id;
 
     @ManyToOne
+    @JoinColumn(name = "id_course")
     private Course id_course;
 
     private String level_name;
