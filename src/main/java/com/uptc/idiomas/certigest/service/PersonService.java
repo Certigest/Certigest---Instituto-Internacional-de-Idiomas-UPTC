@@ -81,10 +81,10 @@ public class PersonService extends BasicServiceImpl<Person, Integer> {
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(personInfo);
     }
 
-    public PersonDTO ModifyAccountInfo(PersonDTO personDTO, String email){
+    public PersonDTO ModifyAccountInfo(PersonDTO personDTO, String username){
         
-        Optional<Person> personOpt = personRepo.findByEmail(email);
-        Person person = personOpt.get();
+        Optional<Login> personOpt = loginRepo.findByUserName(username);
+        Person person = personOpt.map(Login::getPerson).orElseGet(Person::new);
         if (personOpt.isPresent()) {
 
             person.setFirstName(personDTO.getFirstName());
