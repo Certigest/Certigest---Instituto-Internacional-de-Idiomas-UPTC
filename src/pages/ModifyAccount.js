@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useKeycloak } from '@react-keycloak/web';
-import { getAccountInfo } from '../services/UserService';
-import { modifyAccountInfo } from '../services/UserService';
+import { getAccountInfo, modifyAccountInfo } from '../services/UserService';
 import { useNavigate } from 'react-router-dom';
 
 export default function Cuenta() {
   const { keycloak } = useKeycloak();
-  const [setAccountInfo] = useState(null);
   const [editedUser, setEditedUser] = useState(null);
   const [showNotification, setShowNotification] = useState(false);
   const navigate = useNavigate();
@@ -16,7 +14,6 @@ export default function Cuenta() {
       if (keycloak?.authenticated) {
         try {
           const data = await getAccountInfo(keycloak.token);
-          setAccountInfo(data);
           setEditedUser(data);
         } catch (error) {
           console.error('Error al obtener la información de cuenta:', error);
@@ -25,7 +22,7 @@ export default function Cuenta() {
     };
 
     fetchAccountInfo();
-  }, [keycloak, setAccountInfo]);
+  }, [keycloak]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,11 +35,10 @@ export default function Cuenta() {
 
   const handleSave = async () => {
     try {
-      const updatedInfo = await modifyAccountInfo(keycloak.token, editedUser);
-      setAccountInfo(updatedInfo);
+      await modifyAccountInfo(keycloak.token, editedUser);
       setShowNotification(true);
       setTimeout(() => {
-        navigate('/cuenta'); // Redirige después de un tiempo
+        navigate('/cuenta');
       }, 2000);
     } catch (err) {
       console.error('Error actualizando usuario:', err);
@@ -100,7 +96,7 @@ export default function Cuenta() {
           </div>
         </div>
       </div>
-      
+
       <div className="text-center mt-4">
         <button className="btn btn-secondary me-2" onClick={handleCancel}>Cancelar</button>
         <button className="btn btn-warning fw-bold shadow" onClick={handleSave}>Guardar Cambios</button>
