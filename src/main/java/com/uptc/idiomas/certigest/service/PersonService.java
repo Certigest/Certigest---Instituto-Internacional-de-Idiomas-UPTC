@@ -1,6 +1,8 @@
 package com.uptc.idiomas.certigest.service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,17 +13,22 @@ import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.entity.Location;
 import com.uptc.idiomas.certigest.entity.Login;
 import com.uptc.idiomas.certigest.entity.Person;
+import com.uptc.idiomas.certigest.entity.PersonRole;
+import com.uptc.idiomas.certigest.entity.Role.RoleName;
 import com.uptc.idiomas.certigest.mapper.LocationMapper;
 import com.uptc.idiomas.certigest.mapper.PersonMapper;
 import com.uptc.idiomas.certigest.repo.LocationRepo;
 import com.uptc.idiomas.certigest.repo.LoginRepo;
 import com.uptc.idiomas.certigest.repo.PersonRepo;
+import com.uptc.idiomas.certigest.repo.PersonRoleRepo;
 
 @Service
 public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> {
 
     @Autowired
     private PersonRepo personRepo;
+    @Autowired
+    private PersonRoleRepo personRoleRepo;
     @Autowired
     private LocationRepo locationRepo;
     @Autowired
@@ -33,7 +40,7 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     }
 
     public PersonDTO addPersonInDb(PersonDTO personDTO) {
-        Location location = LocationMapper.INSTANCE.mapLocationDTOToLocation(personDTO.getLocationId());
+        Location location = LocationMapper.INSTANCE.mapLocationDTOToLocation(personDTO.getLocation());
 
         if (location.getIdLocation() == null) {
             location = locationRepo.save(location);
@@ -94,8 +101,8 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
             person.setPhone(personDTO.getPhone());
             person.setBirthDate(personDTO.getBirthDate());
 
-            if (personDTO.getLocationId() != null) {
-                Location location = LocationMapper.INSTANCE.mapLocationDTOToLocation(personDTO.getLocationId());
+            if (personDTO.getLocation() != null) {
+                Location location = LocationMapper.INSTANCE.mapLocationDTOToLocation(personDTO.getLocation());
                 if (location.getIdLocation() == null) {
                     location = locationRepo.save(location);
                 }
@@ -104,6 +111,25 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
         }
         Person updatedPerson = personRepo.save(person);
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(updatedPerson);
+    }
+
+    public List<PersonDTO> getPersonsByRole(RoleName roleName) {
+        List<PersonRole> personRoles = personRoleRepo.findByRoleName(roleName);
+        return personRoles.stream()
+                .map(pr -> PersonMapper.INSTANCE.mapPersonToPersonDTO(pr.getPerson()))
+                .collect(Collectors.toList());
+    }
+
+    public List<PersonDTO> getStudents() {
+        return getPersonsByRole(RoleName.STUDENT);
+    }
+
+    public List<PersonDTO> getAdmins() {
+        return getPersonsByRole(RoleName.ADMIN);
+    }
+
+    public List<PersonDTO> getTeachers() {
+        return getPersonsByRole(RoleName.TEACHER);
     }
 
     @Override
@@ -120,12 +146,12 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
 
     public Person getPersonByUserName(String username) {
         return loginRepo.findByUserName(username)
-            .map(Login::getPerson)
-            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+                .map(Login::getPerson)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
     }
 
     public Person getPersonByDocument(String document) {
         return personRepo.findByDocument(document)
-            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + document));
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + document));
     }
 }

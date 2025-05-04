@@ -12,8 +12,9 @@ import java.util.Date;
 @NoArgsConstructor
 public class Person {
 
-    public enum DocumentType { CC, TI }
-    public enum Role { STUDENT, TEACHER, ADMIN }
+    public enum DocumentType {
+        CC, TI
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +35,4 @@ public class Person {
     private String phone;
     private Boolean status;
     private Date birthDate;
-
-    @Enumerated(EnumType.STRING)
-    private Role role;
 }

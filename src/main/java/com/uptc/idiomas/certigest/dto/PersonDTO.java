@@ -9,7 +9,7 @@ import java.util.Date;
 public class PersonDTO {
 
     private Integer personId;
-    private LocationDTO locationId;
+    private LocationDTO location;
 
     private String firstName;
     private String lastName;
@@ -20,6 +20,4 @@ public class PersonDTO {
     private String phone;
     private Boolean status;
     private Date birthDate;
-
-    private String role;
 }
