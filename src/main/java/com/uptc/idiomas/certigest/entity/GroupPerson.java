@@ -19,6 +19,7 @@ public class GroupPerson {
 
     @Id
     @ManyToOne
+    @JoinColumn(name = "person_id")
     private Person person_id;
 
     @Id

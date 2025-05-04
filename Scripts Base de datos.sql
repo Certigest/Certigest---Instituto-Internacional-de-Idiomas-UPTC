@@ -112,3 +112,5 @@ ALTER TABLE Location
     ADD CONSTRAINT fk_location_parent FOREIGN KEY (id_location_f) REFERENCES Location(id_location);
 ALTER TABLE Login
 	ADD CONSTRAINT fk_login_person FOREIGN KEY (id_person) REFERENCES Person(person_id)
+ALTER TABLE Group_Person
+MODIFY COLUMN LEVEL_MODALITY ENUM('In_person', 'virtual');
