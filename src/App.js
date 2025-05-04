@@ -23,8 +23,10 @@ import Reportes from './pages/Reportes';
 import Cuenta from './pages/Cuenta';
 import EditPersonalAccount from './pages/ModifyAccount';
 import Roles from './pages/Roles';
+import RateGroup from './pages/EstudiantesListado';
 
 import './styles/global.css';
+import GroupList from './pages/Grupos';
 
 function LayoutWithRoles() {
   const [selectedRole, setSelectedRole] = useState(localStorage.getItem('selectedRole'));
@@ -100,7 +102,8 @@ function LayoutWithRoles() {
               <>
                 <Route path="/cuenta" element={<Cuenta />} />
                 <Route path="/editar-cuenta" element={<EditPersonalAccount />} />
-                <Route path="/cursos" element={<Cursos />} />
+                <Route path="/grupos-profesor" element={<GroupList />} />
+                <Route path="/calificar/:id" element={<RateGroup />} />
               </>
             )}
 
