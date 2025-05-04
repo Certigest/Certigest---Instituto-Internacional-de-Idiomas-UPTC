@@ -88,7 +88,6 @@ export default function RateGroup() {
                         onChange={(e) => {
                           const value = e.target.value;
                         
-                          // Solo permitir números válidos con decimales
                           const regex = /^(?:[0-4](?:\.\d{0,2})?|5(?:\.0{0,2})?)?$/;
                         
                           if (value === '' || regex.test(value)) {
@@ -98,9 +97,9 @@ export default function RateGroup() {
                         onBlur={(e) => {
                           const value = parseFloat(e.target.value);
                           if (isNaN(value) || value < 0 || value > 5) {
-                            handleInputChange(index, ''); // borrar si es inválido
+                            handleInputChange(index, ''); 
                           } else {
-                            handleInputChange(index, value.toFixed(1)); // redondear a 1 decimal
+                            handleInputChange(index, value.toFixed(1));
                           }
                         }}
                         inputMode="decimal"

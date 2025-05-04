@@ -79,7 +79,7 @@ export default function Cuenta() {
             </div>
             <div className="col-md-6 mb-3">
               <label className="form-label">Documento</label>
-              <input type="text" className="form-control" name="document" value={editedUser.document || ''} onChange={handleChange} />
+              <input type="text" className="form-control" name="document" value={editedUser.document || ''} disabled onChange={handleChange} />
             </div>
             <div className="col-md-6 mb-3">
               <label className="form-label">Correo</label>
