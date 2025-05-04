@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import com.uptc.idiomas.certigest.dto.GroupInstDTO;
 import com.uptc.idiomas.certigest.service.GroupService;
+import com.uptc.idiomas.certigest.dto.PersonDTO;
+import com.uptc.idiomas.certigest.dto.PersonDTONote;
+
 
 @RestController
 @RequestMapping("/group")
@@ -52,5 +55,16 @@ public class GroupController {
     public ResponseEntity<Void> deleteGroup(@PathVariable Integer id) {
         groupService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/studentsGroup/{groupId}")
+    public ResponseEntity<List<PersonDTO>> getStudentsGroup(@PathVariable Integer groupId) {
+        return new ResponseEntity<>(groupService.getPersonsByGroupIdAndActiveDate(groupId), HttpStatus.OK);
+    }
+
+    @PostMapping("/qualifyGroup/{groupId}")
+    public ResponseEntity<String> calificateGroup(@PathVariable Integer groupId, @RequestBody List<PersonDTONote> students) {
+        groupService.qualifyGroup(students, groupId);
+        return new ResponseEntity<>("Calification successful", HttpStatus.OK);
     }
 }

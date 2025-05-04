@@ -123,4 +123,9 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
             .map(Login::getPerson)
             .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
     }
+
+    public Person getPersonByDocument(String document) {
+        return personRepo.findByDocument(document)
+            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + document));
+    }
 }
