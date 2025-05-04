@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useKeycloak } from '@react-keycloak/web';
-import { createCourse, getAllCourses } from '../services/CourseService';
-import img_languajes from '../assets/idiomas.png';
+import { createCourse, getAllCourses, createLevel, createGroup } from '../services/CourseService';
 
 const Cursos = () => {
   const { keycloak } = useKeycloak();
@@ -16,6 +15,58 @@ const Cursos = () => {
   });
   const [message, setMessage] = useState({ type: '', text: '' });
 
+  const [levels, setLevels] = useState([]);
+
+  const handleAddLevel = () => {
+    setLevels([
+      ...levels,
+      {
+        level_name: "",
+        level_description: "",
+        groups: [{ group_name: "", schedule: "" }],
+      },
+    ]);
+  };
+  
+  const handleRemoveLevel = (indexToRemove) => {
+    setLevels(levels.filter((_, index) => index !== indexToRemove));
+  };
+  
+  const handleLevelChange = (e, levelIndex) => {
+    const { name, value } = e.target;
+    const updated = [...levels];
+    updated[levelIndex][name] = value;
+    setLevels(updated);
+  };
+  
+  const handleGroupChange = (e, levelIndex, groupIndex) => {
+    const { name, value } = e.target;
+    const updated = [...levels];
+    updated[levelIndex].groups[groupIndex][name] = value;
+    setLevels(updated);
+  };
+  
+  const handleAddGroup = (levelIndex) => {
+    const updated = [...levels];
+    updated[levelIndex].groups.push({ group_name: "", schedule: "" });
+    setLevels(updated);
+  };
+
+  const handleRemoveGroup = (levelIndex, groupIndex) => {
+    setLevels((prevLevels) => {
+      const updatedLevels = [...prevLevels];
+      const groups = [...updatedLevels[levelIndex].groups];
+  
+      if (groups.length > 1) {
+        groups.splice(groupIndex, 1);
+        updatedLevels[levelIndex].groups = groups;
+      }
+  
+      return updatedLevels;
+    });
+  };
+  
+
   const loadCourses = useCallback(async () => {
     try {
       const data = await getAllCourses(keycloak.token);
@@ -25,12 +76,6 @@ const Cursos = () => {
     }
   }, [keycloak.token]);
 
-  useEffect(() => {
-    if (tab === "ver" && keycloak?.authenticated) {
-      loadCourses();
-    }
-  }, [tab, keycloak, loadCourses]);
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setCourseForm(prev => ({ ...prev, [name]: value }));
@@ -38,71 +83,105 @@ const Cursos = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
-      const token = keycloak.token;
-      await createCourse(courseForm, token);
-      setMessage({ type: 'success', text: '✅ Curso creado exitosamente.' });
-
-      setCourseForm({
-        course_name: '',
-        course_description: '',
-        course_type: 'DEFAULT',
-        language: '',
-        creation_date: '',
-      });
+      // 1. Crear el curso
+      const createdCourse = await createCourse(courseForm, keycloak.token);
+  
+      // 2. Crear niveles con courseId
+      for (const level of levels) {
+        const createdLevel = await createLevel({
+          id_course: createdCourse,
+          level_name: level.level_name,
+          level_description: level.level_description
+        }, keycloak.token);
+  
+  
+        // 3. Crear grupos con levelId
+        for (const group of level.groups) {
+          await createGroup({
+            group_name: group.group_name,
+            schedule: group.schedule,
+            level_id: createdLevel
+          }, keycloak.token);
+        }
+      }
+  
+      // Éxito
+      setMessage({ type: "success", text: "Curso, niveles y grupos creados correctamente." });
+  
+      // Opcional: limpiar formulario
+      resetForm();
+  
     } catch (error) {
-      console.error('Error al crear el curso:', error);
-      setMessage({ type: 'danger', text: '❌ Ocurrió un error al crear el curso.' });
+      console.error("Error al crear curso:", error);
+      setMessage({ type: "danger", text: "Error al crear el curso. Intenta nuevamente." });
     }
-
-    setTimeout(() => setMessage({ type: '', text: '' }), 5000);
   };
+
+  const resetForm = () => {
+    setCourseForm({
+      course_name: "",
+      course_description: "",
+      course_type: "DEFAULT",
+      language: "",
+      creation_date: "",
+    });
+  
+    setLevels([]);
+  };  
+
+  useEffect(() => {
+    if (tab === "ver" && keycloak?.authenticated) {
+      loadCourses();
+    }
+  }, [tab, keycloak, loadCourses]);
 
   const renderTab = () => {
     switch (tab) {
-      case "crear": 
+      case "crear":
         return (
-          <div className="row">
-            <div className="col-12 col-lg-6">
-              <form className="bg-white text-dark p-4 rounded border border-2" onSubmit={handleSubmit}>
-                <h3 className="text-warning mb-4">Crear Curso</h3>
-        
-                {/* Mensaje */}
-                {message.text && (
-                  <div className={`alert alert-${message.type} mt-2`} role="alert">
-                    {message.text}
-                  </div>
-                )}
-        
+          <div className="container bg-light text-dark p-4 rounded border border-secondary border-2 mt-3">
+            <h3 className="text-dark mb-4">Crear Curso</h3>
+      
+            {message.text && (
+              <div className={`alert alert-${message.type} mt-2`} role="alert">
+                {message.text}
+              </div>
+            )}
+      
+            <div className="row">
+              {/* FORMULARIO PRINCIPAL */}
+              <div className="col-md-6">
                 <div className="mb-3">
                   <label className="form-label">Nombre del Curso</label>
                   <input
                     type="text"
                     name="course_name"
-                    className="form-control border-warning"
+                    className="form-control border-secondary"
                     value={courseForm.course_name}
                     onChange={handleInputChange}
                     required
                   />
                 </div>
-        
+      
                 <div className="mb-3">
                   <label className="form-label">Descripción del Curso</label>
                   <textarea
                     name="course_description"
-                    className="form-control border-warning"
+                    className="form-control border-secondary"
                     rows="3"
                     value={courseForm.course_description}
                     onChange={handleInputChange}
                     required
                   ></textarea>
                 </div>
-        
+      
                 <div className="mb-3">
                   <label className="form-label">Tipo de Curso</label>
                   <select
                     name="course_type"
-                    className="form-select border-warning"
+                    className="form-select border-secondary"
                     value={courseForm.course_type}
                     onChange={handleInputChange}
                     required
@@ -110,92 +189,202 @@ const Cursos = () => {
                     <option value="DEFAULT">Normal</option>
                     <option value="KIDS">Niños</option>
                   </select>
-                  <div className="form-text text-muted">
-                    Selecciona el tipo de curso que deseas crear.
-                  </div>
                 </div>
-        
+      
                 <div className="mb-3">
                   <label className="form-label">Idioma</label>
                   <input
                     type="text"
                     name="language"
-                    className="form-control border-warning"
+                    className="form-control border-secondary"
                     value={courseForm.language}
                     onChange={handleInputChange}
                     required
                   />
                 </div>
-        
+      
                 <div className="mb-3">
                   <label className="form-label">Fecha de Creación</label>
                   <input
                     type="date"
                     name="creation_date"
-                    className="form-control border-warning"
+                    className="form-control border-secondary"
                     value={courseForm.creation_date}
                     onChange={handleInputChange}
                     required
                   />
                 </div>
-        
-                <button type="submit" className="btn btn-warning fw-bold mt-3 shadow">
-                  Crear Curso
-                </button>
-              </form>
+              </div>
+              
+              {/* SECCIÓN NIVELES */}
+              <div className="col-md-6">
+                <div
+                  className="p-3 border border-warning border-3 rounded bg-warning"
+                  style={{ maxHeight: "500px", overflowY: "auto" }}
+                >
+                  {levels.map((level, levelIndex) => (
+                    <div key={levelIndex} className="mb-4 p-3 border border-warning rounded bg-light">
+                      {/* Encabezado Nivel */}
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <h5 className="text-warning mb-0">Nivel #{levelIndex + 1}</h5>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => handleRemoveLevel(levelIndex)}
+                        >
+                          Eliminar Nivel
+                        </button>
+                      </div>
+
+                      {/* Campos del Nivel */}
+                      <div className="mb-2">
+                        <label className="form-label">Nombre del Nivel</label>
+                        <input
+                          type="text"
+                          name="level_name"
+                          className="form-control"
+                          value={level.level_name}
+                          onChange={(e) => handleLevelChange(e, levelIndex)}
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Descripción del Nivel</label>
+                        <textarea
+                          name="level_description"
+                          className="form-control"
+                          rows="2"
+                          value={level.level_description}
+                          onChange={(e) => handleLevelChange(e, levelIndex)}
+                        ></textarea>
+                      </div>
+
+                      {/* Grupos */}
+                      <div className="bg-white border rounded p-2 mb-3">
+                        <h6 className="text-secondary">Grupos</h6>
+                        {level.groups.map((group, groupIndex) => (
+                          <div
+                            key={groupIndex}
+                            className="mb-3 p-3 bg-body border-start border-secondary border-3 rounded position-relative"
+                          >
+                            <div className="d-flex justify-content-between align-items-center mb-2">
+                              <h6 className="text-secondary mb-0">Grupo #{groupIndex + 1}</h6>
+                              {level.groups.length > 1 && (
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-outline-danger"
+                                  onClick={() => handleRemoveGroup(levelIndex, groupIndex)}
+                                >
+                                  Eliminar Grupo
+                                </button>
+                              )}
+                            </div>
+
+                            <div className="mb-2">
+                              <label className="form-label">Nombre del Grupo</label>
+                              <input
+                                type="text"
+                                name="group_name"
+                                className="form-control"
+                                value={group.group_name}
+                                onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)}
+                                required
+                              />
+                            </div>
+
+                            <div className="mb-2">
+                              <label className="form-label">Horario</label>
+                              <input
+                                type="text"
+                                name="schedule"
+                                className="form-control"
+                                value={group.schedule}
+                                onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)}
+                                required
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Botón agregar grupo */}
+                      <div className="text-center">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-secondary"
+                          onClick={() => handleAddGroup(levelIndex)}
+                        >
+                          Agregar Grupo
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Botón agregar nivel */}
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      className="btn btn-outline-dark mt-2"
+                      onClick={handleAddLevel}
+                    >
+                      Agregar Nivel
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+
             </div>
-            <div className="col-lg-6 d-none d-lg-flex justify-content-center align-items-center">
-              <img 
-                src={img_languajes}
-                alt="Curso" 
-                className="img-fluid rounded"
-                style={{ maxHeight: '500px', width: '100%', objectFit: 'cover' }}
-              />
+      
+            {/* BOTÓN DE ENVÍO GLOBAL */}
+            <div className="text-end mt-4">
+              <button type="submit" className="btn btn-warning fw-bold shadow" onClick={handleSubmit}>
+                Crear Curso
+              </button>
             </div>
           </div>
         );
-
+      
       case "ver":
         return (
-          <table className="table-auto w-full border">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border px-4 py-2">Nombre</th>
-                <th className="border px-4 py-2">Descripción</th>
-                <th className="border px-4 py-2">Tipo</th>
-                <th className="border px-4 py-2">Idioma</th>
-                <th className="border px-4 py-2">Fecha</th>
-              </tr>
-            </thead>
-            <tbody>
-              {courses.map((course, idx) => (
-                <tr key={idx} className="text-center">
-                  <td className="border px-4 py-2">{course.course_name}</td>
-                  <td className="border px-4 py-2">{course.course_description}</td>
-                  <td className="border px-4 py-2">{course.course_type}</td>
-                  <td className="border px-4 py-2">{course.language}</td>
-                  <td className="border px-4 py-2">{new Date(course.creation_date).toLocaleDateString()}</td>
+          <div className="table-responsive">
+            <table className="table table-bordered table-hover">
+              <thead className="table-light">
+                <tr>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Descripción</th>
+                  <th scope="col">Tipo</th>
+                  <th scope="col">Idioma</th>
+                  <th scope="col">Fecha</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {courses.map((course, idx) => (
+                  <tr key={idx}>
+                    <td>{course.course_name}</td>
+                    <td>{course.course_description}</td>
+                    <td>{course.course_type}</td>
+                    <td>{course.language}</td>
+                    <td>{new Date(course.creation_date).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         );
+        
 
-      case "modificar":
-        return <div>Formulario para modificar cursos</div>;
-
-      default:
+        default:
         return null;
     }
   };
 
   return (
-    <div className="p-4">
+    <div>
       <div className="flex space-x-4 mb-4">
-        {["crear", "modificar", "ver"].map(tabName => (
+        {["ver", "crear"].map(tabName => (
           <button
             key={tabName}
-            className={`px-4 py-2 border rounded ${tab === tabName ? 'bg-yellow-300' : ''}`}
+            className={`px-4 py-2 border ${tab === tabName ? 'bg-yellow-300' : ''}`}
             onClick={() => setTab(tabName)}
           >
             {tabName.charAt(0).toUpperCase() + tabName.slice(1)} Cursos
