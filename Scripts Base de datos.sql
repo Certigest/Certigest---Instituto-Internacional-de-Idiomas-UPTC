@@ -24,9 +24,22 @@ CREATE TABLE Person (
     email VARCHAR(100),
     phone VARCHAR(20),
     status BOOLEAN,
-    birth_date DATE,
-    ROLE ENUM('STUDENT', 'TEACHER', 'ADMIN')
+    birth_date DATE
 );
+
+CREATE TABLE Role (
+    role_id INT AUTO_INCREMENT PRIMARY KEY,
+    name ENUM('STUDENT', 'TEACHER', 'ADMIN') UNIQUE
+);
+
+CREATE TABLE Person_Role (
+    person_id INT,
+    role_id INT,
+    PRIMARY KEY (person_id, role_id),
+    FOREIGN KEY (person_id) REFERENCES Person(person_id),
+    FOREIGN KEY (role_id) REFERENCES Role(role_id)
+);
+
 
 CREATE TABLE course (
     id_course INT AUTO_INCREMENT PRIMARY KEY,
