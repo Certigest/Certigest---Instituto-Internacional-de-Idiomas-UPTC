@@ -28,6 +28,35 @@ public class GroupController {
         return new ResponseEntity<>(groupService.getGroupsByTeacher(username), HttpStatus.OK);
     }
 
+    @PostMapping("/createGroup")
+    public ResponseEntity<GroupInstDTO> createGroup(@RequestBody GroupInstDTO groupDTO) {
+        GroupInstDTO created = groupService.create(groupDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<GroupInstDTO> getGroupById(@PathVariable Integer id) {
+        GroupInstDTO group = groupService.findById(id);
+        return group != null ? ResponseEntity.ok(group) : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<GroupInstDTO>> getAllGroups() {
+        return ResponseEntity.ok(groupService.findAll());
+    }
+
+    @PutMapping
+    public ResponseEntity<GroupInstDTO> updateGroup(@RequestBody GroupInstDTO groupDTO) {
+        GroupInstDTO updated = groupService.update(groupDTO);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteGroup(@PathVariable Integer id) {
+        groupService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/studentsGroup/{groupId}")
     public ResponseEntity<List<PersonDTO>> getStudentsGroup(@PathVariable Integer groupId) {
         return new ResponseEntity<>(groupService.getPersonsByGroupIdAndActiveDate(groupId), HttpStatus.OK);
