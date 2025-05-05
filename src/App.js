@@ -24,6 +24,7 @@ import Cuenta from './pages/Cuenta';
 import EditPersonalAccount from './pages/ModifyAccount';
 import Roles from './pages/Roles';
 import RateGroup from './pages/EstudiantesListado';
+import EditPassword from './pages/Contraseña';
 
 import './styles/global.css';
 import GroupList from './pages/Grupos';
@@ -90,6 +91,7 @@ function LayoutWithRoles() {
               <>
                 <Route path="/cuenta" element={<Cuenta />} />
                 <Route path="/editar-cuenta" element={<EditPersonalAccount />} />
+                <Route path="/editar-contraseña" element={<EditPassword />} />
                 <Route path="/usuarios" element={<Usuarios />} />
                 <Route path="/reportes" element={<Reportes />} />
                 <Route path="/cursos" element={<Cursos />} />
@@ -102,6 +104,7 @@ function LayoutWithRoles() {
               <>
                 <Route path="/cuenta" element={<Cuenta />} />
                 <Route path="/editar-cuenta" element={<EditPersonalAccount />} />
+                <Route path="/editar-contraseña" element={<EditPassword />} />
                 <Route path="/grupos-profesor" element={<GroupList />} />
                 <Route path="/calificar/:id" element={<RateGroup />} />
               </>
@@ -110,6 +113,7 @@ function LayoutWithRoles() {
             {selectedRole === 'student' && (
               <>
                 <Route path="/cuenta" element={<Cuenta />} />
+                <Route path="/editar-contraseña" element={<EditPassword />} />
                 <Route path="/editar-cuenta" element={<EditPersonalAccount />} />
               </>
             )}
