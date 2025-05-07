@@ -25,16 +25,18 @@ export async function getAccountInfo() {
  */
 export async function modifyAccountInfo(updatedUser) {
   const API_HOST = process.env.REACT_APP_API_HOST;
-  const token = keycloak.token;
+  const token = keycloak.token; // obtiene el token desde el closure
 
   const response = await axios.post(`${API_HOST}/person/modify-personal-account`, updatedUser, {
     headers: {
       Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
     },
   });
 
   return response.data;
 }
+
 
 export const modifyPassword = async (token, newPassword) => {
   const API_HOST = process.env.REACT_APP_API_HOST;
