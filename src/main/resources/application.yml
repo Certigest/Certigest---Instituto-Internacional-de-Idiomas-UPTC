@@ -22,7 +22,8 @@ app:
     allowed-origin: https://d16uzpy2u8y3eb.cloudfront.net
 
 keycloak:
-  auth-url: https://auth.certigestdev.click:8443/realms/inst_idiomas_realm
+  auth-url: https://auth.certigestdev.click:8443
+  realm: inst_idiomas_realm
 #
 # -------------------------------------------------------------------------------------------
 
