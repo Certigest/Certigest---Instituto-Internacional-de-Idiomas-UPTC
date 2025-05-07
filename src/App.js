@@ -129,7 +129,7 @@ function LayoutWithRoles() {
               </>
             )}
 
-            <Route path="*" element={<Navigate to="/home" replace />} />
+            <Route path="*" element={<Home />} />
           </Routes>
         </main>
       </div>
