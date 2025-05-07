@@ -1,5 +1,5 @@
 import axios from 'axios';
-import keycloak from './keycloak-config'; // Asegúrate de que Keycloak está correctamente configurado
+import keycloak from './keycloak-config'; 
 
 /**
  * Obtiene la información de cuenta personal.

@@ -135,10 +135,10 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
         phone: formData.celular,
         status: formData.status,
         birthDate: formData.birthDate || null,
-        roles: rolesSeleccionados.map(role => ({ name: role.toUpperCase() })),
         locationId: formData.location.ciudad
           ? { idLocation: parseInt(formData.location.ciudad) }
-          : null
+          : null,
+        roles: rolesSeleccionados.map(role => ({ name: role.toUpperCase() })),
       };
 
       // Realizar la solicitud POST con el token de autenticación
