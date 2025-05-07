@@ -105,7 +105,7 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
   };
 
   const manejarCambio = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, checked } = e.target;
     if (["departamento", "ciudad"].includes(name)) {
       setFormData(prev => ({
         ...prev,
