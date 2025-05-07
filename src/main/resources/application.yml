@@ -19,7 +19,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 app:
   cors:
-    allowed-origin: https://d16uzpy2u8y3eb.cloudfront.net
+    allowed-origin: https://d20bv1kx6aff3m.cloudfront.net
 
 keycloak:
   auth-url: https://auth.certigestdev.click:8443
