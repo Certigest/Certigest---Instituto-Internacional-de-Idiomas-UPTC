@@ -127,3 +127,7 @@ ALTER TABLE Login
 	ADD CONSTRAINT fk_login_person FOREIGN KEY (id_person) REFERENCES Person(person_id);
 ALTER TABLE Group_Person
 MODIFY COLUMN LEVEL_MODALITY ENUM('In_person', 'virtual');
+INSERT INTO Role (name) VALUES
+('STUDENT'),
+('TEACHER'),
+('ADMIN');
