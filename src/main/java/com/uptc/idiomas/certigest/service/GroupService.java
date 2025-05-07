@@ -1,6 +1,7 @@
 package com.uptc.idiomas.certigest.service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,6 +33,8 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
     @Autowired
     private PersonService personService;
     @Autowired
+    private GroupPersonService groupPersonService;
+    @Autowired
     private GroupInstRepo groupRepo;
     @Autowired
     private GroupPersonRepo groupPersonRepo;
@@ -54,6 +57,29 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
         return mapper.mapGroupInstToGroupInstDTO(entity);
     }
 
+    @Override
+    public void deleteById(Integer id) {
+        GroupInst group = groupRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Grupo no encontrado"));
+
+        if (group.getEnd_date() != null) {
+            LocalDate endDate = group.getEnd_date().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+            LocalDate today = LocalDate.now();
+
+            if (endDate.isAfter(today)) {
+                group.setState(false);
+                groupRepo.save(group);
+            } else {
+                groupPersonService.deleteAllByGroupId(id);
+                groupRepo.deleteById(id);
+            }
+        } else {
+            group.setState(false);
+            groupRepo.save(group);
+        }
+    }
+
     public List<GroupInstDTO> findByLevelId(Integer levelId) {
         return groupRepo.findByLevelId(levelId)
                 .stream()
@@ -73,6 +99,13 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
             }
         }
         return groupTeacherList;
+    }
+
+    public List<GroupInstDTO> getGroupsByStudentId(Integer studentId) {
+        List<GroupInst> groups = groupPersonRepo.findGroupsByStudentId(studentId);
+        return groups.stream()
+                .map(group -> GroupInstMapper.INSTANCE.mapGroupInstToGroupInstDTO(group))
+                .collect(Collectors.toList());
     }
 
     public List<PersonDTO> getPersonsByGroupIdAndActiveDate(Integer groupId) {

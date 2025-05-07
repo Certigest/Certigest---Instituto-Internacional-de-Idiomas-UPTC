@@ -28,4 +28,5 @@ public class Course {
 
     private String language;
     private Date creation_date;
+    private Boolean state;
 }

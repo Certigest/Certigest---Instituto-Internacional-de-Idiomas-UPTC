@@ -12,4 +12,5 @@ public class LevelDTO {
     private CourseDTO id_course;
     private String level_name;
     private String level_description;
+    private Boolean state;
 }

@@ -31,4 +31,5 @@ public class GroupInst {
 
     private String group_name;
     private String schedule;
+    private Boolean state;
 }

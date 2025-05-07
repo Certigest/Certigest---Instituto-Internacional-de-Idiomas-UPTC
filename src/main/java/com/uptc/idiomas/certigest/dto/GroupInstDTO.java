@@ -18,4 +18,5 @@ public class GroupInstDTO {
     private Date start_date;
     private Date end_date;
     private String schedule;
+    private Boolean state;
 }

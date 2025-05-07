@@ -9,21 +9,23 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@IdClass(GroupPersonId.class)
 @Table(name = "Group_Person")
 public class GroupPerson {
+
+    @EmbeddedId
+    private GroupPersonId id;
 
     public enum LevelModality {
         In_person, virtual
     }
 
-    @Id
     @ManyToOne
+    @MapsId("personId")
     @JoinColumn(name = "person_id")
     private Person person_id;
 
-    @Id
     @ManyToOne
+    @MapsId("groupId")
     @JoinColumn(name = "group_id")
     private GroupInst group_id;
 
