@@ -20,4 +20,5 @@ public class Level {
 
     private String level_name;
     private String level_description;
+    private Boolean state;
 }

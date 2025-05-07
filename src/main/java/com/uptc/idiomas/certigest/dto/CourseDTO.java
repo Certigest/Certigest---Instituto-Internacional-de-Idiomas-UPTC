@@ -18,4 +18,5 @@ public class CourseDTO {
     private CourseType course_type;
     private String language;
     private Date creation_date;
+    private Boolean state;
 }

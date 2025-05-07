@@ -9,16 +9,25 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface GroupPersonRepo extends JpaRepository<GroupPerson, GroupPersonId> {
-    
+
     @Query("SELECT DISTINCT gp.group_id FROM GroupPerson gp WHERE :currentDate BETWEEN gp.start_date AND gp.end_date")
     List<GroupInst> findActiveGroupInstsByDate(@Param("currentDate") Date currentDate);
 
     @Query("SELECT gp.person_id FROM GroupPerson gp WHERE gp.group_id.group_id = :groupId AND :currentDate BETWEEN gp.start_date AND gp.end_date")
-    List<Person> findPersonsByGroupIdAndActiveDate(@Param("groupId") Integer groupId, @Param("currentDate") Date currentDate);
+    List<Person> findPersonsByGroupIdAndActiveDate(@Param("groupId") Integer groupId,
+            @Param("currentDate") Date currentDate);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM GroupPerson gp WHERE gp.group_id.group_id = :groupId")
+    void deleteByGroupId(@Param("groupId") Integer groupId);
+
 }
