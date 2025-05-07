@@ -1,5 +1,8 @@
 package com.uptc.idiomas.certigest.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,13 @@ public class LevelService extends BasicServiceImpl<LevelDTO, Level, Integer> {
     @Override
     protected LevelDTO toDTO(Level entity) {
         return mapper.mapLevelToLevelDTO(entity);
+    }
+
+    public List<LevelDTO> findByCourseId(Integer id_course) {
+        return levelRepo.findByCourseId(id_course)
+                .stream()
+                .map(mapper::mapLevelToLevelDTO)
+                .collect(Collectors.toList());
     }
 
 }
