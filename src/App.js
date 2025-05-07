@@ -22,6 +22,7 @@ import Inscripcion from './pages/Inscripcion';
 import Reportes from './pages/Reportes';
 import Cuenta from './pages/Cuenta';
 import EditPersonalAccount from './pages/ModifyAccount';
+import ViewStudentCourses from './pages/ViewStudentCourses';
 import Roles from './pages/Roles';
 import RateGroup from './pages/EstudiantesListado';
 import EditPassword from './pages/Contraseña';
@@ -124,6 +125,7 @@ function LayoutWithRoles() {
                 <Route path="/cuenta" element={<Cuenta />} />
                 <Route path="/editar-contraseña" element={<EditPassword />} />
                 <Route path="/editar-cuenta" element={<EditPersonalAccount />} />
+                <Route path="/cursos" element={<ViewStudentCourses />} />
               </>
             )}
 

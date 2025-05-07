@@ -133,6 +133,15 @@ export async function getStudentsByGroupId(groupId, token) {
   return response.data;
 }
 
+export async function getGroupsByStudent(studentId, token) {
+  const response = await axios.get(`${GROUP_URL}/groupsStudent/${studentId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
+
 export async function sendCalifications(groupId, token, califications) {
   await axios.post(`${GROUP_URL}/qualifyGroup/${groupId}`, califications, {
     headers: {
