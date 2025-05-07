@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.uptc.idiomas.certigest.dto.CredentialDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTO;
-import com.uptc.idiomas.certigest.dto.PersonDTONote;
 import com.uptc.idiomas.certigest.service.CredentialsKeycloakService;
 import com.uptc.idiomas.certigest.service.PersonService;
-
 
 @RestController
 @RequestMapping("/person")
@@ -30,21 +28,24 @@ public class PersonController {
         PersonDTO personAdded = personService.addPersonInDb(personDTO);
         return new ResponseEntity<>(personAdded, HttpStatus.CREATED);
     }
-    
+
     @GetMapping("/allPerson")
     public ResponseEntity<List<PersonDTO>> getAllPersons() {
         List<PersonDTO> persons = personService.getAllPersons();
         return ResponseEntity.ok(persons);
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePerson(@PathVariable Integer id) {
         try {
-            personService.deletePersonById(id); 
+            personService.deletePersonById(id);
             return new ResponseEntity<>("Persona eliminada exitosamente", HttpStatus.OK);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>("Error al eliminar persona: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error al eliminar persona: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<PersonDTO> getPersonById(@PathVariable Integer id) {
         PersonDTO person = personService.findById(id);
@@ -67,15 +68,18 @@ public class PersonController {
     }
 
     @PostMapping("/modifyPassword")
-    public ResponseEntity<String> updatePassword(@AuthenticationPrincipal Jwt jwt, @RequestBody CredentialDTO credential) {
+    public ResponseEntity<String> updatePassword(@AuthenticationPrincipal Jwt jwt,
+            @RequestBody CredentialDTO credential) {
         try {
-            String accessToken = credentialsKeycloakService.obtainAdminAccessToken(); 
-            String userId = credentialsKeycloakService.getUserIdByUsername(jwt.getClaimAsString("preferred_username"), accessToken); // Paso 2
-            credentialsKeycloakService.resetPassword(userId, credential.getPassword(), accessToken); 
-    
+            String accessToken = credentialsKeycloakService.obtainAdminAccessToken();
+            String userId = credentialsKeycloakService.getUserIdByUsername(jwt.getClaimAsString("preferred_username"),
+                    accessToken); // Paso 2
+            credentialsKeycloakService.resetPassword(userId, credential.getPassword(), accessToken);
+
             return new ResponseEntity<>("Contraseña actualizada", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error al actualizar contraseña: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error al actualizar contraseña: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

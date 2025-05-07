@@ -16,15 +16,12 @@ import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
 import com.uptc.idiomas.certigest.entity.GroupInst;
 import com.uptc.idiomas.certigest.entity.GroupPerson;
-import com.uptc.idiomas.certigest.entity.GroupPerson.LevelModality;
 import com.uptc.idiomas.certigest.entity.GroupPersonId;
 import com.uptc.idiomas.certigest.entity.Person;
 import com.uptc.idiomas.certigest.mapper.GroupInstMapper;
 import com.uptc.idiomas.certigest.mapper.PersonMapper;
 import com.uptc.idiomas.certigest.repo.GroupInstRepo;
 import com.uptc.idiomas.certigest.repo.GroupPersonRepo;
-import com.uptc.idiomas.certigest.repo.PersonRepo;
-
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
@@ -38,7 +35,6 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
     private GroupInstRepo groupRepo;
     @Autowired
     private GroupPersonRepo groupPersonRepo;
-
 
     private final GroupInstMapper mapper = GroupInstMapper.INSTANCE;
 
@@ -148,33 +144,30 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
 
     public void addStudentToGroup(Integer personId, Integer groupId) {
         GroupPersonId id = new GroupPersonId(personId, groupId);
-    
+
         // Verificar si ya existe una inscripción para evitar duplicados
         if (groupPersonRepo.existsById(id)) {
             throw new IllegalStateException("El estudiante ya está inscrito en este grupo.");
         }
-    
+
         // Obtener el grupo por su ID
         GroupInst group = groupRepo.findById(groupId)
-                                   .orElseThrow(() -> new IllegalStateException("Grupo no encontrado"));
-
-    
+                .orElseThrow(() -> new IllegalStateException("Grupo no encontrado"));
 
         GroupPerson groupPerson = new GroupPerson();
-    
-        groupPerson.setPerson_id(personService.getPersonById(personId)); 
-        groupPerson.setGroup_id(group); 
-    
-        groupPerson.setStart_date(group.getStart_date()); 
-        groupPerson.setEnd_date(group.getEnd_date());  
-        groupPerson.setCalification(null); 
-        groupPerson.setLevel_cost(0);    
-        groupPerson.setMaterial_cost(0);  
-        groupPerson.setLEVEL_MODALITY(null); 
+
+        groupPerson.setPerson_id(personService.getPersonById(personId));
+        groupPerson.setGroup_id(group);
+
+        groupPerson.setStart_date(group.getStart_date());
+        groupPerson.setEnd_date(group.getEnd_date());
+        groupPerson.setCalification(null);
+        groupPerson.setLevel_cost(0);
+        groupPerson.setMaterial_cost(0);
+        groupPerson.setLEVEL_MODALITY(null);
         groupPerson.setLevel_duration("");
-    
+
         groupPersonRepo.save(groupPerson);
     }
-    
-    
+
 }

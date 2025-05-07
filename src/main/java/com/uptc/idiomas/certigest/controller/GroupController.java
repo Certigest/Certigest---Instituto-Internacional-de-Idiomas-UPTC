@@ -13,8 +13,6 @@ import com.uptc.idiomas.certigest.dto.GroupInstDTO;
 import com.uptc.idiomas.certigest.service.GroupService;
 import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
-import com.uptc.idiomas.certigest.entity.GroupPerson;
-import com.uptc.idiomas.certigest.entity.GroupPersonId;
 
 @RestController
 @RequestMapping("/group")
@@ -95,7 +93,7 @@ public class GroupController {
     }
 
     @PostMapping("/enroll/{personId}/{groupId}")
-    public ResponseEntity<String> enrollStudent(@PathVariable Integer personId,@PathVariable Integer groupId) {
+    public ResponseEntity<String> enrollStudent(@PathVariable Integer personId, @PathVariable Integer groupId) {
         try {
             groupService.addStudentToGroup(personId, groupId);
             return ResponseEntity.ok("Estudiante inscrito correctamente.");

@@ -1,6 +1,5 @@
 package com.uptc.idiomas.certigest.repo;
 
-import com.uptc.idiomas.certigest.dto.GroupInstDTO;
 import com.uptc.idiomas.certigest.entity.GroupInst;
 import com.uptc.idiomas.certigest.entity.GroupPerson;
 import com.uptc.idiomas.certigest.entity.GroupPersonId;
@@ -16,8 +15,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.transaction.Transactional;
-
 @Repository
 public interface GroupPersonRepo extends JpaRepository<GroupPerson, GroupPersonId> {
     @Query("SELECT g FROM GroupPerson gp JOIN gp.group_id g WHERE gp.person_id = :studentId")
@@ -27,7 +24,8 @@ public interface GroupPersonRepo extends JpaRepository<GroupPerson, GroupPersonI
     List<GroupInst> findActiveGroupInstsByDate(@Param("currentDate") Date currentDate);
 
     @Query("SELECT gp.person_id FROM GroupPerson gp WHERE gp.group_id.group_id = :groupId AND :currentDate BETWEEN gp.start_date AND gp.end_date")
-    List<Person> findPersonsByGroupIdAndActiveDate(@Param("groupId") Integer groupId, @Param("currentDate") Date currentDate);
+    List<Person> findPersonsByGroupIdAndActiveDate(@Param("groupId") Integer groupId,
+            @Param("currentDate") Date currentDate);
 
     @Modifying
     @Transactional

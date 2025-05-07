@@ -7,10 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import com.uptc.idiomas.certigest.dto.CourseDTO;
-import com.uptc.idiomas.certigest.dto.GroupInstDTO;
 import com.uptc.idiomas.certigest.dto.LevelDTO;
 import com.uptc.idiomas.certigest.entity.Course;
-import com.uptc.idiomas.certigest.entity.Level;
 import com.uptc.idiomas.certigest.mapper.CourseMapper;
 import com.uptc.idiomas.certigest.repo.CourseRepo;
 

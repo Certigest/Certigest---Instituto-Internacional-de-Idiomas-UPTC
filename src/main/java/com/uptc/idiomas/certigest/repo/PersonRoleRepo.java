@@ -1,6 +1,5 @@
 package com.uptc.idiomas.certigest.repo;
 
-import com.uptc.idiomas.certigest.entity.Person;
 import com.uptc.idiomas.certigest.entity.PersonRole;
 import com.uptc.idiomas.certigest.entity.PersonRoleId;
 import com.uptc.idiomas.certigest.entity.Role.RoleName;
@@ -26,7 +25,7 @@ public interface PersonRoleRepo extends JpaRepository<PersonRole, PersonRoleId> 
     // Solo los nombres de roles de una persona
     @Query("SELECT pr.role.name FROM PersonRole pr WHERE pr.person.id = :personId")
     List<RoleName> findRoleNamesByPersonId(Long personId);
-    
+
     @Modifying
     @Query("DELETE FROM PersonRole pr WHERE pr.person.personId = :personId")
     void deleteByPersonId(@Param("personId") int personId);

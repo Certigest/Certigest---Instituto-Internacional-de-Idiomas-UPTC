@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.dto.RoleDTO;
 import com.uptc.idiomas.certigest.entity.Certificate;
-import com.uptc.idiomas.certigest.entity.CertificateLevel;
 import com.uptc.idiomas.certigest.entity.Location;
 import com.uptc.idiomas.certigest.entity.Login;
 import com.uptc.idiomas.certigest.entity.Person;
@@ -55,7 +54,6 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     private CertificateLevelRepo certificateLevelRepo;
     @Autowired
     private CertificateCodeRepo certificateCodeRepo;
-    
 
     @Override
     protected JpaRepository<Person, Integer> getRepo() {

@@ -1,10 +1,8 @@
 package com.uptc.idiomas.certigest.service;
 
-
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RoleMappingResource;
-import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -23,17 +21,16 @@ public class KeycloakService {
     private final String realm;
 
     public KeycloakService(
-        @Value("${keycloak.auth-url}") String serverUrl,
-        @Value("${keycloak.realm}") String realm,
-        @Value("${keycloak.resource}") String clientId
-    ) {
+            @Value("${keycloak.auth-url}") String serverUrl,
+            @Value("${keycloak.realm}") String realm,
+            @Value("${keycloak.resource}") String clientId) {
         this.keycloak = KeycloakBuilder.builder()
-            .serverUrl(serverUrl)
-            .realm("master") // Usamos "master" para autenticación admin
-            .username("admin") // admin de keycloak
-            .password("admin123") // contraseña
-            .clientId("admin-cli")
-            .build();
+                .serverUrl(serverUrl)
+                .realm("master") // Usamos "master" para autenticación admin
+                .username("admin") // admin de keycloak
+                .password("admin123") // contraseña
+                .clientId("admin-cli")
+                .build();
         this.realm = realm;
     }
 
@@ -63,20 +60,20 @@ public class KeycloakService {
         List<RoleRepresentation> realmRoles = keycloak.realm(realm).roles().list();
 
         List<RoleRepresentation> rolesToAssign = realmRoles.stream()
-            .filter(r -> roles.contains(r.getName().toLowerCase()))
-            .collect(Collectors.toList());
+                .filter(r -> roles.contains(r.getName().toLowerCase()))
+                .collect(Collectors.toList());
 
         rolesResource.realmLevel().add(rolesToAssign);
     }
+
     public void deleteUserByUsername(String username) {
         List<UserRepresentation> users = keycloak.realm(realm)
-            .users()
-            .search(username, true);
-        
+                .users()
+                .search(username, true);
+
         if (!users.isEmpty()) {
             String userId = users.get(0).getId();
             keycloak.realm(realm).users().delete(userId);
         }
     }
 }
-
