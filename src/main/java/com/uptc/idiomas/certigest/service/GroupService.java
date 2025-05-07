@@ -98,6 +98,13 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
         return groupTeacherList;
     }
 
+    public List<GroupInstDTO> getGroupsByStudentId(Integer studentId) {
+        List<GroupInst> groups = groupPersonRepo.findGroupsByStudentId(studentId);
+        return groups.stream()
+                .map(group -> GroupInstMapper.INSTANCE.mapGroupInstToGroupInstDTO(group))
+                .collect(Collectors.toList());
+    }
+
     public List<PersonDTO> getPersonsByGroupIdAndActiveDate(Integer groupId) {
         List<Person> persons = groupPersonRepo.findPersonsByGroupIdAndActiveDate(groupId, new Date());
         List<PersonDTO> personDTOs = new ArrayList<>();

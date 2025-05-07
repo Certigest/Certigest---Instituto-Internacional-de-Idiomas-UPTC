@@ -67,6 +67,16 @@ public class GroupController {
         return new ResponseEntity<>(groupService.getPersonsByGroupIdAndActiveDate(groupId), HttpStatus.OK);
     }
 
+    @GetMapping("/groupsStudent/{studentId}")
+    public ResponseEntity<List<GroupInstDTO>> getGroupsByStudent(@PathVariable Integer studentId) {
+        try {
+            List<GroupInstDTO> groups = groupService.getGroupsByStudentId(studentId);
+            return new ResponseEntity<>(groups, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/qualifyGroup/{groupId}")
     public ResponseEntity<String> calificateGroup(@PathVariable Integer groupId,
             @RequestBody List<PersonDTONote> students) {

@@ -1,5 +1,6 @@
 package com.uptc.idiomas.certigest.repo;
 
+import com.uptc.idiomas.certigest.dto.GroupInstDTO;
 import com.uptc.idiomas.certigest.entity.GroupInst;
 import com.uptc.idiomas.certigest.entity.GroupPerson;
 import com.uptc.idiomas.certigest.entity.GroupPersonId;
@@ -18,16 +19,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface GroupPersonRepo extends JpaRepository<GroupPerson, GroupPersonId> {
 
-    @Query("SELECT DISTINCT gp.group_id FROM GroupPerson gp WHERE :currentDate BETWEEN gp.start_date AND gp.end_date")
-    List<GroupInst> findActiveGroupInstsByDate(@Param("currentDate") Date currentDate);
+        @Query("SELECT DISTINCT gp.group_id FROM GroupPerson gp WHERE :currentDate BETWEEN gp.start_date AND gp.end_date")
+        List<GroupInst> findActiveGroupInstsByDate(@Param("currentDate") Date currentDate);
 
-    @Query("SELECT gp.person_id FROM GroupPerson gp WHERE gp.group_id.group_id = :groupId AND :currentDate BETWEEN gp.start_date AND gp.end_date")
-    List<Person> findPersonsByGroupIdAndActiveDate(@Param("groupId") Integer groupId,
-            @Param("currentDate") Date currentDate);
+        @Query("SELECT gp.person_id FROM GroupPerson gp WHERE gp.group_id.group_id = :groupId AND :currentDate BETWEEN gp.start_date AND gp.end_date")
+        List<Person> findPersonsByGroupIdAndActiveDate(@Param("groupId") Integer groupId,
+                        @Param("currentDate") Date currentDate);
 
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM GroupPerson gp WHERE gp.group_id.group_id = :groupId")
-    void deleteByGroupId(@Param("groupId") Integer groupId);
+        @Modifying
+        @Transactional
+        @Query("DELETE FROM GroupPerson gp WHERE gp.group_id.group_id = :groupId")
+        void deleteByGroupId(@Param("groupId") Integer groupId);
 
+        @Query("SELECT g FROM GroupPerson gp JOIN gp.group_id g WHERE gp.person_id = :studentId")
+        List<GroupInst> findGroupsByStudentId(@Param("studentId") Integer studentId);
 }
