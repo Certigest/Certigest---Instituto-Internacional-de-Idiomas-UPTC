@@ -1,0 +1,87 @@
+.contenedor-formulario {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.formulario-pasos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.circulo {
+  width: 40px;
+  height: 40px;
+  background-color: #b2ebf2; /* CLARO (inactivo, paso futuro) */
+  border-radius: 50%;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.circulo.activo {
+  background-color: #00bcd4; /* OSCURO (activo o completado) */
+  transform: scale(1.1);
+}
+
+.linea {
+  width: 60px;
+  height: 5px;
+  background-color: #00bcd4;
+  margin: 0 10px;
+  border-radius: 5px;
+}
+
+.contenido-paso {
+  margin-top: 1rem;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #00bcd4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0097a7;
+}
+/* Modal */
+
+/* Animación de aparición */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* fondo oscuro */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.custom-modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}

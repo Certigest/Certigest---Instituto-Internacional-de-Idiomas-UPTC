@@ -65,7 +65,8 @@ export default function Cuenta() {
       </div>
 
       <div className="text-center mt-4">
-        <button className="btn btn-warning fw-bold shadow" onClick={() => navigate('/editar-cuenta')}>Modificar Datos</button>
+        <button className="btn btn-warning fw-bold shadow me-2" onClick={() => navigate('/editar-cuenta')}> Modificar Datos </button>
+        <button className="btn btn-warning fw-bold shadow" onClick={() => navigate('/editar-contraseña')} > Modificar Contraseña </button>
       </div>
     </div>
   );

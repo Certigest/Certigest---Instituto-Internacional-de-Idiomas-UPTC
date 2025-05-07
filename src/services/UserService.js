@@ -1,13 +1,13 @@
-// src/services/UserService.js
 import axios from 'axios';
+import keycloak from './keycloak-config'; // Asegúrate de que Keycloak está correctamente configurado
 
 /**
  * Obtiene la información de cuenta personal.
- * @param {string} token Token JWT de autenticación.
  * @returns {Promise<Object>} Datos del usuario.
  */
-export async function getAccountInfo(token) {
+export async function getAccountInfo() {
   const API_HOST = process.env.REACT_APP_API_HOST;
+  const token = keycloak.token;
 
   const response = await axios.get(`${API_HOST}/person/personal-account`, {
     headers: {
@@ -20,12 +20,12 @@ export async function getAccountInfo(token) {
 
 /**
  * Modifica la información de cuenta personal.
- * @param {string} token Token JWT de autenticación.
  * @param {Object} updatedUser Datos actualizados del usuario.
  * @returns {Promise<Object>} Respuesta del backend.
  */
-export async function modifyAccountInfo(token, updatedUser) {
+export async function modifyAccountInfo(updatedUser) {
   const API_HOST = process.env.REACT_APP_API_HOST;
+  const token = keycloak.token;
 
   const response = await axios.post(`${API_HOST}/person/modify-personal-account`, updatedUser, {
     headers: {
@@ -36,14 +36,20 @@ export async function modifyAccountInfo(token, updatedUser) {
   return response.data;
 }
 
-
-const API_HOST = process.env.REACT_APP_API_HOST;
-
-export async function getPersonById(personId, token) {
-  const response = await axios.get(`${API_HOST}/person/${personId}`, {
+export const modifyPassword = async (token, newPassword) => {
+  const API_HOST = process.env.REACT_APP_API_HOST;
+  const response = await fetch(`${API_HOST}/person/modifyPassword`, {
+    method: 'POST',
     headers: {
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
+    body: JSON.stringify({ password: newPassword }),
   });
-  return response.data;
-}
+
+  if (!response.ok) {
+    throw new Error('Error al modificar la contraseña');
+  }
+
+  return await response.text();
+};
