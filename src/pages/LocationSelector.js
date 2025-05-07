@@ -17,7 +17,7 @@ const LocationSelector = ({ onSelect }) => {
     axios.get(`${API_HOST}/api/locations`, { headers: getAuthHeaders() })
       .then(response => setDepartamentos(response.data))
       .catch(error => console.error('Error al obtener departamentos:', error));
-  }, []);
+  }, [API_HOST]);
 
   useEffect(() => {
     if (selectedDepartment) {
@@ -25,7 +25,7 @@ const LocationSelector = ({ onSelect }) => {
         .then(response => setCiudades(response.data))
         .catch(error => console.error('Error al obtener ciudades:', error));
     }
-  }, [selectedDepartment]);
+  }, [API_HOST, selectedDepartment]);
 
   return (
     <div>

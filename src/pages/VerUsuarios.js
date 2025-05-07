@@ -30,7 +30,7 @@ const VerUsuarios = () => {
     };
 
     fetchUsuarios();
-  }, []);
+  }, [API_HOST]);
 
   const usuariosFiltrados = usuarios.filter((user) => {
     const coincideTexto = (

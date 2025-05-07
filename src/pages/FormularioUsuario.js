@@ -32,7 +32,7 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
     axios.get(`${API_HOST}/api/locations`)
       .then(res => setDepartamentos(res.data))
       .catch(err => console.error("Error al cargar departamentos", err));
-  }, []);
+  }, [API_HOST]);
 
   useEffect(() => {
     if (formData.location.departamento) {
@@ -42,7 +42,7 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
     } else {
       setCiudades([]);
     }
-  }, [formData.location.departamento]);
+  }, [API_HOST, formData.location.departamento]);
 
   const getAuthHeaders = () => ({
     Authorization: `Bearer ${keycloak.token}`,
