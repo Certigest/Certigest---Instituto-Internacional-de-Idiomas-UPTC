@@ -53,7 +53,7 @@ function LayoutWithRoles() {
           const role = matchedRoles[0];
           localStorage.setItem('selectedRole', role);
           setSelectedRole(role);
-          navigate('/home');
+          navigate('/');
         } else {
           navigate('/select-role');
         }
@@ -68,7 +68,7 @@ function LayoutWithRoles() {
   }
 
   if (selectedRole && location.pathname === '/') {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/" replace />;
   }
 
   const renderSidebar = () => {
@@ -91,7 +91,7 @@ function LayoutWithRoles() {
         {renderSidebar()}
         <main className="content p-4 flex-grow-1">
           <Routes>
-            <Route path="/home" element={<Home />} />
+            <Route path="/" element={<Home />} />
 
             {selectedRole === 'admin' && (
               <>
@@ -129,7 +129,7 @@ function LayoutWithRoles() {
               </>
             )}
 
-            <Route path="*" element={<Navigate to="/home" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
       </div>
