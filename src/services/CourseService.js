@@ -132,3 +132,39 @@ export async function sendCalifications(groupId, token, califications) {
     },
   });
 }
+
+export async function getLevelsByCourse(token, id) {
+  const response = await axios.get(`${LEVEL_URL}/by-course/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  return response.data;
+}
+
+export async function getGroupsByLevel(token, id) {
+  const response = await axios.get(`${GROUP_URL}/by-level/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  return response.data;
+}
+
+export const removeStudentFromGroup = async (groupId, studentId, token) => {
+  const response = await fetch(
+    `${GROUP_URL}/${groupId}/student/${studentId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Error al eliminar al estudiante del grupo');
+  }
+};

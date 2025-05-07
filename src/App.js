@@ -25,9 +25,13 @@ import EditPersonalAccount from './pages/ModifyAccount';
 import Roles from './pages/Roles';
 import RateGroup from './pages/EstudiantesListado';
 import EditPassword from './pages/Contraseña';
+import LevelList from './pages/NivelesCurso';
+import GroupListLevel from './pages/GruposNivel';
+import GroupList from './pages/Grupos';
+import GroupStudents from './pages/EstudiantesGrupo';
 
 import './styles/global.css';
-import GroupList from './pages/Grupos';
+
 
 function LayoutWithRoles() {
   const [selectedRole, setSelectedRole] = useState(localStorage.getItem('selectedRole'));
@@ -95,8 +99,11 @@ function LayoutWithRoles() {
                 <Route path="/usuarios" element={<Usuarios />} />
                 <Route path="/reportes" element={<Reportes />} />
                 <Route path="/cursos" element={<Cursos />} />
+                <Route path="/niveles-curso/:id" element={<LevelList />} />
+                <Route path="/grupos-nivel/:id" element={<GroupListLevel />} />
                 <Route path="/certificados" element={<Certificados />} />
                 <Route path="/inscripcion" element={<Inscripcion />} />
+                <Route path="/grupo-estudiantes/:id" element={<GroupStudents />} />
               </>
             )}
 
