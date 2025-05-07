@@ -206,4 +206,9 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
         return personRepo.findByDocument(document)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + document));
     }
+
+    public Person getPersonById(Integer id) {
+        return personRepo.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + id));
+    }
 }
