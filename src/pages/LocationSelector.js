@@ -11,15 +11,17 @@ const LocationSelector = ({ onSelect }) => {
     Authorization: `Bearer ${keycloak.token}`,
   });
 
+  const API_HOST = process.env.REACT_APP_API_HOST;
+
   useEffect(() => {
-    axios.get('http://localhost:8080/api/locations', { headers: getAuthHeaders() })
+    axios.get(`${API_HOST}/api/locations`, { headers: getAuthHeaders() })
       .then(response => setDepartamentos(response.data))
       .catch(error => console.error('Error al obtener departamentos:', error));
   }, []);
 
   useEffect(() => {
     if (selectedDepartment) {
-      axios.get(`http://localhost:8080/api/locations?parentId=${selectedDepartment}`, { headers: getAuthHeaders() })
+      axios.get(`${API_HOST}/api/locations?parentId=${selectedDepartment}`, { headers: getAuthHeaders() })
         .then(response => setCiudades(response.data))
         .catch(error => console.error('Error al obtener ciudades:', error));
     }

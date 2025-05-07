@@ -26,15 +26,17 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
   const [ciudades, setCiudades] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
+  const API_HOST = process.env.REACT_APP_API_HOST;
+
   useEffect(() => {
-    axios.get("http://localhost:8080/api/locations")
+    axios.get(`${API_HOST}/api/locations`)
       .then(res => setDepartamentos(res.data))
       .catch(err => console.error("Error al cargar departamentos", err));
   }, []);
 
   useEffect(() => {
     if (formData.location.departamento) {
-      axios.get(`http://localhost:8080/api/locations?parentId=${formData.location.departamento}`)
+      axios.get(`${API_HOST}/api/locations?parentId=${formData.location.departamento}`)
         .then(res => setCiudades(res.data))
         .catch(err => console.error("Error al cargar ciudades", err));
     } else {
@@ -142,7 +144,7 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
       };
 
       // Realizar la solicitud POST con el token de autenticación
-      await axios.post("http://localhost:8080/person/addPerson", payload, {
+      await axios.post(`${API_HOST}/person/addPerson`, payload, {
         headers: getAuthHeaders(),
       });
 

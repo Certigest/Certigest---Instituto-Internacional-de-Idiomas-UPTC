@@ -13,10 +13,12 @@ const VerUsuarios = () => {
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const usuariosPorPagina = 5;
 
+  const API_HOST = process.env.REACT_APP_API_HOST;
+
   useEffect(() => {
     const fetchUsuarios = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/person/allPerson", {
+        const response = await axios.get(`${API_HOST}/person/allPerson`, {
           headers: {
             Authorization: `Bearer ${keycloak.token}`,
           },
@@ -49,7 +51,7 @@ const VerUsuarios = () => {
     if (window.confirm("¿Estás seguro de eliminar este usuario?")) {
       try {
         await keycloak.updateToken(30);
-        const response = await axios.delete(`http://localhost:8080/person/${id}`, {
+        const response = await axios.delete(`${API_HOST}/person/${id}`, {
           headers: {
             Authorization: `Bearer ${keycloak.token}`,
           },
