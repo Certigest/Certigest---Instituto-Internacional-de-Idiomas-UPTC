@@ -35,3 +35,30 @@ export async function createGroup(groupData, token) {
   });
   return response.data;
 }
+
+export async function getGroupsByTeacher(token) {
+  const response = await axios.get(`${GROUP_URL}/teacher`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
+
+export async function getStudentsByGroupId(groupId, token) {
+  const response = await axios.get(`${GROUP_URL}/studentsGroup/${groupId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
+
+export async function sendCalifications(groupId, token, califications) {
+  await axios.post(`${GROUP_URL}/qualifyGroup/${groupId}`, califications, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+}

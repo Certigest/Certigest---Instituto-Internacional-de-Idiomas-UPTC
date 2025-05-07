@@ -35,3 +35,21 @@ export async function modifyAccountInfo(updatedUser) {
 
   return response.data;
 }
+
+export const modifyPassword = async (token, newPassword) => {
+  const API_HOST = process.env.REACT_APP_API_HOST;
+  const response = await fetch(`${API_HOST}/person/modifyPassword`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ password: newPassword }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al modificar la contraseña');
+  }
+
+  return await response.text();
+};

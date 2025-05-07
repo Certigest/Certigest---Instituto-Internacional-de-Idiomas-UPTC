@@ -33,7 +33,7 @@ function SidebarTeacher({ isOpen, onClose, onToggleSidebar }) {
       <nav className={`sidebar bg-light p-3 ${isOpen ? 'open' : ''}`}>
         <div className="d-flex flex-column">
           <Link className="sidebar-btn" to="/cuenta" onClick={handleLinkClick}>Cuenta</Link>
-          <Link className="sidebar-btn" to="/cursos" onClick={handleLinkClick}>Cursos</Link>
+          <Link className="sidebar-btn" to="/grupos-profesor" onClick={handleLinkClick}>Cursos</Link>
         </div>
       </nav>
     </>
