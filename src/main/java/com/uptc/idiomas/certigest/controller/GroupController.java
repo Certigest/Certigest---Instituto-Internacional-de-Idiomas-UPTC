@@ -13,6 +13,8 @@ import com.uptc.idiomas.certigest.dto.GroupInstDTO;
 import com.uptc.idiomas.certigest.service.GroupService;
 import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
+import com.uptc.idiomas.certigest.entity.GroupPerson;
+import com.uptc.idiomas.certigest.entity.GroupPersonId;
 
 @RestController
 @RequestMapping("/group")
@@ -82,5 +84,25 @@ public class GroupController {
             @RequestBody List<PersonDTONote> students) {
         groupService.qualifyGroup(students, groupId);
         return new ResponseEntity<>("Calification successful", HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{groupId}/student/{studentId}")
+    public ResponseEntity<Void> removeStudentFromGroup(
+            @PathVariable Integer groupId,
+            @PathVariable Integer studentId) {
+        groupService.removeStudentFromGroup(studentId, groupId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/enroll/{personId}/{groupId}")
+    public ResponseEntity<String> enrollStudent(@PathVariable Integer personId,@PathVariable Integer groupId) {
+        try {
+            groupService.addStudentToGroup(personId, groupId);
+            return ResponseEntity.ok("Estudiante inscrito correctamente.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al inscribir al estudiante.");
+        }
     }
 }

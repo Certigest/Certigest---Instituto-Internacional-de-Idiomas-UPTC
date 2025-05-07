@@ -8,9 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.dto.RoleDTO;
+import com.uptc.idiomas.certigest.entity.Certificate;
+import com.uptc.idiomas.certigest.entity.CertificateLevel;
 import com.uptc.idiomas.certigest.entity.Location;
 import com.uptc.idiomas.certigest.entity.Login;
 import com.uptc.idiomas.certigest.entity.Person;
@@ -19,6 +22,10 @@ import com.uptc.idiomas.certigest.entity.Role;
 import com.uptc.idiomas.certigest.entity.Role.RoleName;
 import com.uptc.idiomas.certigest.mapper.LocationMapper;
 import com.uptc.idiomas.certigest.mapper.PersonMapper;
+import com.uptc.idiomas.certigest.repo.CertificateCodeRepo;
+import com.uptc.idiomas.certigest.repo.CertificateLevelRepo;
+import com.uptc.idiomas.certigest.repo.CertificateRepo;
+import com.uptc.idiomas.certigest.repo.GroupPersonRepo;
 import com.uptc.idiomas.certigest.repo.LocationRepo;
 import com.uptc.idiomas.certigest.repo.LoginRepo;
 import com.uptc.idiomas.certigest.repo.PersonRepo;
@@ -40,6 +47,15 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     private KeycloakService keycloakService;
     @Autowired
     private RoleRepo roleRepo;
+    @Autowired
+    private GroupPersonRepo groupPersonRepo;
+    @Autowired
+    private CertificateRepo certificateRepo;
+    @Autowired
+    private CertificateLevelRepo certificateLevelRepo;
+    @Autowired
+    private CertificateCodeRepo certificateCodeRepo;
+    
 
     @Override
     protected JpaRepository<Person, Integer> getRepo() {
@@ -77,7 +93,7 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
         // Asociar los roles recibidos
         if (personDTO.getRoles() != null) {
             for (RoleDTO roleDTO : personDTO.getRoles()) {
-                RoleName roleName = roleDTO.getName(); 
+                RoleName roleName = roleDTO.getName(); // e.g., ADMIN
                 Role role = roleRepo.findByName(roleName)
                         .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + roleName));
 
@@ -175,26 +191,71 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'toDTO'");
     }
+
     public List<PersonDTO> getAllPersons() {
         List<Person> persons = personRepo.findAll();
-    
+
         return persons.stream().map(person -> {
             PersonDTO dto = PersonMapper.INSTANCE.mapPersonToPersonDTO(person);
-    
-            //  Obtener los roles asociados usando el ID de la persona
+
+            // Obtener los roles asociados usando el ID de la persona
             List<PersonRole> roles = personRoleRepo.findByPersonId(person.getPersonId());
-    
-            //  Convertir a RoleDTO
+
+            // Convertir a RoleDTO
             List<RoleDTO> roleDTOs = roles.stream()
-               .map(pr -> new RoleDTO(pr.getRole().getRole_id(), pr.getRole().getName()))
-                .collect(Collectors.toList());
-    
+                    .map(pr -> new RoleDTO(pr.getRole().getRole_id(), pr.getRole().getName()))
+                    .collect(Collectors.toList());
+
             dto.setRoles(roleDTOs);
             return dto;
         }).collect(Collectors.toList());
     }
-    
-    
+
+    @Transactional
+    public void deletePersonById(int personId) {
+        Person person = personRepo.findById(personId)
+                .orElseThrow(() -> new RuntimeException("Persona no encontrada con ID: " + personId));
+
+        // Obtener username (puede no existir)
+        String username = loginRepo.findByPerson(person)
+                .map(Login::getUserName)
+                .orElse(null);
+
+        // Eliminar grupos si existen
+        if (groupPersonRepo.existsByPerson_id_PersonId(personId)) {
+            groupPersonRepo.deleteByPersonId(personId);
+        }
+
+        // Eliminar roles si existen
+        if (!personRoleRepo.findByPersonId(personId).isEmpty()) {
+            personRoleRepo.deleteByPersonId(personId);
+        }
+
+        // Eliminar certificados si existen
+        List<Integer> certIds = certificateRepo.findByPerson_PersonId(personId)
+                .stream()
+                .map(Certificate::getCertificateId)
+                .collect(Collectors.toList());
+
+        if (!certIds.isEmpty()) {
+            certificateLevelRepo.deleteByCertificateIdIn(certIds);
+            certificateCodeRepo.deleteByCertificateIdIn(certIds);
+            certificateRepo.deleteByPersonId(personId);
+        }
+
+        // Eliminar login si existe
+        if (loginRepo.existsByPerson(person)) {
+            loginRepo.deleteByPerson(person);
+        }
+
+        // Finalmente eliminar persona
+        personRepo.delete(person);
+
+        // Eliminar en Keycloak si existe username
+        if (username != null) {
+            keycloakService.deleteUserByUsername(username);
+        }
+    }
 
     public Person getPersonByUserName(String username) {
         return loginRepo.findByUserName(username)
@@ -205,5 +266,10 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     public Person getPersonByDocument(String document) {
         return personRepo.findByDocument(document)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + document));
+    }
+
+    public Person getPersonById(Integer id) {
+        return personRepo.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + id));
     }
 }
