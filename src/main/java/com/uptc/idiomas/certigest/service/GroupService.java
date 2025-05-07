@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -170,4 +171,21 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
         groupPersonRepo.save(groupPerson);
     }
 
+    public GroupPerson getGroupByPersonAndLevel(Integer personId, Integer levelId) {
+        List<GroupInst> allGroups = groupRepo.findAll();
+        for (GroupInst group : allGroups) {
+            if (group.getLevel_id().getLevel_id().equals(levelId)) {
+                GroupPersonId groupPersonId = new GroupPersonId(personId, group.getGroup_id());
+                Optional<GroupPerson> groupPersonOptional = groupPersonRepo.findById(groupPersonId);
+                if (groupPersonOptional.isPresent()) {
+                    return groupPersonOptional.get();
+                }
+            }
+        }
+        throw new EntityNotFoundException("No se encontró inscrito al estudiante en ningun grupo para ese nivel");
+    }
+
+    public List<GroupPerson> getGroupByPerson(Integer personId) {
+        return groupPersonRepo.findAllByPersonId(personId);
+    }
 }
