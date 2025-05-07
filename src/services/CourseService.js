@@ -2,22 +2,13 @@ import axios from 'axios';
 
 const API_HOST = process.env.REACT_APP_API_HOST;
 
-const BASE_URL = `${API_HOST}/course`;
+const COURSE_URL = `${API_HOST}/course`;
 const LEVEL_URL = `${API_HOST}/level`;
 const GROUP_URL = `${API_HOST}/group`;
 
 export async function createCourse(courseData, token) {
-  const response = await axios.post(`${BASE_URL}/createCourse`, courseData, {
+  const response = await axios.post(`${COURSE_URL}/createCourse`, courseData, {
     headers: { Authorization: `Bearer ${token}` }
-  });
-  return response.data;
-}
-
-export async function getAllCourses(token) {
-  const response = await axios.get(`${BASE_URL}/all`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
   return response.data;
 }
@@ -32,6 +23,85 @@ export async function createLevel(levelData, token) {
 export async function createGroup(groupData, token) {
   const response = await axios.post(`${GROUP_URL}/createGroup`, groupData, {
     headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+}
+
+export async function updateCourse(courseData, token) {
+  const response = await axios.put(`${COURSE_URL}/update`, courseData, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+}
+
+export async function updateLevel(levelData, token) {
+  const response = await axios.put(`${LEVEL_URL}/update`, levelData, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+}
+
+export async function updateGroup(groupData, token) {
+  const response = await axios.put(`${GROUP_URL}/update`, groupData, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+}
+
+export async function deleteCourse(courseId, token) {
+  const response = await axios.delete(`${COURSE_URL}/${courseId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+}
+
+export async function deleteLevel(levelId, token) {
+  const response = await axios.delete(`${LEVEL_URL}/${levelId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+}
+
+export async function deleteGroup(groupId, token) {
+  const response = await axios.delete(`${GROUP_URL}/${groupId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+}
+
+export async function getAllCourses(token) {
+  const response = await axios.get(`${COURSE_URL}/all`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
+
+export async function getAllLevels(token) {
+  const response = await axios.get(`${LEVEL_URL}/all`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
+
+export async function getAllGroups(token) {
+  const response = await axios.get(`${GROUP_URL}/all`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  return response.data;
+}
+
+export async function getAllTeachers(token) {
+  const response = await axios.get(`${API_HOST}/person/teachers`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
   return response.data;
 }

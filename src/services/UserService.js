@@ -35,3 +35,15 @@ export async function modifyAccountInfo(token, updatedUser) {
 
   return response.data;
 }
+
+
+const API_HOST = process.env.REACT_APP_API_HOST;
+
+export async function getPersonById(personId, token) {
+  const response = await axios.get(`${API_HOST}/person/${personId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
