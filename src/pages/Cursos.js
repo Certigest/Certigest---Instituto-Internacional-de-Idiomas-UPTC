@@ -12,6 +12,7 @@ const Cursos = () => {
     course_type: "DEFAULT",
     language: "",
     creation_date: new Date().toISOString().split("T")[0],
+    state: true,
   });
   const [message, setMessage] = useState({ type: "", text: "" });
 
@@ -23,7 +24,8 @@ const Cursos = () => {
       {
         level_name: "",
         level_description: "",
-        groups: [{ group_name: "", schedule: "", group_teacher: "" , start_date: "", end_date:""}],
+        state: true,
+        groups: [{ group_name: "", schedule: "", group_teacher: "" , start_date: "", end_date:"", state: true,}],
       },
     ]);
   };
@@ -43,7 +45,7 @@ const Cursos = () => {
 
   const handleAddGroup = (levelIndex) => {
     const updated = [...levels];
-    updated[levelIndex].groups.push({ group_name: "", schedule: "", group_teacher: "" , start_date: "", end_date:""});
+    updated[levelIndex].groups.push({ group_name: "", schedule: "", group_teacher: "" , start_date: "", end_date:"", state: true,});
     setLevels(updated);
   };
 
@@ -89,6 +91,7 @@ const Cursos = () => {
             id_course: createdCourse,
             level_name: level.level_name,
             level_description: level.level_description,
+            state: level.state,
           },
           keycloak.token
         );
@@ -103,6 +106,7 @@ const Cursos = () => {
               group_teacher: group.group_teacher ? { personId: parseInt(group.group_teacher) } : null,
               start_date: group.start_date,
               end_date: group.end_date,
+              state: group.state,
             },
             keycloak.token
           );
@@ -681,8 +685,8 @@ const Cursos = () => {
                               >
                                 {isEditing ? (
                                   <div className="w-100 d-flex gap-2">
-                                    <input className="form-control" name="level_name" value={editedLevel.level_name} onChange={handleLevelChange} />
-                                    <input className="form-control" name="level_description" value={editedLevel.level_description} onChange={handleLevelChange} />
+                                    <input className="form-control" name="level_name" value={editedLevel.level_name} onChange={handleLevel} />
+                                    <input className="form-control" name="level_description" value={editedLevel.level_description} onChange={handleLevel} />
                                   </div>
                                 ) : (
                                   <span>
