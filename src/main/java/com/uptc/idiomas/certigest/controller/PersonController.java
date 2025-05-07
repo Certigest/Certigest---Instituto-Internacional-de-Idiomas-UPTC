@@ -9,8 +9,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import com.uptc.idiomas.certigest.dto.CredentialDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTO;
+import com.uptc.idiomas.certigest.dto.PersonDTONote;
+import com.uptc.idiomas.certigest.service.CredentialsKeycloakService;
 import com.uptc.idiomas.certigest.service.PersonService;
+
 
 @RestController
 @RequestMapping("/person")
@@ -18,6 +22,8 @@ public class PersonController {
 
     @Autowired
     PersonService personService;
+    @Autowired
+    CredentialsKeycloakService credentialsKeycloakService;
 
     @PostMapping("/addPerson")
     public ResponseEntity<PersonDTO> savePerson(@RequestBody PersonDTO personDTO) {
@@ -51,6 +57,19 @@ public class PersonController {
         String username = jwt.getClaim("preferred_username");
         PersonDTO personInfo = personService.ModifyAccountInfo(personDTO, username);
         return new ResponseEntity<>(personInfo, HttpStatus.OK);
+    }
+
+    @PostMapping("/modifyPassword")
+    public ResponseEntity<String> updatePassword(@AuthenticationPrincipal Jwt jwt, @RequestBody CredentialDTO credential) {
+        try {
+            String accessToken = credentialsKeycloakService.obtainAdminAccessToken(); 
+            String userId = credentialsKeycloakService.getUserIdByUsername(jwt.getClaimAsString("preferred_username"), accessToken); // Paso 2
+            credentialsKeycloakService.resetPassword(userId, credential.getPassword(), accessToken); 
+    
+            return new ResponseEntity<>("Contraseña actualizada", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error al actualizar contraseña: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/students")
