@@ -24,6 +24,13 @@ public class PersonController {
         PersonDTO personAdded = personService.addPersonInDb(personDTO);
         return new ResponseEntity<>(personAdded, HttpStatus.CREATED);
     }
+    
+    @GetMapping("/allPerson")
+    public ResponseEntity<List<PersonDTO>> getAllPersons() {
+        List<PersonDTO> persons = personService.getAllPersons();
+        return ResponseEntity.ok(persons);
+    }
+    
 
     @GetMapping("/{id}")
     public ResponseEntity<PersonDTO> getPersonById(@PathVariable Integer id) {

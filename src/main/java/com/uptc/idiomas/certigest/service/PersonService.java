@@ -77,7 +77,7 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
         // Asociar los roles recibidos
         if (personDTO.getRoles() != null) {
             for (RoleDTO roleDTO : personDTO.getRoles()) {
-                RoleName roleName = roleDTO.getName(); // e.g., ADMIN
+                RoleName roleName = roleDTO.getName(); 
                 Role role = roleRepo.findByName(roleName)
                         .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + roleName));
 
