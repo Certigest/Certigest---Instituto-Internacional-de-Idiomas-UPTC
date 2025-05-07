@@ -36,8 +36,15 @@ public class PersonController {
         List<PersonDTO> persons = personService.getAllPersons();
         return ResponseEntity.ok(persons);
     }
-    
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deletePerson(@PathVariable Integer id) {
+        try {
+            personService.deletePersonById(id); 
+            return new ResponseEntity<>("Persona eliminada exitosamente", HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>("Error al eliminar persona: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     @GetMapping("/{id}")
     public ResponseEntity<PersonDTO> getPersonById(@PathVariable Integer id) {
         PersonDTO person = personService.findById(id);

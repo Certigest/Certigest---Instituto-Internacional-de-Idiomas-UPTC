@@ -68,4 +68,15 @@ public class KeycloakService {
 
         rolesResource.realmLevel().add(rolesToAssign);
     }
+    public void deleteUserByUsername(String username) {
+        List<UserRepresentation> users = keycloak.realm(realm)
+            .users()
+            .search(username, true);
+        
+        if (!users.isEmpty()) {
+            String userId = users.get(0).getId();
+            keycloak.realm(realm).users().delete(userId);
+        }
+    }
 }
+
