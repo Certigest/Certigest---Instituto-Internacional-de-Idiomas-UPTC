@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useKeycloak } from "@react-keycloak/web";
-import { createCourse, getAllCourses, createLevel, createGroup, getAllTeachers, getAllGroups, updateCourse, updateGroup, updateLevel, deleteCourse, deleteGroup, deleteLevel, getAllLevels } from "../services/CourseService";
+import { createCourse, getAllCourses, createLevel, createGroup, getAllTeachers, getAllGroups, updateCourse, updateGroup, updateLevel, deleteCourse, deleteGroup, deleteLevel } from "../services/CourseService";
 
 const Cursos = () => {
   const { keycloak } = useKeycloak();
   const [tab, setTab] = useState("modificar");
-  const [courses, setCourses] = useState([]);
+  const [setCourses] = useState([]);
   const [courseForm, setCourseForm] = useState({
     course_name: "",
     course_description: "",
@@ -70,7 +70,7 @@ const Cursos = () => {
     } catch (err) {
       console.error("Error cargando cursos:", err);
     }
-  }, [keycloak.token]);
+  }, [keycloak.token, setCourses]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -153,7 +153,7 @@ const Cursos = () => {
       }
     }
     fetchTeachers();
-  }, []);
+  }, [keycloak.token]);
 
   const [teachers, setTeachers] = useState([]);
 
