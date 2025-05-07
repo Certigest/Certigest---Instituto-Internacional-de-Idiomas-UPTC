@@ -30,6 +30,7 @@ import LevelList from './pages/NivelesCurso';
 import GroupListLevel from './pages/GruposNivel';
 import GroupList from './pages/Grupos';
 import GroupStudents from './pages/EstudiantesGrupo';
+import EnrollStudents from './pages/ListadoEstudiantesInscripción';
 
 import './styles/global.css';
 
@@ -105,6 +106,7 @@ function LayoutWithRoles() {
                 <Route path="/certificados" element={<Certificados />} />
                 <Route path="/inscripcion" element={<Inscripcion />} />
                 <Route path="/grupo-estudiantes/:id" element={<GroupStudents />} />
+                <Route path="/inscribir" element={<EnrollStudents />} />
               </>
             )}
 

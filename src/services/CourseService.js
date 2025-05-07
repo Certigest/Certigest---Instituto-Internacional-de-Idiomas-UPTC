@@ -106,6 +106,15 @@ export async function getAllTeachers(token) {
   return response.data;
 }
 
+export async function getAllStudents(token) {
+  const response = await axios.get(`${API_HOST}/person/students`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
+
 export async function getGroupsByTeacher(token) {
   const response = await axios.get(`${GROUP_URL}/teacher`, {
     headers: {
@@ -177,3 +186,17 @@ export const removeStudentFromGroup = async (groupId, studentId, token) => {
     throw new Error('Error al eliminar al estudiante del grupo');
   }
 };
+
+export async function enrollStudentToGroup(token, studentId, groupId) {
+  const response = await axios.post(
+    `${GROUP_URL}/enroll/${studentId}/${groupId}`,
+    {}, // cuerpo vacío
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+
+  return response.data;
+}

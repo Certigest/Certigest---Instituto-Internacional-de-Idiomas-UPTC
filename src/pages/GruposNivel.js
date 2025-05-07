@@ -55,7 +55,7 @@ export default function GroupListLevel() {
                   <button
                     id={group.group_id}
                     className="btn btn-warning fw-bold shadow"
-                    onClick={() => navigate(`/calificar/${group.group_id}`)}
+                    onClick={() => navigate(`/inscribir`)}
                   >
                     Inscribir estudiantes
                   </button>
