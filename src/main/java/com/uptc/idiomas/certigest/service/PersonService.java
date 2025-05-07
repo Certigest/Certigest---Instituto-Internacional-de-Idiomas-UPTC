@@ -10,10 +10,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.uptc.idiomas.certigest.dto.PersonDTO;
+import com.uptc.idiomas.certigest.dto.RoleDTO;
 import com.uptc.idiomas.certigest.entity.Location;
 import com.uptc.idiomas.certigest.entity.Login;
 import com.uptc.idiomas.certigest.entity.Person;
 import com.uptc.idiomas.certigest.entity.PersonRole;
+import com.uptc.idiomas.certigest.entity.Role;
 import com.uptc.idiomas.certigest.entity.Role.RoleName;
 import com.uptc.idiomas.certigest.mapper.LocationMapper;
 import com.uptc.idiomas.certigest.mapper.PersonMapper;
@@ -21,6 +23,7 @@ import com.uptc.idiomas.certigest.repo.LocationRepo;
 import com.uptc.idiomas.certigest.repo.LoginRepo;
 import com.uptc.idiomas.certigest.repo.PersonRepo;
 import com.uptc.idiomas.certigest.repo.PersonRoleRepo;
+import com.uptc.idiomas.certigest.repo.RoleRepo;
 
 @Service
 public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> {
@@ -33,6 +36,10 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     private LocationRepo locationRepo;
     @Autowired
     private LoginRepo loginRepo;
+    @Autowired
+    private KeycloakService keycloakService;
+    @Autowired
+    private RoleRepo roleRepo;
 
     @Override
     protected JpaRepository<Person, Integer> getRepo() {
@@ -40,21 +47,21 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     }
 
     public PersonDTO addPersonInDb(PersonDTO personDTO) {
-        Location location = LocationMapper.INSTANCE.mapLocationDTOToLocation(personDTO.getLocation());
+        Location location = null;
 
-        if (location.getIdLocation() == null) {
-            location = locationRepo.save(location);
+        if (personDTO.getLocation() != null && personDTO.getLocation().getIdLocation() != null) {
+            location = locationRepo.findById(personDTO.getLocation().getIdLocation())
+                    .orElse(null);
         }
 
         Person person = PersonMapper.INSTANCE.mapPersonDTOToPerson(personDTO);
         person.setLocation(location);
-
         Person personSaved = personRepo.save(person);
 
+        // Crear el usuario en Login
         String[] nameParts = personDTO.getFirstName().trim().split("\\s+");
         String[] lastNameParts = personDTO.getLastName().trim().split("\\s+");
         String baseUsername = nameParts[0].toLowerCase() + lastNameParts[0].toLowerCase();
-
         int count = 1;
         String finalUsername;
         do {
@@ -65,8 +72,33 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
         Login login = new Login();
         login.setUserName(finalUsername);
         login.setPerson(personSaved);
-
         loginRepo.save(login);
+
+        // Asociar los roles recibidos
+        if (personDTO.getRoles() != null) {
+            for (RoleDTO roleDTO : personDTO.getRoles()) {
+                RoleName roleName = roleDTO.getName(); // e.g., ADMIN
+                Role role = roleRepo.findByName(roleName)
+                        .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + roleName));
+
+                PersonRole personRole = new PersonRole();
+                personRole.setPerson(personSaved);
+                personRole.setRole(role);
+                personRoleRepo.save(personRole);
+            }
+        }
+
+        // Crear usuario en Keycloak
+        List<String> rolesSeleccionados = personDTO.getRoles()
+                .stream()
+                .map(r -> r.getName().name().toLowerCase())
+                .toList();
+
+        keycloakService.createUser(
+                finalUsername,
+                personDTO.getEmail(),
+                personDTO.getDocument(), // contraseña
+                rolesSeleccionados);
 
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(personSaved);
     }
@@ -143,6 +175,26 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'toDTO'");
     }
+    public List<PersonDTO> getAllPersons() {
+        List<Person> persons = personRepo.findAll();
+    
+        return persons.stream().map(person -> {
+            PersonDTO dto = PersonMapper.INSTANCE.mapPersonToPersonDTO(person);
+    
+            //  Obtener los roles asociados usando el ID de la persona
+            List<PersonRole> roles = personRoleRepo.findByPersonId(person.getPersonId());
+    
+            //  Convertir a RoleDTO
+            List<RoleDTO> roleDTOs = roles.stream()
+               .map(pr -> new RoleDTO(pr.getRole().getRole_id(), pr.getRole().getName()))
+                .collect(Collectors.toList());
+    
+            dto.setRoles(roleDTOs);
+            return dto;
+        }).collect(Collectors.toList());
+    }
+    
+    
 
     public Person getPersonByUserName(String username) {
         return loginRepo.findByUserName(username)
