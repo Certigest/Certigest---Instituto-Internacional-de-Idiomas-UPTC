@@ -34,7 +34,7 @@ public class LevelController {
         return ResponseEntity.ok(levelService.findAll());
     }
 
-    @PutMapping
+    @PutMapping("/update")
     public ResponseEntity<LevelDTO> updateLevel(@RequestBody LevelDTO levelDTO) {
         LevelDTO updated = levelService.update(levelDTO);
         return ResponseEntity.ok(updated);
@@ -44,5 +44,11 @@ public class LevelController {
     public ResponseEntity<Void> deleteLevel(@PathVariable Integer id) {
         levelService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/by-course/{id_course}")
+    public ResponseEntity<List<LevelDTO>> getLevelsByCourseId(@PathVariable Integer id_course) {
+        List<LevelDTO> levels = levelService.findByCourseId(id_course);
+        return ResponseEntity.ok(levels);
     }
 }

@@ -14,13 +14,18 @@ import com.uptc.idiomas.certigest.service.GroupService;
 import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
 
-
 @RestController
 @RequestMapping("/group")
 public class GroupController {
 
     @Autowired
     private GroupService groupService;
+
+    @GetMapping("/by-level/{levelId}")
+    public ResponseEntity<List<GroupInstDTO>> getGroupsByLevel(@PathVariable Integer levelId) {
+        List<GroupInstDTO> groups = groupService.findByLevelId(levelId);
+        return ResponseEntity.ok(groups);
+    }
 
     @GetMapping("/teacher")
     public ResponseEntity<List<GroupInstDTO>> getMethodName(@AuthenticationPrincipal Jwt jwt) {
@@ -45,7 +50,7 @@ public class GroupController {
         return ResponseEntity.ok(groupService.findAll());
     }
 
-    @PutMapping
+    @PutMapping("/update")
     public ResponseEntity<GroupInstDTO> updateGroup(@RequestBody GroupInstDTO groupDTO) {
         GroupInstDTO updated = groupService.update(groupDTO);
         return ResponseEntity.ok(updated);
@@ -63,7 +68,8 @@ public class GroupController {
     }
 
     @PostMapping("/qualifyGroup/{groupId}")
-    public ResponseEntity<String> calificateGroup(@PathVariable Integer groupId, @RequestBody List<PersonDTONote> students) {
+    public ResponseEntity<String> calificateGroup(@PathVariable Integer groupId,
+            @RequestBody List<PersonDTONote> students) {
         groupService.qualifyGroup(students, groupId);
         return new ResponseEntity<>("Calification successful", HttpStatus.OK);
     }

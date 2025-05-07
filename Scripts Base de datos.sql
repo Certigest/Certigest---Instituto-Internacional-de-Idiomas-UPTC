@@ -62,6 +62,8 @@ CREATE TABLE group_inst (
     level_id INT,
     group_teacher INT,
     group_name VARCHAR(100),
+    start_date DATE,
+    end_date DATE,
     schedule VARCHAR(100)
 );
 

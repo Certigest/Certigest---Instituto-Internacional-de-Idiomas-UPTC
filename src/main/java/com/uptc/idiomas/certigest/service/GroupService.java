@@ -3,6 +3,7 @@ package com.uptc.idiomas.certigest.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,7 +33,6 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
     @Autowired
     private GroupPersonRepo groupPersonRepo;
 
-
     private final GroupInstMapper mapper = GroupInstMapper.INSTANCE;
 
     @Override
@@ -48,6 +48,13 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
     @Override
     protected GroupInstDTO toDTO(GroupInst entity) {
         return mapper.mapGroupInstToGroupInstDTO(entity);
+    }
+
+    public List<GroupInstDTO> findByLevelId(Integer levelId) {
+        return groupRepo.findByLevelId(levelId)
+                .stream()
+                .map(mapper::mapGroupInstToGroupInstDTO)
+                .collect(Collectors.toList());
     }
 
     public List<GroupInstDTO> getGroupsByTeacher(String username) {
@@ -67,7 +74,7 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
     public List<PersonDTO> getPersonsByGroupIdAndActiveDate(Integer groupId) {
         List<Person> persons = groupPersonRepo.findPersonsByGroupIdAndActiveDate(groupId, new Date());
         List<PersonDTO> personDTOs = new ArrayList<>();
-        for(Person person : persons) {
+        for (Person person : persons) {
             personDTOs.add(PersonMapper.INSTANCE.mapPersonToPersonDTO(person));
         }
         return personDTOs;
@@ -81,13 +88,13 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
     public void updateCalification(Integer personId, Integer groupId, Float newCalification) {
         GroupPersonId id = new GroupPersonId(personId, groupId);
         GroupPerson gp = groupPersonRepo.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("GroupPerson no encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("GroupPerson no encontrado"));
         gp.setCalification(newCalification);
         gp.setCalificationDate(new Date());
         groupPersonRepo.save(gp);
     }
 
-    public void qualifyGroup(List<PersonDTONote> students, Integer groupId){
+    public void qualifyGroup(List<PersonDTONote> students, Integer groupId) {
         for (PersonDTONote student : students) {
             Person p = personService.getPersonByDocument(student.getDocument());
             updateCalification(p.getPersonId(), groupId, student.getCalification());

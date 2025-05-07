@@ -1,5 +1,6 @@
-
 package com.uptc.idiomas.certigest.entity;
+
+import java.util.Date;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,6 +25,9 @@ public class GroupInst {
     @ManyToOne
     @JoinColumn(name = "group_teacher")
     private Person group_teacher;
+
+    private Date start_date;
+    private Date end_date;
 
     private String group_name;
     private String schedule;
