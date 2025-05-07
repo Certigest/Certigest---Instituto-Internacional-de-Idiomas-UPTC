@@ -23,7 +23,7 @@ public class KeycloakService {
     private final String realm;
 
     public KeycloakService(
-        @Value("${keycloak.auth-server-url}") String serverUrl,
+        @Value("${keycloak.auth-url}") String serverUrl,
         @Value("${keycloak.realm}") String realm,
         @Value("${keycloak.resource}") String clientId
     ) {

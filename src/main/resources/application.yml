@@ -45,3 +45,9 @@ spring:
 app:
   cors:
     allowed-origin: http://localhost:3000
+
+keycloak:
+  auth-url: http://localhost:8081
+  realm: inst_idiomas_realm
+  resource: springboot-app
+
