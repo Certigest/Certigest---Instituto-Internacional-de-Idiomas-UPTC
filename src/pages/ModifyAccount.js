@@ -35,7 +35,7 @@ export default function Cuenta() {
 
   const handleSave = async () => {
     try {
-      await modifyAccountInfo(keycloak.token, editedUser);
+      await modifyAccountInfo(editedUser);
       setShowNotification(true);
       setTimeout(() => {
         navigate('/cuenta');
