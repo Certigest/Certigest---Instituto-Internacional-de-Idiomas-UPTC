@@ -47,14 +47,18 @@ CREATE TABLE course (
     course_description TEXT,
     COURSE_TYPE ENUM('KIDS', 'DEFAULT', 'SKILLS'),
     language VARCHAR(50),
+    state BOOLEAN,
     creation_date DATE
+
 );
 
 CREATE TABLE Level (
     level_id INT AUTO_INCREMENT PRIMARY KEY,
     id_course INT,
     level_name VARCHAR(100),
+    state BOOLEAN,
     level_description TEXT
+
 );
 
 CREATE TABLE group_inst (
@@ -64,6 +68,7 @@ CREATE TABLE group_inst (
     group_name VARCHAR(100),
     start_date DATE,
     end_date DATE,
+    state BOOLEAN,
     schedule VARCHAR(100)
 );
 
@@ -84,7 +89,7 @@ CREATE TABLE Group_Person (
 CREATE TABLE Certificate (
     certificate_id INT AUTO_INCREMENT PRIMARY KEY,
     person_id INT,
-    CERTIFICATE_TYPE ENUM('BASIC', 'NOTES', 'COSTO'),
+    CERTIFICATE_TYPE ENUM('BASIC', 'NOTES', 'ALL_LEVEL'),
     generation_date DATE
 );
 

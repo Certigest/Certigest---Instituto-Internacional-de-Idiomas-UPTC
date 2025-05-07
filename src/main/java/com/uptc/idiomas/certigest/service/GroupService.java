@@ -144,18 +144,18 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
 
     public void addStudentToGroup(Integer personId, Integer groupId) {
         GroupPersonId id = new GroupPersonId(personId, groupId);
-
+        System.out.println("Crea registro en groupPerson con ID: " + " " + personId+  " " + groupId);
         // Verificar si ya existe una inscripción para evitar duplicados
         if (groupPersonRepo.existsById(id)) {
             throw new IllegalStateException("El estudiante ya está inscrito en este grupo.");
         }
-
+        System.out.println("---------------------------Crea registro en groupPerson con ID: " + " " + personId+  " " + groupId);
         // Obtener el grupo por su ID
         GroupInst group = groupRepo.findById(groupId)
                 .orElseThrow(() -> new IllegalStateException("Grupo no encontrado"));
-
+        System.out.println("Crea registro en groupPerson con ID: " + " " + personId+  " " + groupId);
         GroupPerson groupPerson = new GroupPerson();
-
+        groupPerson.setId(id);
         groupPerson.setPerson_id(personService.getPersonById(personId));
         groupPerson.setGroup_id(group);
 
