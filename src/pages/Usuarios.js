@@ -23,12 +23,6 @@ const Usuarios = () => {
     );
   };
 
-  const continuarConFormulario = () => {
-    if (rolesSeleccionados.length > 0) {
-      setTab("formulario");
-    }
-  };
-
   const volverASeleccion = () => {
     setTab("crear");
     setRolesSeleccionados([]);

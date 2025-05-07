@@ -105,7 +105,7 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
   };
 
   const manejarCambio = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, checked } = e.target;
     if (["departamento", "ciudad"].includes(name)) {
       setFormData(prev => ({
         ...prev,
@@ -135,10 +135,10 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
         phone: formData.celular,
         status: formData.status,
         birthDate: formData.birthDate || null,
-        roles: rolesSeleccionados.map(role => ({ name: role.toUpperCase() })),
         locationId: formData.location.ciudad
           ? { idLocation: parseInt(formData.location.ciudad) }
-          : null
+          : null,
+        roles: rolesSeleccionados.map(role => ({ name: role.toUpperCase() })),
       };
 
       // Realizar la solicitud POST con el token de autenticación

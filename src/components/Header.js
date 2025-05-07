@@ -5,14 +5,14 @@ import logo from '../assets/Logo.png';
 import perfil from '../assets/Perfil.png';
 import { useKeycloak } from '@react-keycloak/web';
 
+const appRoles = ['admin', 'teacher', 'student'];
+
 function Header() {
   const navigate = useNavigate();
   const { keycloak } = useKeycloak();
 
   const [selectedRole, setSelectedRole] = useState(localStorage.getItem('selectedRole'));
   const [availableRoles, setAvailableRoles] = useState([]);
-
-  const appRoles = ['admin', 'teacher', 'student'];
 
   useEffect(() => {
     if (keycloak?.tokenParsed?.realm_access?.roles) {
