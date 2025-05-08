@@ -2,6 +2,7 @@ package com.uptc.idiomas.certigest.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -60,4 +61,11 @@ public class LevelService extends BasicServiceImpl<LevelDTO, Level, Integer> {
                 .collect(Collectors.toList());
     }
 
+    public Level findByLevelId(Integer levelId) {
+        Optional<Level> levelOpt = levelRepo.findById(levelId);
+        if (levelOpt.isPresent())
+            return levelOpt.get();
+        else
+            throw new EntityNotFoundException("Nivel no encontrado con ID: " + levelId);
+    }
 }

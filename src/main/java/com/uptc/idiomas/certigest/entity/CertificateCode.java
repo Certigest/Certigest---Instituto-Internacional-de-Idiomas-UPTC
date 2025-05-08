@@ -19,5 +19,6 @@ public class CertificateCode {
     @JoinColumn(name = "certificate_id")
     private Certificate certificate;
 
+    @Column(name = "code", nullable = false, unique = true)
     private String code;
 }

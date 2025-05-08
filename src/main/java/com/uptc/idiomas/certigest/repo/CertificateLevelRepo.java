@@ -16,4 +16,5 @@ public interface CertificateLevelRepo extends JpaRepository<CertificateLevel, Ce
     @Modifying
     @Query("DELETE FROM CertificateLevel cl WHERE cl.certificate.certificateId IN :ids")
     void deleteByCertificateIdIn(@Param("ids") List<Integer> certificateIds);
+    List<CertificateLevel> findByCertificate_CertificateId(Integer certificateId);
 }
