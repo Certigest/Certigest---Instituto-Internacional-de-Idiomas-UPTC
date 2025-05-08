@@ -51,9 +51,8 @@ public class CertificateController {
         return ResponseEntity.ok(certificateService.findAllHistory());
     }
 
-    @GetMapping("/validateCdertificate/{id}")
-    public String getMethodName(@PathVariable String id) {
+    @GetMapping("/validateCertificate/{id}")
+    public String validateCertificate(@PathVariable String id) {
         return certificateService.validateCertificate(id);
     }
-    
 }

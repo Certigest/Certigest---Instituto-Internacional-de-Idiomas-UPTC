@@ -20,7 +20,8 @@ public class SecurityConfig {
                 .and()
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/public/**").permitAll()
+                        .requestMatchers("/public/**",
+                        "/certificate/validateCertificate/**"  ).permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt());
         return http.build();
