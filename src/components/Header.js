@@ -25,7 +25,7 @@ function Header() {
   const handleRoleChange = (role) => {
     localStorage.setItem('selectedRole', role);
     setSelectedRole(role);
-    navigate('/home');
+    navigate('/');
     window.location.reload();
   };
 
@@ -35,7 +35,7 @@ function Header() {
   };
 
   const goToHome = () => {
-    navigate('/home');
+    navigate('/');
   };
 
   return (
