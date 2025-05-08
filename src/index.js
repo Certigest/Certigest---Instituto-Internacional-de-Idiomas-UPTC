@@ -12,7 +12,10 @@ import keycloak from './services/keycloak-config';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   //<React.StrictMode>
-  <ReactKeycloakProvider authClient={keycloak} initOptions={{ onLoad: 'login-required' }}>
+  <ReactKeycloakProvider
+  authClient={keycloak}
+  initOptions={{ onLoad: 'check-sso', silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html' }}
+  >
     <App />
   </ReactKeycloakProvider>
   //</React.StrictMode>

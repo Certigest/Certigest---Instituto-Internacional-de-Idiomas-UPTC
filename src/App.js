@@ -31,6 +31,8 @@ import GroupListLevel from './pages/GruposNivel';
 import GroupList from './pages/Grupos';
 import GroupStudents from './pages/EstudiantesGrupo';
 import EnrollStudents from './pages/ListadoEstudiantesInscripción';
+import PublicHomePage from './pages/PublicHomePage';
+
 
 import './styles/global.css';
 
@@ -138,11 +140,23 @@ function LayoutWithRoles() {
 }
 
 function App() {
+  const { keycloak, initialized } = useKeycloak();
+
+  if (!initialized) return <div>Cargando...</div>;
+
   return (
     <Router>
       <Routes>
-        <Route path="/select-role" element={<Roles />} />
-        <Route path="/*" element={<LayoutWithRoles />} />
+        {!keycloak.authenticated ? (
+          // Usuario NO autenticado → mostrar página pública
+          <Route path="/*" element={<PublicHomePage />} />
+        ) : (
+          // Usuario autenticado → manejar flujo con LayoutWithRoles
+          <>
+            <Route path="/select-role" element={<Roles />} />
+            <Route path="/*" element={<LayoutWithRoles />} />
+          </>
+        )}
       </Routes>
     </Router>
   );
