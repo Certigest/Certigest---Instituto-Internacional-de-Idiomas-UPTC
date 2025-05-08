@@ -182,10 +182,15 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
                 }
             }
         }
-        throw new EntityNotFoundException("No se encontró inscrito al estudiante en ningun grupo para ese nivel");
+        throw new EntityNotFoundException("No se encontro inscrito al estudiante en ningun grupo para ese nivel");
     }
 
     public List<GroupPerson> getGroupByPerson(Integer personId) {
-        return groupPersonRepo.findAllByPersonId(personId);
+        List<GroupPerson> groupPersonList = new ArrayList<>();
+        for (GroupPerson gp : groupPersonRepo.findAll()) {
+            if (gp.getPerson_id().getPersonId().equals(personId))
+                groupPersonList.add(gp);
+        } 
+        return groupPersonList;
     }
 }

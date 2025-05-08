@@ -14,8 +14,11 @@ public class SecurityConfig {
                 .cors() // <- ACTIVAR CORS
                 .and()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**").permitAll()
-                        .anyRequest().authenticated())
+                    .requestMatchers(
+                        "/public/**",
+                        "/certificate/validateCertificate/**"  
+                    ).permitAll()
+                    .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt());
 
         return http.build();

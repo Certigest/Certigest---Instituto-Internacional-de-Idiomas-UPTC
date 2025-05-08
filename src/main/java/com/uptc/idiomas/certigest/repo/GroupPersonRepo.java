@@ -39,7 +39,4 @@ public interface GroupPersonRepo extends JpaRepository<GroupPerson, GroupPersonI
 
     @Query("SELECT COUNT(gp) > 0 FROM GroupPerson gp WHERE gp.person_id.personId = :personId")
     boolean existsByPerson_id_PersonId(@Param("personId") int personId);
-    
-    @Query("SELECT gp FROM GroupPerson gp WHERE gp.person_id.personId = :personId")
-    List<GroupPerson> findAllByPersonId(@Param("personId") Integer personId);
 }
