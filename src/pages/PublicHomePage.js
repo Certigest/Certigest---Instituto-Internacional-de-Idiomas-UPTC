@@ -5,26 +5,29 @@ const PublicHomePage = () => {
   const [certificateId, setCertificateId] = useState('');
   const { keycloak } = useKeycloak();
 
-  const handleValidate = async () => {
-    if (!certificateId.trim()) {
-      alert('Por favor, ingresa un ID de certificado.');
-      return;
-    }
-
-    try {
-      const response = await fetch(`http://localhost:8080/certificate/validateCertificate/${certificateId}`);
-
-      if (response.ok) {
-        const result = await response.text();
-        alert(`Resultado de validación: ${result}`);
-      } else {
-        alert('No se pudo validar el certificado.');
-      }
-    } catch (error) {
-      console.error('Error al validar certificado:', error);
-      alert('Ocurrió un error al intentar validar el certificado.');
-    }
-  };
+    const handleValidate = async () => {
+        if (!certificateId.trim()) {
+        alert('Por favor, ingresa un ID de certificado.');
+        return;
+        }
+    
+        try {
+        const response = await fetch(`http://localhost:8080/certificate/validateCertificate/${certificateId}`, {
+            method: 'GET',
+        });
+    
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+            window.open(url); // Abre el PDF en una nueva pestaña
+        } else {
+            alert('No se pudo validar el certificado.');
+        }
+        } catch (error) {
+        console.error('Error al validar certificado:', error);
+        alert('Ocurrió un error al intentar validar el certificado.');
+        }
+    };
 
   const handleLogin = () => {
     keycloak.login();
