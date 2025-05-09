@@ -19,14 +19,14 @@ const PublicHomePage = () => {
 
     return (
         <div className="public-container">
-            <header className="header-container">
+            <header className="header-container-public-home">
                 <div className="header-content">
                     <img
                     src={logo}
                     alt="Logo Instituto"
                     className="header-logo-overlay"
                     />
-                    <div className="header-banner text-center">
+                    <div className="header-banner-public-home text-center">
                     <h5 className="mb-0 fw-bold text-dark">
                         Gestión de certificados Instituto <br />
                         Internacional de Idiomas

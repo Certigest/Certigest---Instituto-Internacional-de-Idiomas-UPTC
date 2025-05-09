@@ -18,7 +18,7 @@
 /* ---------------------------------- */
 /*  HEADER                           */
 /* ---------------------------------- */
-.header-container {
+.header-container-public-home {
   background-color: #2b0f0f;
   width: 100%;
   padding: 20px 0;
@@ -46,7 +46,7 @@
 }
 
 /* El “pill” amarillo */
-.header-banner {
+.header-banner-public-home {
   background-color: #ffcc00;
   border-radius: 50px;
   padding: 20px 60px 20px 120px; /* top right bottom left */
