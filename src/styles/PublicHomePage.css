@@ -33,7 +33,7 @@
 }
 
 /* Logo grande y solapado */
-.header-logo-overlay {
+.header-logo-overlay-public-home {
   position: absolute;
   left: -75px;            /* solapamiento = mitad del ancho */
   top: 50%;
@@ -76,7 +76,7 @@
     flex-direction: column;
     width: 100%;
   }
-  .header-logo-overlay {
+  .header-logo-overlay-public-home {
     position: static;
     transform: none;
     margin: 0 auto 15px;
@@ -95,7 +95,7 @@
 
 @media (max-width: 576px) {
   /* Móvil pequeño: texto y logo aún más pequeños */
-  .header-logo-overlay {
+  .header-logo-overlay-public-home {
     width: 100px;
     height: 100px;
     margin-bottom: 10px;
@@ -162,7 +162,7 @@
     width: 100%;
   }
 
-  .header-logo-overlay {
+  .header-logo-overlay-public-home {
     position: static;
     transform: none;
     margin: 0 auto 15px auto;
@@ -176,7 +176,7 @@
 
 @media (max-width: 576px) {
   /* Reducir tamaño de logo y texto en pantallas muy pequeñas */
-  .header-logo-overlay {
+  .header-logo-overlay-public-home {
     width: 80px;
     height: 80px;
   }

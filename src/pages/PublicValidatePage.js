@@ -54,7 +54,7 @@ const PublicValidatePage = () => {
 
         <header className="header-validate">
             <div className="header-content">
-            <img src={logo} alt="Logo Instituto" className="header-logo-overlay" />
+            <img src={logo} alt="Logo Instituto" className="header-logo-overlay-public-home" />
             <div className="header-banner-validate text-center">
                 <h5 className="mb-0 fw-bold text-dark">
                 Gestión de certificados Instituto <br />

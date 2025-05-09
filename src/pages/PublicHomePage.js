@@ -24,7 +24,7 @@ const PublicHomePage = () => {
                     <img
                     src={logo}
                     alt="Logo Instituto"
-                    className="header-logo-overlay"
+                    className="header-logo-overlay-public-home"
                     />
                     <div className="header-banner-public-home text-center">
                     <h5 className="mb-0 fw-bold text-dark">
