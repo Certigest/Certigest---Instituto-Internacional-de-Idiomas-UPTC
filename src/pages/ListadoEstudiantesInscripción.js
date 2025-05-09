@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
 import { getAllStudents, enrollStudentToGroup } from '../services/CourseService';
 
 export default function EnrollStudents() {
+  const { id } = useParams();
   const { keycloak } = useKeycloak();
   const [students, setStudents] = useState([]);
   const [search, setSearch] = useState('');
-  const [groupId, setGroupId] = useState(1); // Establece el groupId aquí, dinámicamente si es necesario
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -34,8 +35,7 @@ export default function EnrollStudents() {
 
   const handleEnroll = async (student) => {
     try {
-      // Utiliza el groupId dinámico aquí
-      await enrollStudentToGroup(keycloak.token, student.personId, groupId);
+      await enrollStudentToGroup(keycloak.token, student.personId, id);
       alert('Estudiante inscrito correctamente');
     } catch (error) {
       console.error('Error al inscribir:', error);
@@ -54,18 +54,6 @@ export default function EnrollStudents() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-
-      {/* Aquí podrías tener un selector de grupo si es necesario */}
-      <select
-        className="form-control mb-3"
-        value={groupId}
-        onChange={(e) => setGroupId(Number(e.target.value))}
-      >
-        {/* Opciones de grupos - en este caso solo un ejemplo */}
-        <option value={1}>Grupo 1</option>
-        <option value={2}>Grupo 2</option>
-        <option value={3}>Grupo 3</option>
-      </select>
 
       <div className="table-responsive">
         <table className="table table-striped table-bordered shadow">

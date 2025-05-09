@@ -191,7 +191,7 @@ export async function enrollStudentToGroup(token, studentId, groupId) {
   console.log('Enrolling student:', studentId, 'to group:', groupId);
   const response = await axios.post(
     `${GROUP_URL}/enroll/${studentId}/${groupId}`,
-    {}, // cuerpo vacío
+    {},
     {
       headers: {
         Authorization: `Bearer ${token}`

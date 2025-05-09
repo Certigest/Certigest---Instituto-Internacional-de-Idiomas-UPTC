@@ -108,7 +108,7 @@ function LayoutWithRoles() {
                 <Route path="/certificados" element={<Certificados />} />
                 <Route path="/inscripcion" element={<Inscripcion />} />
                 <Route path="/grupo-estudiantes/:id" element={<GroupStudents />} />
-                <Route path="/inscribir" element={<EnrollStudents />} />
+                <Route path="/inscribir/:id" element={<EnrollStudents />} />
               </>
             )}
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
-import { getStudentsByGroupId, removeStudentFromGroup } from '../services/CourseService'; // Asegúrate de que `removeStudentFromGroup` esté bien implementado.
+import { getStudentsByGroupId, removeStudentFromGroup } from '../services/CourseService';
 
 export default function GroupStudents() {
   const { id } = useParams();
@@ -28,10 +28,8 @@ export default function GroupStudents() {
 
   const handleRemoveStudent = async (studentId) => {
     try {
-      // Llamada al backend para eliminar el estudiante
       await removeStudentFromGroup(id, studentId, keycloak.token);
 
-      // Eliminación visual
       setStudents(students.filter((s) => s.personId !== studentId));
       setSuccessMessage('Estudiante eliminado con éxito');
       setErrorMessage('');
