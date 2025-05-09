@@ -10,6 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import com.itextpdf.io.source.ByteArrayOutputStream;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
 import com.uptc.idiomas.certigest.dto.CertificateDTO;
 import com.uptc.idiomas.certigest.dto.CertificateHistoryDTO;
 import com.uptc.idiomas.certigest.entity.Certificate;
@@ -57,22 +62,41 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
         return mapper.mapCertificateToCertificateDTO(entity);
     }
 
-    public String generateLevelCertificate(String username, String certificateType, Integer levelId) {
+    public byte[] generateLevelCertificatePdf(String username, String certificateType, Integer levelId) {
         Person person = personService.getPersonByUserName(username);
         Level level = levelService.findByLevelId(levelId);
         GroupPerson groupPerson =  groupService.getGroupByPersonAndLevel(person.getPersonId(), level.getLevel_id());
         LocalDate endDate = groupPerson.getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         String optionalCode = generateCode(endDate, certificateType, person, level);
+
+        String content;
         if (certificateCodeRepo.existsByCode(optionalCode)) {
-            return generateLevelCertificateText(person, certificateType, endDate, level, groupPerson);
+            content = generateLevelCertificateText(person, certificateType, endDate, level, groupPerson);
         } else {
-            String output = generateLevelCertificateText(person, certificateType, endDate, level, groupPerson);
-            if(!(output.split(" ")[0].equalsIgnoreCase("NO"))){
+            content = generateLevelCertificateText(person, certificateType, endDate, level, groupPerson);
+            if(!content.toLowerCase().startsWith("no")){
                 saveLevelCertificateInDB(person, certificateType, level, optionalCode);
             }
-            return output;
         }
-        
+        if (content.toLowerCase().startsWith("no")) {
+            throw new RuntimeException(content); // O manejarlo mejor con una excepción personalizada
+        }
+        return generatePDF(content);
+    }
+
+
+
+    private byte[] generatePDF(String content) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            PdfWriter writer = new PdfWriter(baos);
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+            document.add(new Paragraph(content));
+            document.close();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al generar el PDF", e);
+        }
     }
 
     private String generateLevelCertificateText(Person person, String certificateType, LocalDate endDate, Level level, GroupPerson groupPerson) {
@@ -202,10 +226,10 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
         return certificateHistory;
     }
 
-    public String validateCertificate(String id) {
+    public byte[] validateCertificatePdf(String id) {
         CertificateCode certificateCode = certificateCodeRepo.findByCode(id);
         if (certificateCode == null) {
-            return "No existe el certificado.";
+            return generatePDF("No existe el certificado.");
         }
     
         Certificate certificate = certificateCode.getCertificate();
@@ -214,37 +238,42 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
     
         List<CertificateLevel> levels = certificateLevelRepo.findByCertificate_CertificateId(certificate.getCertificateId());
         if (levels.isEmpty()) {
-            return "Este certificado no tiene niveles asociados.";
+            return generatePDF("Este certificado no tiene niveles asociados.");
         }
     
         if (certificateType.equalsIgnoreCase("ALL_LEVEL")) {
             String courseName = levels.get(0).getLevel().getId_course().getCourse_name();
-            return generateAllLevelsCertificateText(person, courseName);
+            String output = generateAllLevelsCertificateText(person, courseName);
+            return generatePDF(output);
         }
 
         Level level = levels.get(0).getLevel();
         GroupPerson groupPerson = groupService.getGroupByPersonAndLevel(person.getPersonId(), level.getLevel_id());
         if (groupPerson == null) {
-            return "No se encontró la relación entre la persona y el nivel del certificado.";
+            return generatePDF("No se encontró la relación entre la persona y el nivel del certificado.");
         }
         LocalDate endDate = groupPerson.getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        return generateLevelCertificateText(person, certificateType, endDate, level, groupPerson);
+        String output = generateLevelCertificateText(person, certificateType, endDate, level, groupPerson);
+        return generatePDF(output);
     }
 
-    public String generateAllLevelsCertificate(String username, String courseName) {
+    public byte[] generateAllLevelsCertificatePdf(String username, String courseName) {
         Person person = personService.getPersonByUserName(username);
-        String code = "CERT_ALL_LEVEL_" + person.getDocument() + "_" + courseName;
+        String code = "CERT_ALL_LEVEL_" + person.getDocument() + "_" + courseName.replaceAll("\\s+", "");
         List<GroupPerson> groupsPerson = groupService.getGroupByPerson(person.getPersonId());
         List<Level> approvedLevels = getApprovebLevels(groupsPerson, courseName);
-        if(certificateCodeRepo.existsByCode(code)){
-            return generateAllLevelsCertificateText(person, courseName);
-        } else {
-            String output = generateAllLevelsCertificateText(person, courseName);
-            if(!(output.split(" ")[0].equalsIgnoreCase("NO"))){
-                saveAllCertificateInDB(person, "ALL_LEVEL", code, approvedLevels);
-            }
-            return output;
+
+        String output = generateAllLevelsCertificateText(person, courseName);
+
+        if (output.toLowerCase().startsWith("no")) {
+            throw new RuntimeException(output);
         }
+
+        if (!certificateCodeRepo.existsByCode(code)) {
+            saveAllCertificateInDB(person, "ALL_LEVEL", code, approvedLevels);
+        }
+
+        return generatePDF(output);
     }
 
     private List<Level> getApprovebLevels(List<GroupPerson> groupsPerson, String courseName) {
