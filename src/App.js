@@ -32,6 +32,7 @@ import GroupList from './pages/Grupos';
 import GroupStudents from './pages/EstudiantesGrupo';
 import EnrollStudents from './pages/ListadoEstudiantesInscripción';
 import PublicHomePage from './pages/PublicHomePage';
+import PublicValidatePage from './pages/PublicValidatePage';
 
 
 import './styles/global.css';
@@ -149,7 +150,11 @@ function App() {
       <Routes>
         {!keycloak.authenticated ? (
           // Usuario NO autenticado → mostrar página pública
-          <Route path="/*" element={<PublicHomePage />} />
+          <>
+            <Route path="/" element={<PublicHomePage />} />
+            <Route path="/Validate" element={<PublicValidatePage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
         ) : (
           // Usuario autenticado → manejar flujo con LayoutWithRoles
           <>

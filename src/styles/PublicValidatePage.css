@@ -1,0 +1,204 @@
+/* ---------------------------------- */
+/*  CONTENEDOR PRINCIPAL  */
+/* ---------------------------------- */
+.public-validate-container {
+  background-color: #101326;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30px 20px;
+}
+
+/* ---------------------------------- */
+/*  HEADER                           */
+/* ---------------------------------- */
+.header-validate {
+  background-color: #101326;
+  width: 100%;
+  padding: 20px 0;
+}X
+
+.header-content {
+  position: relative;
+  width: max-content;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+/* Logo grande y solapado */
+.header-logo-overlay {
+  position: absolute;
+  left: -75px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+/* El “pill” de mensaje */
+.header-banner-validate {
+  background-color: #1CA673;  /* antes #ffcc00 */
+  border-radius: 50px;
+  padding: 20px 60px 20px 120px;
+  min-width: 500px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-banner-validate h5 {
+  margin: 0;
+  line-height: 1.2;
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #000;  /* texto oscuro */
+}
+
+/* ---------------------------------- */
+/*  BOTONES                          */
+/* ---------------------------------- */
+.public-buttons {
+  display: flex;
+  gap: 30px;
+  margin-top: 80px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-green {
+  background-color: #1CA673;  /* antes #f1c40f */
+  color: #000;
+  font-size: 1.15em;
+  width: 200px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: bold;
+  text-align: center;
+}
+
+.btn-green:hover {
+  background-color: #15885A; 
+}
+
+/* ---------------------------------- */
+/*  FOOTER                           */
+/* ---------------------------------- */
+.public-footer {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 40px 0;
+}
+
+.footer-acreditacion {
+  display: block !important;
+  width: 500px !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 auto;
+}
+
+/* ---------------------------------- */
+/*  RESPONSIVE                       */
+/* ---------------------------------- */
+@media (max-width: 992px) {
+  .header-content {
+    flex-direction: column;
+    width: 100%;
+  }
+  .header-logo-overlay {
+    position: static;
+    transform: none;
+    margin: 0 auto 15px;
+    width: 120px;
+    height: 120px;
+  }
+  .header-banner {
+    width: 90%;
+    padding: 15px 30px;
+    min-width: auto;
+    padding-left: 30px; /* reducimos para móviles */
+    padding-right: 30px;
+  }
+  .header-banner h5 {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .header-logo-overlay {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 10px;
+  }
+  .header-banner {
+    padding: 12px 20px;
+  }
+  .header-banner h5 {
+    font-size: 1.2rem;
+  }
+  .btn-yellow {
+    font-size: 1em;
+    padding: 14px 25px;
+    width: 160px;
+    height: 50px;
+  }
+}
+
+.validate-input-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.validate-input {
+  width: 60%;
+  max-width: 400px;
+  padding: 12px 16px;
+  font-size: 1em;
+  border: 2px solid #1ca673;
+  border-radius: 8px;
+  outline: none;
+}
+.validate-input::placeholder {
+  color: #145a24; 
+  font-weight: 500; 
+}
+
+.btn-back {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background-color: transparent;
+  border: none;
+  color: white;
+  font-size: 1.1em;
+  font-weight: bold;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.btn-back:hover {
+  background-color: #1CA673;
+  color: white;
+}
