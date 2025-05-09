@@ -9,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import com.nimbusds.jwt.JWT;
 import com.uptc.idiomas.certigest.dto.GroupInstDTO;
 import com.uptc.idiomas.certigest.service.GroupService;
 import com.uptc.idiomas.certigest.dto.PersonDTO;
@@ -67,14 +68,11 @@ public class GroupController {
         return new ResponseEntity<>(groupService.getPersonsByGroupIdAndActiveDate(groupId), HttpStatus.OK);
     }
 
-    @GetMapping("/groupsStudent/{studentId}")
-    public ResponseEntity<List<GroupInstDTO>> getGroupsByStudent(@PathVariable Integer studentId) {
-        try {
-            List<GroupInstDTO> groups = groupService.getGroupsByStudentId(studentId);
-            return new ResponseEntity<>(groups, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @GetMapping("/groupsStudent")
+    public ResponseEntity<List<GroupInstDTO>> getGroupsByStudent(@AuthenticationPrincipal Jwt jwt) {
+        String username = jwt.getClaim("preferred_username");
+        List<GroupInstDTO> groups = groupService.getGroupsByStudentUsername(username);
+        return new ResponseEntity<>(groups, HttpStatus.OK);
     }
 
     @PostMapping("/qualifyGroup/{groupId}")
