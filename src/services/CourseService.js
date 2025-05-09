@@ -133,8 +133,8 @@ export async function getStudentsByGroupId(groupId, token) {
   return response.data;
 }
 
-export async function getGroupsByStudent(studentId, token) {
-  const response = await axios.get(`${GROUP_URL}/groupsStudent/${studentId}`, {
+export async function getGroupsByStudent(token) {
+  const response = await axios.get(`${GROUP_URL}/groupsStudent`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
