@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getGroupsByStudent } from '../services/CourseService';  // Asegúrate de importar el servicio correctamente
+import { getGroupsByStudent } from '../services/CourseService';
 
 const StudentGroupsTable = ({ keycloak }) => {
   const [groups, setGroups] = useState([]);
@@ -22,9 +22,8 @@ const StudentGroupsTable = ({ keycloak }) => {
   }, [keycloak]);
 
   const formatDate = (date) => {
-    // Aquí formateamos la fecha si es un string en formato ISO 8601
     const newDate = new Date(date);
-    return newDate.toLocaleDateString(); // Cambiar formato según lo necesites
+    return newDate.toLocaleDateString();
   };
 
   return (
