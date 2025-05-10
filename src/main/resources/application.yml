@@ -1,3 +1,6 @@
+# ================================================
+# CONFIGURACIÓN EN PRODUCCIÓN (DOCUMENTADA)
+# ================================================
 # server:
 #   port: 8443
 #   ssl:
@@ -5,7 +8,7 @@
 #     key-store-password: ${KEY_STORE_PASSWORD}
 #     key-store-type: JKS
 #     key-alias: mycert
-
+#
 # spring:
 #   security:
 #     oauth2:
@@ -17,81 +20,63 @@
 #     username: ${DATABASE_USERNAME}
 #     password: ${DATABASE_PASSWORD}
 #     driver-class-name: com.mysql.cj.jdbc.Driver
-# app:
-#   cors:
-#     allowed-origin: https://d20bv1kx6aff3m.cloudfront.net
-
-# keycloak:
-#   auth-url: https://auth.certigestdev.click:8443
-#   realm: inst_idiomas_realm
-#   resource: springboot-app
-# -------------------------------------------------------------------------------------------
-
-server:
-  port: 8080
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8081/realms/inst_idiomas_realm
-  datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: certigestuptc@gmail.com
-    password: certigest2025?
-    protocol: smtp
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-app:
-  cors:
-    allowed-origin: http://localhost:3000
-keycloak:
-  auth-url: https://auth.certigestdev.click:8443
-  realm: inst_idiomas_realm
-  resource: springboot-app
-# -------------------------------------------------------------------------------------------
-
-# server:
-#   port: 8080
-# spring:
-#   security:
-#     oauth2:
-#       resourceserver:
-#         jwt:
-#           issuer-uri: http://localhost:8081/realms/inst_idiomas_realm
-#   datasource:
-#     url: jdbc:mysql://localhost:3306/instituto_idiomas_db
-#     username: user
-#     password: 123
-#     driver-class-name: com.mysql.cj.jdbc.Driver
-
 #   mail:
 #     host: smtp.gmail.com
 #     port: 587
 #     username: certigestuptc@gmail.com
-#     password: certigest2025?
-#     protocol: smtp
+#     password: ckzr dyin gphl cmbw
 #     properties:
 #       mail:
 #         smtp:
 #           auth: true
 #           starttls:
 #             enable: true
+#
 # app:
 #   cors:
-#     allowed-origin: http://localhost:3000
+#     allowed-origin: https://d20bv1kx6aff3m.cloudfront.net
+#
 # keycloak:
-#   auth-url: http://localhost:8081
+#   auth-url: https://auth.certigestdev.click:8443
 #   realm: inst_idiomas_realm
 #   resource: springboot-app
+
+# ================================================
+# CONFIGURACIÓN LOCAL
+# ================================================
+server:
+  port: 8080
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/inst_idiomas_realm
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/instituto_idiomas_db
+    username: user
+    password: 123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: certigestuptc@gmail.com
+    password: ckzr dyin gphl cmbw
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  cors:
+    allowed-origin: http://localhost:3000
+
+keycloak:
+  auth-url: http://localhost:8081
+  realm: inst_idiomas_realm
+  resource: springboot-app
