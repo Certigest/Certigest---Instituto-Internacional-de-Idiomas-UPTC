@@ -25,7 +25,7 @@ export async function getAccountInfo() {
  */
 export async function modifyAccountInfo(updatedUser) {
   const API_HOST = process.env.REACT_APP_API_HOST;
-  const token = keycloak.token; // obtiene el token desde el closure
+  const token = keycloak.token;
 
   const response = await axios.post(`${API_HOST}/person/modify-personal-account`, updatedUser, {
     headers: {
@@ -55,3 +55,44 @@ export const modifyPassword = async (token, newPassword) => {
 
   return await response.text();
 };
+
+export async function getProfileImage() {
+  const API_HOST = process.env.REACT_APP_API_HOST;
+  const token = keycloak.token;
+
+  try {
+    const response = await axios.get(`${API_HOST}/person/image`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      responseType: 'blob',
+    });
+
+    return URL.createObjectURL(response.data);
+  } catch (error) {
+    console.warn('No se pudo cargar la imagen de perfil:', error.response?.status);
+    return null;
+  }
+}
+
+export async function uploadProfileImage(file) {
+  const API_HOST = process.env.REACT_APP_API_HOST;
+  const token = keycloak.token;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await axios.post(`${API_HOST}/person/upload`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error al subir la imagen de perfil:', error);
+    throw error;
+  }
+}

@@ -1,27 +1,31 @@
-// src/pages/Cuenta.js
 import React, { useEffect, useState } from 'react';
 import { useKeycloak } from '@react-keycloak/web';
-import { getAccountInfo } from '../services/UserService';
+import { getAccountInfo, getProfileImage } from '../services/UserService';
 import { useNavigate } from 'react-router-dom';
 
 export default function Cuenta() {
   const { keycloak } = useKeycloak();
   const [accountInfo, setAccountInfo] = useState(null);
+  const [profileImageUrl, setProfileImageUrl] = useState(null);
   const navigate = useNavigate();
+
   useEffect(() => {
-    const fetchAccountInfo = async () => {
+    const fetchData = async () => {
       if (keycloak?.authenticated) {
         try {
-          const data = await getAccountInfo(keycloak.token);
-          setAccountInfo(data);
-
+          const [info, imageUrl] = await Promise.all([
+            getAccountInfo(keycloak.token),
+            getProfileImage(),
+          ]);
+          setAccountInfo(info);
+          setProfileImageUrl(imageUrl);
         } catch (error) {
-          console.error('Error al obtener la información de cuenta:', error);
+          console.error('Error al obtener la información de cuenta o imagen:', error);
         }
       }
     };
 
-    fetchAccountInfo();
+    fetchData();
   }, [keycloak]);
 
   if (!accountInfo) {
@@ -34,7 +38,7 @@ export default function Cuenta() {
       <div className="row bg-white p-4 rounded shadow">
         <div className="col-md-3 d-flex justify-content-center align-items-center mb-3 mb-md-0">
           <img
-            src={accountInfo.profilePic || '/profile-pic.png'}
+            src={profileImageUrl || '/profile-pic.png'}
             alt="Foto de perfil"
             className="img-fluid rounded shadow"
             style={{ width: '160px', height: '160px', objectFit: 'cover' }}
@@ -52,7 +56,6 @@ export default function Cuenta() {
               <strong>Fecha de nacimiento:</strong>{' '}
               {new Date(accountInfo.birthDate).toLocaleDateString('es-ES')}
             </div>
-
             <div className="col-md-6 mb-2">
               <strong>Estado:</strong>{' '}
               <span className={`text-${accountInfo.status ? 'success' : 'danger'}`}>
@@ -65,8 +68,12 @@ export default function Cuenta() {
       </div>
 
       <div className="text-center mt-4">
-        <button className="btn btn-warning fw-bold shadow me-2" onClick={() => navigate('/editar-cuenta')}> Modificar Datos </button>
-        <button className="btn btn-warning fw-bold shadow" onClick={() => navigate('/editar-contraseña')} > Modificar Contraseña </button>
+        <button className="btn btn-warning fw-bold shadow me-2" onClick={() => navigate('/editar-cuenta')}>
+          Modificar Datos
+        </button>
+        <button className="btn btn-warning fw-bold shadow" onClick={() => navigate('/editar-contraseña')}>
+          Modificar Contraseña
+        </button>
       </div>
     </div>
   );

@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Header.css';
 import logo from '../assets/Logo.png';
-import perfil from '../assets/Perfil.png';
+import perfilPlaceholder from '../assets/Perfil.png';
 import { useKeycloak } from '@react-keycloak/web';
+import axios from 'axios';
 
 const appRoles = ['admin', 'teacher', 'student'];
 
@@ -13,12 +14,33 @@ function Header() {
 
   const [selectedRole, setSelectedRole] = useState(localStorage.getItem('selectedRole'));
   const [availableRoles, setAvailableRoles] = useState([]);
+  const [profileImageUrl, setProfileImageUrl] = useState(null);
 
   useEffect(() => {
     if (keycloak?.tokenParsed?.realm_access?.roles) {
       const roles = keycloak.tokenParsed.realm_access.roles;
       const filtered = roles.filter((role) => appRoles.includes(role));
       setAvailableRoles(filtered);
+    }
+  }, [keycloak]);
+
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_HOST}/person/image`, {
+          headers: {
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+          responseType: 'blob',
+        });
+        setProfileImageUrl(URL.createObjectURL(response.data));
+      } catch (error) {
+        console.warn('No se pudo cargar la imagen de perfil:', error.response?.status);
+      }
+    };
+
+    if (keycloak?.authenticated) {
+      fetchProfileImage();
     }
   }, [keycloak]);
 
@@ -86,7 +108,7 @@ function Header() {
             </button>
           </div>
           <img
-            src={perfil}
+            src={profileImageUrl || perfilPlaceholder}
             alt="Perfil"
             className="header-profile ms-2"
           />
