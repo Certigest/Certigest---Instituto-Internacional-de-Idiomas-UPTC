@@ -26,14 +26,14 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
   const API_HOST = process.env.REACT_APP_API_HOST;
 
   useEffect(() => {
-    axios.get(`${API_HOST}/api/locations`)
+    axios.get(`${API_HOST}/api/locations`, { headers: getAuthHeaders() })
       .then(res => setDepartamentos(res.data))
       .catch(err => console.error("Error al cargar departamentos", err));
   }, [API_HOST]);
 
   useEffect(() => {
     if (formData.location.departamento) {
-      axios.get(`${API_HOST}/api/locations?parentId=${formData.location.departamento}`)
+      axios.get(`${API_HOST}/api/locations?parentId=${formData.location.departamento}`,{ headers: getAuthHeaders() })
         .then(res => setCiudades(res.data))
         .catch(err => console.error("Error al cargar ciudades", err));
     } else {
@@ -47,7 +47,7 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
     try {
       const { documento, correo } = formData;
       if (paso === 1) {
-        const res = await axios.get(`${API_HOST}/person/existsByDocument`, {
+        const res = await axios.get(`${API_HOST}/person/existsByDocument`,  {
           params: { document: documento }, headers: getAuthHeaders()
         });
         if (res.data) {
