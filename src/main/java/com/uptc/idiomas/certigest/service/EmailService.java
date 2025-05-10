@@ -19,7 +19,7 @@ public class EmailService {
     public void sendCredentialsEmail(String email, String username, String password) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            message.setFrom(new InternetAddress("no-reply@certigest.com"));  // Cambia según tu configuración
+            message.setFrom(new InternetAddress("certigestuptc@gmail.com"));
             message.setSubject("Tus credenciales de acceso");
             message.setRecipient(Message.RecipientType.TO, new InternetAddress(email));
 
@@ -35,7 +35,7 @@ public class EmailService {
             mailSender.send(message);
 
         } catch (MessagingException e) {
-            e.printStackTrace();
+            
             throw new RuntimeException("Error al enviar correo a: " + email, e);
         }
     }

@@ -55,6 +55,10 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     private CertificateLevelRepo certificateLevelRepo;
     @Autowired
     private CertificateCodeRepo certificateCodeRepo;
+    //@Autowired
+    //private EmailService emailService;
+
+    
 
     @Override
     protected JpaRepository<Person, Integer> getRepo() {
@@ -65,7 +69,7 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     }
 
     public boolean existsByEmail(String email) {
-        return personRepo.existsByEmail(email);
+       return personRepo.existsByEmail(email);
     }
     public PersonDTO addPersonInDb(PersonDTO personDTO) {
     
@@ -127,7 +131,10 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
                 personDTO.getDocument(), // El documento de la persona es la contraseña
                 rolesSeleccionados);
 
-        
+        //String email = personDTO.getEmail();
+        //String username = finalUsername;
+        //String password = personDTO.getDocument();
+        //emailService.sendCredentialsEmail(email, username, password);
         // Devolvemos el DTO de la persona recién creada
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(personSaved);
     }
@@ -254,7 +261,10 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
         String username = loginRepo.findByPerson(person)
                 .map(Login::getUserName)
                 .orElse(null);
-
+         // Eliminar en Keycloak si existe username
+         if (username != null) {
+            keycloakService.deleteUserByUsername(username);
+        }
         // Eliminar grupos si existen
         if (groupPersonRepo.existsByPerson_id_PersonId(personId)) {
             groupPersonRepo.deleteByPersonId(personId);
@@ -284,11 +294,6 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
 
         // Finalmente eliminar persona
         personRepo.delete(person);
-
-        // Eliminar en Keycloak si existe username
-        if (username != null) {
-            keycloakService.deleteUserByUsername(username);
-        }
     }
 
     public Person getPersonByUserName(String username) {
