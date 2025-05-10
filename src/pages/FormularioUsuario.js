@@ -137,11 +137,13 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
         phone: formData.celular,
         status: formData.status,
         birthDate: formData.birthDate || null,
-        locationId: formData.location.ciudad
+        location: formData.location.ciudad
           ? { idLocation: parseInt(formData.location.ciudad) }
           : null,
         roles: rolesSeleccionados.map(role => ({ name: role.toUpperCase() })),
       };
+
+      console.log("📦 Payload enviado al backend:", JSON.stringify(payload, null, 2));
 
       // Realizar la solicitud POST con el token de autenticación
       await axios.post(`${API_HOST}/person/addPerson`, payload, {

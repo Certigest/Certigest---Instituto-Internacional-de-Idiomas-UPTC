@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"; 
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import keycloak from "../services/keycloak-config";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -33,12 +33,14 @@ const VerUsuarios = () => {
   }, [API_HOST]);
 
   const usuariosFiltrados = usuarios.filter((user) => {
-    const coincideTexto = (
+    const coincideTexto =
       user.firstName?.toLowerCase().includes(filtro.toLowerCase()) ||
       user.lastName?.toLowerCase().includes(filtro.toLowerCase()) ||
-      user.email?.toLowerCase().includes(filtro.toLowerCase())
-    );
-    const coincideDocumento = documentoFiltro === "" || user.document?.includes(documentoFiltro);
+      user.email?.toLowerCase().includes(filtro.toLowerCase());
+
+    const coincideDocumento =
+      documentoFiltro === "" || user.document?.includes(documentoFiltro);
+
     return coincideTexto && coincideDocumento;
   });
 
@@ -58,7 +60,7 @@ const VerUsuarios = () => {
         });
 
         if (response.status === 200) {
-          setUsuarios(usuarios.filter(user => user.personId !== id));
+          setUsuarios(usuarios.filter((user) => user.personId !== id));
           setUsuarioSeleccionado(null);
           alert("Usuario eliminado correctamente.");
         }
@@ -117,7 +119,8 @@ const VerUsuarios = () => {
                   <p><strong>Documento:</strong> {usuarioSeleccionado.document}</p>
                   <p><strong>Celular:</strong> {usuarioSeleccionado.phone}</p>
                   <p><strong>Cargo(s):</strong> {usuarioSeleccionado.roles?.map(r => r.name).join(", ")}</p>
-                  <p><strong>Ubicación:</strong> {usuarioSeleccionado.location?.name || "No registrada"}</p>
+                  <p><strong>Ciudad:</strong> {usuarioSeleccionado.location?.locationName || "No registrada"}</p>
+                  <p><strong>Departamento:</strong> {usuarioSeleccionado.location?.parent?.locationName || "No registrado"}</p>
                 </div>
               </div>
 
@@ -183,7 +186,8 @@ const VerUsuarios = () => {
                   <th>Celular</th>
                   <th>Estado</th>
                   <th>Fecha de nacimiento</th>
-                  <th>Ubicación</th>
+                  <th>Ciudad</th>
+                  <th>Departamento</th>
                   <th>Rol(es)</th>
                 </tr>
               </thead>
@@ -207,13 +211,14 @@ const VerUsuarios = () => {
                           ? new Intl.DateTimeFormat("es-CO").format(new Date(user.birthDate))
                           : ""}
                       </td>
-                      <td>{user.location?.name || ""}</td>
+                      <td>{user.location?.locationName || ""}</td>
+                      <td>{user.location?.parent?.locationName || ""}</td>
                       <td>{user.roles?.map((r) => r.name).join(", ") || "Sin roles"}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="10" className="text-muted py-3">
+                    <td colSpan="11" className="text-muted py-3">
                       No se encontraron usuarios.
                     </td>
                   </tr>
