@@ -47,6 +47,45 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
   const getAuthHeaders = () => ({
     Authorization: `Bearer ${keycloak.token}`,
   });
+  const verificarDuplicados = async () => {
+    try {
+      if (paso === 1) {
+        // Solo se verifica el documento en el paso 1
+        const resDocumento = await axios.get(`${API_HOST}/person/existsByDocument`, {
+          params: { document: formData.documento },
+          headers: getAuthHeaders()
+        });
+  
+        if (resDocumento.data === true) {
+          setMensaje("El número de documento ya está registrado en el sistema.");
+          setMensajeColor("error");
+          return false;
+        }
+      }
+  
+      if (paso === 2) {
+        console.log("Verificando correo:", formData.correo); // Añade esto
+        // Solo se verifica el correo en el paso 2
+        const resCorreo = await axios.get(`${API_HOST}/person/existsByEmail`, {
+          params: { email: formData.correo },
+          headers: getAuthHeaders()
+        });
+        console.log("Respuesta del backend:", resCorreo.data);
+        if (resCorreo.data === true) {
+          setMensaje("El correo ya está registrado en el sistema.");
+          setMensajeColor("error");
+          return false;
+        }
+      }
+  
+      return true;
+    } catch (error) {
+      console.error("Error al verificar duplicados:", error);
+      setMensaje("El correo ya está registrado en el sistema..");
+      setMensajeColor("error");
+      return false;
+    }
+  };  
 
   const validarPasoUno = () => {
     const documentoValido = /^[a-zA-Z0-9]+$/.test(formData.documento);
@@ -93,8 +132,15 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
     return true;
   };
 
-  const siguientePaso = () => {
+  const siguientePaso = async () => {
     if (paso === 1 && !validarPasoUno()) return;
+
+    // Verificar duplicados antes de pasar al siguiente paso
+    if (paso === 1) {
+      const esValido = await verificarDuplicados();
+      if (!esValido) return; // Si hay duplicado, no avanzar
+    }
+
     setMensaje("");
     setMensajeColor("");
     setPaso(prev => prev + 1);
@@ -126,6 +172,8 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
   const guardarUsuario = async () => {
     if (!validarPasoDos()) return;
 
+    const esValido = await verificarDuplicados();
+    if (!esValido) return;
     try {
       const payload = {
         personId: null,
