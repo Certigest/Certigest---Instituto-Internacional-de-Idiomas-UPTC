@@ -1,8 +1,6 @@
 package com.uptc.idiomas.certigest.controller;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +28,7 @@ public class PersonController {
     PersonService personService;
     @Autowired
     CredentialsKeycloakService credentialsKeycloakService;
+
 
     private static final String UPLOAD_DIR = "uploads/profiles/";
 
@@ -60,6 +59,18 @@ public class PersonController {
     public ResponseEntity<PersonDTO> getPersonById(@PathVariable Integer id) {
         PersonDTO person = personService.findById(id);
         return person != null ? ResponseEntity.ok(person) : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/existsByDocument")
+    public ResponseEntity<Boolean> existsByDocument(@RequestParam String document) {
+        boolean exists = personService.existsByDocument(document);
+        return ResponseEntity.ok(exists);
+    }
+
+    @GetMapping("/existsByEmail")
+    public ResponseEntity<Boolean> existsByEmail(@RequestParam String email) {
+        boolean exists = personService.existsByEmail(email);
+        return ResponseEntity.ok(exists);
     }
 
     @GetMapping("/personal-account")
@@ -109,7 +120,8 @@ public class PersonController {
     }
 
     @PostMapping("/upload")
-    public String uploadProfileImage(@RequestParam("file") MultipartFile file, @AuthenticationPrincipal Jwt jwt) throws IOException {
+    public String uploadProfileImage(@RequestParam("file") MultipartFile file, @AuthenticationPrincipal Jwt jwt)
+            throws IOException {
         String username = jwt.getClaim("preferred_username");
         PersonDTO personInfo = personService.getAccountInfoByUsername(username);
         // Crear carpeta si no existe
@@ -117,14 +129,14 @@ public class PersonController {
         if (!Files.exists(path)) {
             Files.createDirectories(path);
         }
-        
+
         // Definir el nombre del archivo con el ID del usuario
         String fileName = personInfo.getPersonId() + ".jpg";
         Path filePath = path.resolve(fileName);
-        
+
         // Guardar el archivo
         file.transferTo(filePath);
-        
+
         return "Imagen de perfil subida exitosamente.";
     }
 
@@ -133,7 +145,7 @@ public class PersonController {
         String username = jwt.getClaim("preferred_username");
         PersonDTO personInfo = personService.getAccountInfoByUsername(username);
         Path filePath = Paths.get(UPLOAD_DIR).resolve(personInfo.getPersonId() + ".jpg");
-        
+
         if (Files.exists(filePath)) {
             Resource resource = new UrlResource(filePath.toUri());
             return ResponseEntity.ok()

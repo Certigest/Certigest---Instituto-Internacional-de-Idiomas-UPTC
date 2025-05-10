@@ -60,63 +60,77 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     protected JpaRepository<Person, Integer> getRepo() {
         return personRepo;
     }
+    public boolean existsByDocument(String document) {
+        return personRepo.findByDocument(document).isPresent();
+    }
 
+    public boolean existsByEmail(String email) {
+        return personRepo.findByEmail(email).isPresent();
+    }
     public PersonDTO addPersonInDb(PersonDTO personDTO) {
+    
         Location location = null;
-
+    
+        // Verificamos si la persona tiene una ubicación asociada
         if (personDTO.getLocation() != null && personDTO.getLocation().getIdLocation() != null) {
             location = locationRepo.findById(personDTO.getLocation().getIdLocation())
-                    .orElse(null);
+                    .orElse(null); // Si no existe, location será null
         }
-
+    
+        // Convertimos el DTO de la persona a una entidad Person
         Person person = PersonMapper.INSTANCE.mapPersonDTOToPerson(personDTO);
-        person.setLocation(location);
-        Person personSaved = personRepo.save(person);
-
-        // Crear el usuario en Login
+        person.setLocation(location); // Asignamos la ubicación si existe
+        Person personSaved = personRepo.save(person); // Guardamos la persona en la base de datos
+    
+        // Crear un nombre de usuario único basado en el nombre y apellido
         String[] nameParts = personDTO.getFirstName().trim().split("\\s+");
         String[] lastNameParts = personDTO.getLastName().trim().split("\\s+");
         String baseUsername = nameParts[0].toLowerCase() + lastNameParts[0].toLowerCase();
         int count = 1;
         String finalUsername;
         do {
-            finalUsername = baseUsername + count;
+            finalUsername = baseUsername + count; // Generamos variaciones en caso de nombres duplicados
             count++;
-        } while (loginRepo.existsByUserName(finalUsername));
-
+        } while (loginRepo.existsByUserName(finalUsername)); // Verificamos si el nombre de usuario ya existe
+    
+        // Creamos un nuevo registro de login con el nombre de usuario generado
         Login login = new Login();
         login.setUserName(finalUsername);
         login.setPerson(personSaved);
-        loginRepo.save(login);
-
-        // Asociar los roles recibidos
+        loginRepo.save(login); // Guardamos el login
+    
+        // Asociamos los roles a la persona si se recibieron en el DTO
         if (personDTO.getRoles() != null) {
             for (RoleDTO roleDTO : personDTO.getRoles()) {
-                RoleName roleName = roleDTO.getName(); // e.g., ADMIN
+                RoleName roleName = roleDTO.getName(); // Obtenemos el nombre del rol (e.g., ADMIN)
                 Role role = roleRepo.findByName(roleName)
                         .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + roleName));
-
+    
+                // Asociamos el rol con la persona
                 PersonRole personRole = new PersonRole();
                 personRole.setPerson(personSaved);
                 personRole.setRole(role);
-                personRoleRepo.save(personRole);
+                personRoleRepo.save(personRole); // Guardamos la asociación de rol
             }
         }
-
-        // Crear usuario en Keycloak
+    
+        // Creamos el usuario en Keycloak con los roles asignados
         List<String> rolesSeleccionados = personDTO.getRoles()
                 .stream()
                 .map(r -> r.getName().name().toLowerCase())
-                .toList();
-
+                .collect(Collectors.toList()); // Obtenemos los roles como una lista de cadenas
+    
+        // Llamada al servicio de Keycloak para crear el usuario
         keycloakService.createUser(
                 finalUsername,
                 personDTO.getEmail(),
-                personDTO.getDocument(), // contraseña
+                personDTO.getDocument(), // El documento de la persona es la contraseña
                 rolesSeleccionados);
-
+    
+        // Devolvemos el DTO de la persona recién creada
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(personSaved);
     }
+    
 
     public PersonDTO getAccountInfoByEmail(String email) {
         Optional<Person> personOpt = personRepo.findByEmail(email);

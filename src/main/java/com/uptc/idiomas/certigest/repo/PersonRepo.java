@@ -12,4 +12,7 @@ public interface PersonRepo extends JpaRepository<Person, Integer> {
 
     Optional<Person> findByEmail(String email);
     Optional<Person> findByDocument(String document);
+    boolean existsByDocument(String document);
+    boolean existsByEmail(String email);
+    
 }
