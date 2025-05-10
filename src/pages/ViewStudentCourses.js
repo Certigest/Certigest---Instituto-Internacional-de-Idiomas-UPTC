@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { getGroupsByStudent } from '../services/CourseService';
+import { useKeycloak } from '@react-keycloak/web';
 
-const StudentGroupsTable = ({ keycloak }) => {
+const StudentGroupsTable = () => {
+  const { keycloak } = useKeycloak();
   const [groups, setGroups] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -17,7 +19,6 @@ const StudentGroupsTable = ({ keycloak }) => {
         }
       }
     };
-
     fetchGroups();
   }, [keycloak]);
 
