@@ -1,18 +1,26 @@
 package com.uptc.idiomas.certigest.controller;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.uptc.idiomas.certigest.dto.CredentialDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.service.CredentialsKeycloakService;
 import com.uptc.idiomas.certigest.service.PersonService;
+import java.nio.file.*;
 
 @RestController
 @RequestMapping("/person")
@@ -22,6 +30,8 @@ public class PersonController {
     PersonService personService;
     @Autowired
     CredentialsKeycloakService credentialsKeycloakService;
+
+    private static final String UPLOAD_DIR = "uploads/profiles/";
 
     @PostMapping("/addPerson")
     public ResponseEntity<PersonDTO> savePerson(@RequestBody PersonDTO personDTO) {
@@ -96,5 +106,41 @@ public class PersonController {
     @GetMapping("/teachers")
     public List<PersonDTO> getTeachers() {
         return personService.getTeachers();
+    }
+
+    @PostMapping("/upload")
+    public String uploadProfileImage(@RequestParam("file") MultipartFile file, @AuthenticationPrincipal Jwt jwt) throws IOException {
+        String username = jwt.getClaim("preferred_username");
+        PersonDTO personInfo = personService.getAccountInfoByUsername(username);
+        // Crear carpeta si no existe
+        Path path = Paths.get(UPLOAD_DIR);
+        if (!Files.exists(path)) {
+            Files.createDirectories(path);
+        }
+        
+        // Definir el nombre del archivo con el ID del usuario
+        String fileName = personInfo.getPersonId() + ".jpg";
+        Path filePath = path.resolve(fileName);
+        
+        // Guardar el archivo
+        file.transferTo(filePath);
+        
+        return "Imagen de perfil subida exitosamente.";
+    }
+
+    @GetMapping("/image")
+    public ResponseEntity<Resource> getProfileImage(@AuthenticationPrincipal Jwt jwt) throws IOException {
+        String username = jwt.getClaim("preferred_username");
+        PersonDTO personInfo = personService.getAccountInfoByUsername(username);
+        Path filePath = Paths.get(UPLOAD_DIR).resolve(personInfo.getPersonId() + ".jpg");
+        
+        if (Files.exists(filePath)) {
+            Resource resource = new UrlResource(filePath.toUri());
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(resource);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
