@@ -40,6 +40,19 @@ spring:
     username: user
     password: 123
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: certigestuptc@gmail.com
+    password: certigest2025?
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 app:
   cors:
     allowed-origin: http://localhost:3000

@@ -61,11 +61,11 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
         return personRepo;
     }
     public boolean existsByDocument(String document) {
-        return personRepo.findByDocument(document).isPresent();
+        return personRepo.existsByDocument(document);
     }
 
     public boolean existsByEmail(String email) {
-        return personRepo.findByEmail(email).isPresent();
+        return personRepo.existsByEmail(email);
     }
     public PersonDTO addPersonInDb(PersonDTO personDTO) {
     
@@ -126,7 +126,8 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
                 personDTO.getEmail(),
                 personDTO.getDocument(), // El documento de la persona es la contraseña
                 rolesSeleccionados);
-    
+
+        
         // Devolvemos el DTO de la persona recién creada
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(personSaved);
     }
@@ -305,4 +306,5 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
         return personRepo.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + id));
     }
+
 }
