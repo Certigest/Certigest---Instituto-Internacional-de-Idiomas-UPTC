@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.uptc.idiomas.certigest.dto.LocationDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.dto.RoleDTO;
 import com.uptc.idiomas.certigest.entity.Certificate;
@@ -192,23 +193,43 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
 
     public List<PersonDTO> getAllPersons() {
         List<Person> persons = personRepo.findAll();
-
+    
         return persons.stream().map(person -> {
             PersonDTO dto = PersonMapper.INSTANCE.mapPersonToPersonDTO(person);
-
-            // Obtener los roles asociados usando el ID de la persona
+    
+            if (person.getLocation() != null) {
+                Location location = person.getLocation();
+    
+                // Obtener departamento como parent del location
+                LocationDTO parentDTO = null;
+                if (location.getParent() != null) {
+                    parentDTO = new LocationDTO(
+                        location.getParent().getIdLocation(),
+                        location.getParent().getLocationName(),
+                        null // El parent del departamento lo dejamos null para evitar recursividad infinita
+                    );
+                }
+    
+                LocationDTO locationDTO = new LocationDTO(
+                    location.getIdLocation(),
+                    location.getLocationName(),
+                    parentDTO
+                );
+    
+                dto.setLocation(locationDTO);
+            }
+    
             List<PersonRole> roles = personRoleRepo.findByPersonId(person.getPersonId());
-
-            // Convertir a RoleDTO
             List<RoleDTO> roleDTOs = roles.stream()
-                    .map(pr -> new RoleDTO(pr.getRole().getRole_id(), pr.getRole().getName()))
-                    .collect(Collectors.toList());
-
+                .map(pr -> new RoleDTO(pr.getRole().getRole_id(), pr.getRole().getName()))
+                .collect(Collectors.toList());
+    
             dto.setRoles(roleDTOs);
+    
             return dto;
         }).collect(Collectors.toList());
     }
-
+    
     @Transactional
     public void deletePersonById(int personId) {
         Person person = personRepo.findById(personId)
