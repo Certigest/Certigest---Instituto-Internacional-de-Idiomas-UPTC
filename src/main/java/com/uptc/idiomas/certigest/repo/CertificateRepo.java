@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface CertificateRepo extends JpaRepository<Certificate, Integer> {
-    
+
     // Buscar certificados por persona
     List<Certificate> findByPerson_PersonId(Integer personId);
 

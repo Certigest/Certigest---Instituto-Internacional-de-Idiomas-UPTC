@@ -34,7 +34,7 @@ spring:
 
 app:
   cors:
-    allowed-origin: https://d20bv1kx6aff3m.cloudfront.net
+    allowed-origin: https://certigestdev.click
 
 keycloak:
   auth-url: https://auth.certigestdev.click:8443

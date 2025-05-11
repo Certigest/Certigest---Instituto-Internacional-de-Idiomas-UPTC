@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @IdClass(PersonRoleId.class)
-@Table(name = "Person_Role")
+@Table(name = "person_role")
 public class PersonRole {
     @Id
     @ManyToOne
