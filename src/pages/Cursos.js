@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useKeycloak } from "@react-keycloak/web";
-import { Toast, ToastContainer} from "react-bootstrap";
-import { createCourse, getAllCourses, createLevel, createGroup, getAllTeachers, getAllGroups, updateCourse, updateGroup, updateLevel, deleteCourse, deleteGroup, deleteLevel } from "../services/CourseService";
+import { Toast, ToastContainer } from "react-bootstrap";
+import { createCourse, createLevel, createGroup, getAllTeachers, getAllGroups, updateCourse, updateGroup, updateLevel, deleteCourse, deleteGroup, deleteLevel } from "../services/CourseService";
+import ModalConfirm from "../components/ModalConfirm";
 
 const Cursos = () => {
   const { keycloak } = useKeycloak();
   const [tab, setTab] = useState("modificar");
-  const [setCourses] = useState([]);
   const [courseForm, setCourseForm] = useState({
     course_name: "",
     course_description: "",
@@ -15,6 +15,22 @@ const Cursos = () => {
     creation_date: new Date().toISOString().split("T")[0],
     state: true,
   });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(() => () => {});
+  const [modalMessage, setModalMessage] = useState("");
+
+  const openConfirmModal = (action, message) => {
+    setConfirmAction(() => action);
+    setModalMessage(message);
+    setIsModalOpen(true);
+  };
+
+  const closeConfirmModal = () => {
+    setIsModalOpen(false);
+    setConfirmAction(() => () => {});
+  };
+
   const [message, setMessage] = useState({ type: "", text: "" });
   const handleCloseToast = () => setMessage({ ...message, show: false });
   const [levels, setLevels] = useState([
@@ -70,15 +86,6 @@ const Cursos = () => {
       return updatedLevels;
     });
   };
-
-  const loadCourses = useCallback(async () => {
-    try {
-      const data = await getAllCourses(keycloak.token);
-      setCourses(data);
-    } catch (err) {
-      console.error("Error cargando cursos:", err);
-    }
-  }, [keycloak.token, setCourses]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -150,12 +157,6 @@ const Cursos = () => {
       },
     ]);
   };
-
-  useEffect(() => {
-    if (tab === "ver" && keycloak?.authenticated) {
-      loadCourses();
-    }
-  }, [tab, keycloak, loadCourses]);
 
   useEffect(() => {
     async function fetchTeachers() {
@@ -680,7 +681,7 @@ const Cursos = () => {
                           <button className="btn btn-sm btn-primary me-2" onClick={() => handleEditCourse(course)}>
                             Modificar
                           </button>
-                          <button className="btn btn-sm btn-danger" onClick={() => handleDeleteCourse(course.id_course)}>
+                          <button className="btn btn-sm btn-danger" onClick={() => openConfirmModal(() => handleDeleteCourse(course.id_course), `¿Estás seguro de que quieres eliminar el curso "${course.course_name}"?`)}>
                             Eliminar
                           </button>
                         </>
@@ -758,7 +759,7 @@ const Cursos = () => {
                                       Modificar
                                     </button>
                                     {!isOnlyLevelInCourse && (
-                                      <button className="btn btn-sm btn-danger" onClick={() => handleDeleteLevel(level.level_id)}>
+                                      <button className="btn btn-sm btn-danger" onClick={() => openConfirmModal(() => handleDeleteLevel(level.level_id), `¿Estás seguro de que quieres eliminar el nivel "${level.level_name}"?`)}>
                                         Eliminar
                                       </button>
                                     )}
@@ -794,7 +795,7 @@ const Cursos = () => {
                                                     Modificar
                                                   </button>
                                                   {!isOnlyGroupInLevel && (
-                                                    <button className="btn btn-sm btn-danger" onClick={() => handleDeleteGroup(group.group_id)}>
+                                                    <button className="btn btn-sm btn-danger" onClick={() => openConfirmModal(() => handleDeleteGroup(group.group_id), `¿Estás seguro de que quieres eliminar el grupo "${group.group_name}"?`)}>
                                                       Eliminar
                                                     </button>
                                                   )}
@@ -989,6 +990,16 @@ const Cursos = () => {
                 </div>
               </div>
             ))}
+            {isModalOpen && (
+              <ModalConfirm
+                message={modalMessage}
+                onConfirm={() => {
+                  confirmAction();
+                  closeConfirmModal();
+                }}
+                onCancel={closeConfirmModal}
+              />
+            )}
           </div>
         );
       default:
