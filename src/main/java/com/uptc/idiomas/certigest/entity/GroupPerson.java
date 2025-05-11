@@ -9,7 +9,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Group_Person")
+@Table(name = "group_Person")
 public class GroupPerson {
 
     @EmbeddedId

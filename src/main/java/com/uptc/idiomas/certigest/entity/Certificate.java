@@ -10,9 +10,12 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "certificate")
 public class Certificate {
 
-    public enum CertificateType { BASIC, NOTES, COSTO }
+    public enum CertificateType {
+        BASIC, NOTES, COSTO
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

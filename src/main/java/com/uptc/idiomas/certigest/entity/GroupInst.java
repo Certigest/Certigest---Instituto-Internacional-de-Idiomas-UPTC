@@ -10,7 +10,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Group_inst")
+@Table(name = "group_inst")
 public class GroupInst {
 
     @Id
