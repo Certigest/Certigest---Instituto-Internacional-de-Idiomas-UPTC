@@ -2,14 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { useKeycloak } from '@react-keycloak/web';
 import { getAccountInfo, modifyAccountInfo, uploadProfileImage, getProfileImage } from '../services/UserService';
 import { useNavigate } from 'react-router-dom';
+import ModalConfirm from '../components/ModalConfirm';
 
 export default function Cuenta() {
+  
   const { keycloak } = useKeycloak();
   const [editedUser, setEditedUser] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewImageUrl, setPreviewImageUrl] = useState(null);
   const [showNotification, setShowNotification] = useState(false);
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(() => () => {});
+  const [modalMessage, setModalMessage] = useState("");
+
+  const openConfirmModal = (action, message) => {
+    setConfirmAction(() => action);
+    setModalMessage(message);
+    setIsModalOpen(true);
+  };
+
+  const closeConfirmModal = () => {
+    setIsModalOpen(false);
+    setConfirmAction(() => () => {});
+  };
 
   useEffect(() => {
     const fetchAccountInfo = async () => {
@@ -143,13 +159,23 @@ export default function Cuenta() {
 
       <div className="text-center mt-4">
         <button className="btn btn-secondary me-2" onClick={handleCancel}>Cancelar</button>
-        <button className="btn btn-warning fw-bold shadow" onClick={handleSave}>Guardar Cambios</button>
+        <button className="btn btn-warning fw-bold shadow" onClick={() => openConfirmModal(() => handleSave(), "¿Está seguro que desea guardar los cambios?")}>Guardar Cambios</button>
       </div>
 
       {showNotification && (
         <div className="alert alert-success mt-3" role="alert" >
           Cambios guardados
         </div>
+      )}
+      {isModalOpen && (
+        <ModalConfirm
+          message={modalMessage}
+          onConfirm={() => {
+            confirmAction();
+            closeConfirmModal();
+          }}
+          onCancel={closeConfirmModal}
+        />
       )}
     </div>
   );

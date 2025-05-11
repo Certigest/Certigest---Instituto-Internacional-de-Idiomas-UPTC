@@ -31,7 +31,7 @@ export default function GroupStudents() {
     try {
       await removeStudentFromGroup(groupId, studentId, keycloak.token);
 
-      setStudents(students.filter((s) => s.personId !== studentId));
+      setStudents(students.filter((s) => s.studentId !== studentId));
       setSuccessMessage('Estudiante eliminado con éxito');
       setErrorMessage('');
     } catch (err) {
@@ -78,14 +78,14 @@ export default function GroupStudents() {
           </thead>
           <tbody>
             {students.map((student) => (
-              <tr key={student.personId}>
+              <tr key={student.studentId}>
                 <td>{student.firstName} {student.lastName}</td>
                 <td>{student.document}</td>
                 <td>{student.email}</td>
                 <td>
                   <button
                     className="btn btn-danger btn-sm"
-                    onClick={() => handleRemoveStudent(student.personId)}
+                    onClick={() => handleRemoveStudent(student.studentId)}
                   >
                     Eliminar
                   </button>
