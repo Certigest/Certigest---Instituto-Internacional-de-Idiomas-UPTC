@@ -16,7 +16,14 @@ const Cursos = () => {
   });
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  const [levels, setLevels] = useState([]);
+  const [levels, setLevels] = useState([
+    {
+      level_name: "",
+      level_description: "",
+      state: true,
+      groups: [{ group_name: "", schedule: "", group_teacher: "", start_date: "", end_date: "", state: true }],
+    }
+  ]);
 
   const handleAddLevel = () => {
     setLevels([
@@ -25,7 +32,7 @@ const Cursos = () => {
         level_name: "",
         level_description: "",
         state: true,
-        groups: [{ group_name: "", schedule: "", group_teacher: "" , start_date: "", end_date:"", state: true,}],
+        groups: [{ group_name: "", schedule: "", group_teacher: "", start_date: "", end_date: "", state: true }],
       },
     ]);
   };
@@ -45,7 +52,7 @@ const Cursos = () => {
 
   const handleAddGroup = (levelIndex) => {
     const updated = [...levels];
-    updated[levelIndex].groups.push({ group_name: "", schedule: "", group_teacher: "" , start_date: "", end_date:"", state: true,});
+    updated[levelIndex].groups.push({ group_name: "", schedule: "", group_teacher: "", start_date: "", end_date: "", state: true });
     setLevels(updated);
   };
 
@@ -174,7 +181,6 @@ const Cursos = () => {
     group_teacher: null,
   });
 
-
   const [creatingLevelForCourseId, setCreatingLevelForCourseId] = useState(null);
   const [newLevelGroup, setNewLevelGroup] = useState({
     level_name: "",
@@ -183,7 +189,6 @@ const Cursos = () => {
     schedule: "",
     group_teacher: null,
   });
-
 
   const handleStartCreatingLevel = (courseId) => {
     setCreatingLevelForCourseId(courseId);
@@ -255,7 +260,7 @@ const Cursos = () => {
           updated[levelIndex][name] = value;
           setLevels(updated);
         };
-        
+
         const handleGroupChange = (e, levelIndex, groupIndex) => {
           const { name, value } = e.target;
           const updated = [...levels];
@@ -272,150 +277,139 @@ const Cursos = () => {
                 {message.text}
               </div>
             )}
+            <form onSubmit={handleSubmit}>
+              <div className="row">
+                {/* FORMULARIO PRINCIPAL */}
+                <div className="col-md-6">
+                  <div className="mb-3">
+                    <label className="form-label">Nombre del Curso</label>
+                    <input type="text" name="course_name" className="form-control border-secondary" value={courseForm.course_name} onChange={handleInputChange} required />
+                  </div>
 
-            <div className="row">
-              {/* FORMULARIO PRINCIPAL */}
-              <div className="col-md-6">
-                <div className="mb-3">
-                  <label className="form-label">Nombre del Curso</label>
-                  <input type="text" name="course_name" className="form-control border-secondary" value={courseForm.course_name} onChange={handleInputChange} required />
+                  <div className="mb-3">
+                    <label className="form-label">Descripción del Curso</label>
+                    <textarea name="course_description" className="form-control border-secondary" rows="3" value={courseForm.course_description} onChange={handleInputChange} required></textarea>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Tipo de Curso</label>
+                    <select name="course_type" className="form-select border-secondary" value={courseForm.course_type} onChange={handleInputChange} required>
+                      <option value="DEFAULT">Normal</option>
+                      <option value="KIDS">Niños</option>
+                      <option value="SKILLS">Curso con Habilidades</option>
+                    </select>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Idioma</label>
+                    <input type="text" name="language" className="form-control border-secondary" value={courseForm.language} onChange={handleInputChange} required />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Fecha de Creación</label>
+                    <input type="date" name="creation_date" className="form-control border-secondary" value={courseForm.creation_date} onChange={handleInputChange} required />
+                  </div>
                 </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Descripción del Curso</label>
-                  <textarea name="course_description" className="form-control border-secondary" rows="3" value={courseForm.course_description} onChange={handleInputChange} required></textarea>
-                </div>
+                {/* SECCIÓN NIVELES */}
+                <div className="col-md-6">
+                  <div className="p-3 border border-warning border-3 rounded bg-warning" style={{ maxHeight: "500px", overflowY: "auto" }}>
+                    {levels.map((level, levelIndex) => (
+                      <div key={levelIndex} className="mb-4 p-3 border border-warning rounded bg-light">
+                        {/* Encabezado Nivel */}
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                          <h5 className="text-warning mb-0">Nivel #{levelIndex + 1}</h5>
+                          {levels.length > 1 && (
+                          <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => handleRemoveLevel(levelIndex)}>
+                            Eliminar Nivel
+                          </button>
+                          )}
+                        </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Tipo de Curso</label>
-                  <select name="course_type" className="form-select border-secondary" value={courseForm.course_type} onChange={handleInputChange} required>
-                    <option value="DEFAULT">Normal</option>
-                    <option value="KIDS">Niños</option>
-                    <option value="SKILLS">Curso con Habilidades</option>
-                  </select>
-                </div>
+                        {/* Campos del Nivel */}
+                        <div className="mb-2">
+                          <label className="form-label">Nombre del Nivel</label>
+                          <input type="text" name="level_name" className="form-control" value={level.level_name} onChange={(e) => handleLevelChange(e, levelIndex)} required/>
+                        </div>
+                        <div className="mb-3">
+                          <label className="form-label">Descripción del Nivel</label>
+                          <textarea name="level_description" className="form-control" rows="2" value={level.level_description} onChange={(e) => handleLevelChange(e, levelIndex)} required></textarea>
+                        </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Idioma</label>
-                  <input type="text" name="language" className="form-control border-secondary" value={courseForm.language} onChange={handleInputChange} required />
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label">Fecha de Creación</label>
-                  <input type="date" name="creation_date" className="form-control border-secondary" value={courseForm.creation_date} onChange={handleInputChange} required />
-                </div>
-              </div>
-
-              {/* SECCIÓN NIVELES */}
-              <div className="col-md-6">
-                <div className="p-3 border border-warning border-3 rounded bg-warning" style={{ maxHeight: "500px", overflowY: "auto" }}>
-                  {levels.map((level, levelIndex) => (
-                    <div key={levelIndex} className="mb-4 p-3 border border-warning rounded bg-light">
-                      {/* Encabezado Nivel */}
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h5 className="text-warning mb-0">Nivel #{levelIndex + 1}</h5>
-                        <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => handleRemoveLevel(levelIndex)}>
-                          Eliminar Nivel
-                        </button>
-                      </div>
-
-                      {/* Campos del Nivel */}
-                      <div className="mb-2">
-                        <label className="form-label">Nombre del Nivel</label>
-                        <input type="text" name="level_name" className="form-control" value={level.level_name} onChange={(e) => handleLevelChange(e, levelIndex)} />
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label">Descripción del Nivel</label>
-                        <textarea name="level_description" className="form-control" rows="2" value={level.level_description} onChange={(e) => handleLevelChange(e, levelIndex)}></textarea>
-                      </div>
-
-                      {/* Grupos */}
-                      <div className="bg-white border rounded p-2 mb-3">
-                        <h6 className="text-secondary">Grupos</h6>
-                        {level.groups.map((group, groupIndex) => (
-                          <div key={groupIndex} className="mb-3 p-3 bg-body border-start border-secondary border-3 rounded position-relative">
-                            <div className="d-flex justify-content-between align-items-center mb-2">
-                              <h6 className="text-secondary mb-0">Grupo #{groupIndex + 1}</h6>
-                              {level.groups.length > 1 && (
-                                <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => handleRemoveGroup(levelIndex, groupIndex)}>
-                                  Eliminar Grupo
-                                </button>
-                              )}
-                            </div>
-
-                            <div className="mb-2">
-                              <label className="form-label">Nombre del Grupo</label>
-                              <input type="text" name="group_name" className="form-control" value={group.group_name} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required />
-                            </div>
-
-                            <div className="mb-2">
-                              <label className="form-label">Horario</label>
-                              <input type="text" name="schedule" className="form-control" value={group.schedule} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required />
-                            </div>
-                            <div className="mb-2">
-                              <label className="form-label">Profesor Asignado</label>
-                              <select name="group_teacher" className="form-select" value={group.group_teacher || ""} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required>
-                                <option value="">Seleccione un profesor</option>
-                                {teachers.map((teacher) => (
-                                  <option key={teacher.personId} value={teacher.personId}>
-                                    {teacher.firstName} {teacher.lastName} - {teacher.email}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                            <div className="row mb-2">
-                              <div className="col">
-                                <label className="form-label">Fecha de Inicio</label>
-                                <input
-                                  type="date"
-                                  name="start_date"
-                                  className="form-control"
-                                  value={group.start_date || ""}
-                                  onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)}
-                                  required
-                                />
+                        {/* Grupos */}
+                        <div className="bg-white border rounded p-2 mb-3">
+                          <h6 className="text-secondary">Grupos</h6>
+                          {level.groups.map((group, groupIndex) => (
+                            <div key={groupIndex} className="mb-3 p-3 bg-body border-start border-secondary border-3 rounded position-relative">
+                              <div className="d-flex justify-content-between align-items-center mb-2">
+                                <h6 className="text-secondary mb-0">Grupo #{groupIndex + 1}</h6>
+                                {level.groups.length > 1 && (
+                                  <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => handleRemoveGroup(levelIndex, groupIndex)}>
+                                    Eliminar Grupo
+                                  </button>
+                                )}
                               </div>
-                              <div className="col">
-                                <label className="form-label">Fecha de Fin</label>
-                                <input
-                                  type="date"
-                                  name="end_date"
-                                  className="form-control"
-                                  value={group.end_date || ""}
-                                  onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)}
-                                  required
-                                />
+
+                              <div className="mb-2">
+                                <label className="form-label">Nombre del Grupo</label>
+                                <input type="text" name="group_name" className="form-control" value={group.group_name} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required />
+                              </div>
+
+                              <div className="mb-2">
+                                <label className="form-label">Horario</label>
+                                <input type="text" name="schedule" className="form-control" value={group.schedule} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required />
+                              </div>
+                              <div className="mb-2">
+                                <label className="form-label">Profesor Asignado</label>
+                                <select name="group_teacher" className="form-select" value={group.group_teacher || ""} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required>
+                                  <option value="">Seleccione un profesor</option>
+                                  {teachers.map((teacher) => (
+                                    <option key={teacher.personId} value={teacher.personId}>
+                                      {teacher.firstName} {teacher.lastName} - {teacher.email}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div className="row mb-2">
+                                <div className="col">
+                                  <label className="form-label">Fecha de Inicio</label>
+                                  <input type="date" name="start_date" className="form-control" value={group.start_date || ""} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required />
+                                </div>
+                                <div className="col">
+                                  <label className="form-label">Fecha de Fin</label>
+                                  <input type="date" name="end_date" className="form-control" value={group.end_date || ""} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required />
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
 
-                      {/* Botón agregar grupo */}
-                      <div className="text-center">
-                        <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => handleAddGroup(levelIndex)}>
-                          Agregar Grupo
-                        </button>
+                        {/* Botón agregar grupo */}
+                        <div className="text-center">
+                          <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => handleAddGroup(levelIndex)}>
+                            Agregar Grupo
+                          </button>
+                        </div>
                       </div>
+                    ))}
+
+                    {/* Botón agregar nivel */}
+                    <div className="text-center">
+                      <button type="button" className="btn btn-outline-dark mt-2" onClick={handleAddLevel}>
+                        Agregar Nivel
+                      </button>
                     </div>
-                  ))}
-
-                  {/* Botón agregar nivel */}
-                  <div className="text-center">
-                    <button type="button" className="btn btn-outline-dark mt-2" onClick={handleAddLevel}>
-                      Agregar Nivel
-                    </button>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* BOTÓN DE ENVÍO GLOBAL */}
-            <div className="text-end mt-4">
-              <button type="submit" className="btn btn-warning fw-bold shadow" onClick={handleSubmit}>
-                Crear Curso
-              </button>
-            </div>
+              {/* BOTÓN DE ENVÍO GLOBAL */}
+              <div className="text-end mt-4">
+                <button type="submit" className="btn btn-warning fw-bold shadow">
+                  Crear Curso
+                </button>
+              </div>
+            </form>
           </div>
         );
       case "ver":
