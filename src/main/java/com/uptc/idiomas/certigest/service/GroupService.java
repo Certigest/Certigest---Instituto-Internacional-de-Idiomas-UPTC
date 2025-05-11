@@ -5,6 +5,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,17 +146,21 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
 
     public void addStudentToGroup(Integer personId, Integer groupId) {
         GroupPersonId id = new GroupPersonId(personId, groupId);
-        System.out.println("Crea registro en groupPerson con ID: " + " " + personId + " " + groupId);
-        // Verificar si ya existe una inscripción para evitar duplicados
-        if (groupPersonRepo.existsById(id)) {
-            throw new IllegalStateException("El estudiante ya está inscrito en este grupo.");
+
+        Optional<GroupPerson> existing = groupPersonRepo.findById(id);
+        if (existing.isPresent()) {
+            Float calification = existing.get().getCalification();
+            if (calification == null || calification >= 30) {
+                throw new IllegalStateException("El estudiante ya está inscrito en este grupo con calificación válida.");
+            } else {
+                System.out.println("Reinscribiendo al estudiante con calificación anterior: " + calification);
+                groupPersonRepo.deleteById(id);
+            }
         }
-        System.out.println(
-                "---------------------------Crea registro en groupPerson con ID: " + " " + personId + " " + groupId);
-        // Obtener el grupo por su ID
+
         GroupInst group = groupRepo.findById(groupId)
                 .orElseThrow(() -> new IllegalStateException("Grupo no encontrado"));
-        System.out.println("Crea registro en groupPerson con ID: " + " " + personId + " " + groupId);
+
         GroupPerson groupPerson = new GroupPerson();
         groupPerson.setId(id);
         groupPerson.setPerson_id(personService.getPersonById(personId));
@@ -171,5 +176,6 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
 
         groupPersonRepo.save(groupPerson);
     }
+
 
 }
