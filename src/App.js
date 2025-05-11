@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Route,
@@ -9,10 +9,6 @@ import {
 } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
 
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
-import SidebarStudent from './components/SidebarStudent';
-import SidebarTeacher from './components/SidebarTeacher';
 import ResponsiveNavbar from './components/ResponsiveNavbar';
 
 import Home from './pages/Home';
@@ -74,19 +70,6 @@ function LayoutWithRoles() {
   if (selectedRole && location.pathname === '/') {
     return <Navigate to="/home" replace />;
   }
-
-  const renderSidebar = () => {
-    switch (selectedRole) {
-      case 'admin':
-        return <Sidebar isOpen={true} onClose={() => {}} onToggleSidebar={() => {}} />;
-      case 'teacher':
-        return <SidebarTeacher isOpen={true} onClose={() => {}} onToggleSidebar={() => {}} />;
-      case 'student':
-        return <SidebarStudent isOpen={true} onClose={() => {}} onToggleSidebar={() => {}} />;
-      default:
-        return null;
-    }
-  };
 
   return (
     <div className="app-wrapper">

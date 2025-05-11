@@ -27,16 +27,20 @@ function ResponsiveNavbar({ children }) {
     const fetchProfileImage = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_HOST}/person/image`, {
-          headers: { Authorization: `Bearer ${keycloak.token}` },
-          responseType: "blob",
+          headers: {
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+          responseType: 'blob',
         });
         setProfileImageUrl(URL.createObjectURL(response.data));
       } catch (error) {
-        console.warn("No se pudo cargar la imagen de perfil:", error.response?.status);
+        console.warn('No se pudo cargar la imagen de perfil:', error.response?.status);
       }
     };
 
-    if (keycloak?.authenticated) fetchProfileImage();
+    if (keycloak?.authenticated) {
+      fetchProfileImage();
+    }
   }, [keycloak]);
 
   const handleRoleChange = (role) => {
@@ -170,7 +174,7 @@ function ResponsiveNavbar({ children }) {
           <div className="me-3 text-end">
             <div className="small text-dark">
               <button className="btn btn-link text-dark p-0" onClick={toggleMenu} style={{ background: "none", border: "none" }}>
-                <img src={perfilPlaceholder} alt="Perfil" className="rounded-circle" style={{ width: "40px", height: "40px", objectFit: "cover" }} />
+                <img src={profileImageUrl || perfilPlaceholder} alt="Perfil" className="rounded-circle" style={{ width: "40px", height: "40px", objectFit: "cover" }} />
               </button>
 
               {isOpen && (
