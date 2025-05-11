@@ -64,7 +64,7 @@ public class GroupController {
     }
 
     @GetMapping("/studentsGroup/{groupId}")
-    public ResponseEntity<List<PersonDTO>> getStudentsGroup(@PathVariable Integer groupId) {
+    public ResponseEntity<List<PersonDTONote>> getStudentsGroup(@PathVariable Integer groupId) {
         return new ResponseEntity<>(groupService.getPersonsByGroupIdAndActiveDate(groupId), HttpStatus.OK);
     }
 

@@ -10,5 +10,6 @@ public class PersonDTONote {
     private String firstName;
     private String lastName;
     private String document;
+    private String email;
     private Float calification;
 }

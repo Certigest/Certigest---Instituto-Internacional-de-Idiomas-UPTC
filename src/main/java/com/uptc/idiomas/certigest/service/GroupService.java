@@ -114,13 +114,22 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
                 .collect(Collectors.toList());
     }
 
-    public List<PersonDTO> getPersonsByGroupIdAndActiveDate(Integer groupId) {
+    public List<PersonDTONote> getPersonsByGroupIdAndActiveDate(Integer groupId) {
         List<Person> persons = groupPersonRepo.findPersonsByGroupIdAndActiveDate(groupId, new Date());
-        List<PersonDTO> personDTOs = new ArrayList<>();
+        GroupPerson groupPerson = null;
+        List<PersonDTONote> personDTOList = new ArrayList<>();
         for (Person person : persons) {
-            personDTOs.add(PersonMapper.INSTANCE.mapPersonToPersonDTO(person));
+            groupPerson = groupPersonRepo.findById(new GroupPersonId(person.getPersonId(), groupId))
+                .orElseThrow(() -> new EntityNotFoundException("Grupo no encontrado"));
+            PersonDTONote personDTO = new PersonDTONote();
+            personDTO.setDocument(person.getDocument());
+            personDTO.setFirstName( person.getFirstName());
+            personDTO.setLastName(person.getLastName());
+            personDTO.setEmail(person.getEmail());
+            personDTO.setCalification(groupPerson.getCalification());
+            personDTOList.add(personDTO);
         }
-        return personDTOs;
+        return personDTOList;
     }
 
     public List<GroupInst> getGroupActiveByDateRange() {

@@ -10,7 +10,6 @@ import lombok.*;
 @NoArgsConstructor
 @Table(name = "level")
 public class Level {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer level_id;
@@ -21,5 +20,10 @@ public class Level {
 
     private String level_name;
     private String level_description;
+    private Integer level_cost;
+    private Integer material_cost;
     private Boolean state;
+    public enum LevelModality {
+        In_person, virtual
+    }
 }
