@@ -14,4 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface GroupInstRepo extends JpaRepository<GroupInst, Integer> {
     @Query("SELECT g FROM GroupInst g WHERE g.level_id.level_id = :levelId")
     List<GroupInst> findByLevelId(@Param("levelId") Integer levelId);
+
+    @Query("SELECT g FROM GroupInst g WHERE g.state = true")
+    List<GroupInst> findAllActiveGroups();
 }

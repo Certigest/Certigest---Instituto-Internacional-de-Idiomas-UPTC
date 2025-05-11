@@ -54,6 +54,14 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
     }
 
     @Override
+    public List<GroupInstDTO> findAll() {
+        return groupRepo.findAllActiveGroups()
+                .stream()
+                .map(mapper::mapGroupInstToGroupInstDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void deleteById(Integer id) {
         GroupInst group = groupRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Grupo no encontrado"));
 
