@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useKeycloak } from "@react-keycloak/web";
+import { Toast, ToastContainer} from "react-bootstrap";
 import { createCourse, getAllCourses, createLevel, createGroup, getAllTeachers, getAllGroups, updateCourse, updateGroup, updateLevel, deleteCourse, deleteGroup, deleteLevel } from "../services/CourseService";
 
 const Cursos = () => {
@@ -15,14 +16,14 @@ const Cursos = () => {
     state: true,
   });
   const [message, setMessage] = useState({ type: "", text: "" });
-
+  const handleCloseToast = () => setMessage({ ...message, show: false });
   const [levels, setLevels] = useState([
     {
       level_name: "",
       level_description: "",
       state: true,
       groups: [{ group_name: "", schedule: "", group_teacher: "", start_date: "", end_date: "", state: true }],
-    }
+    },
   ]);
 
   const handleAddLevel = () => {
@@ -140,7 +141,14 @@ const Cursos = () => {
       creation_date: "",
     });
 
-    setLevels([]);
+    setLevels([
+      {
+        level_name: "",
+        level_description: "",
+        state: true,
+        groups: [{ group_name: "", schedule: "", group_teacher: "", start_date: "", end_date: "", state: true }],
+      },
+    ]);
   };
 
   useEffect(() => {
@@ -273,9 +281,23 @@ const Cursos = () => {
             <h3 className="text-dark mb-4">Crear Curso</h3>
 
             {message.text && (
-              <div className={`alert alert-${message.type} mt-2`} role="alert">
-                {message.text}
-              </div>
+              <ToastContainer position="bottom-end" className="p-3">
+                <Toast
+                  show={message.show}
+                  onClose={handleCloseToast}
+                  delay={3000}
+                  autohide
+                  className={`border-0 shadow-lg rounded-3 bg-${message.type} position-relative`}
+                  style={{
+                    minHeight: "80px",
+                  }}
+                >
+                  <Toast.Body className="text-white px-4 py-3 fs-6 w-100" style={{ fontSize: "1rem" }}>
+                    {message.text}
+                  </Toast.Body>
+                </Toast>
+                <style>{`@media (min-width: 768px) {.toast {max-width: 400px;}.toast-body {font-size: 1.25rem;}}`}</style>
+              </ToastContainer>
             )}
             <form onSubmit={handleSubmit}>
               <div className="row">
@@ -320,16 +342,16 @@ const Cursos = () => {
                         <div className="d-flex justify-content-between align-items-center mb-2">
                           <h5 className="text-warning mb-0">Nivel #{levelIndex + 1}</h5>
                           {levels.length > 1 && (
-                          <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => handleRemoveLevel(levelIndex)}>
-                            Eliminar Nivel
-                          </button>
+                            <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => handleRemoveLevel(levelIndex)}>
+                              Eliminar Nivel
+                            </button>
                           )}
                         </div>
 
                         {/* Campos del Nivel */}
                         <div className="mb-2">
                           <label className="form-label">Nombre del Nivel</label>
-                          <input type="text" name="level_name" className="form-control" value={level.level_name} onChange={(e) => handleLevelChange(e, levelIndex)} required/>
+                          <input type="text" name="level_name" className="form-control" value={level.level_name} onChange={(e) => handleLevelChange(e, levelIndex)} required />
                         </div>
                         <div className="mb-3">
                           <label className="form-label">Descripción del Nivel</label>
@@ -417,8 +439,10 @@ const Cursos = () => {
           try {
             await deleteCourse(courseId, keycloak.token);
             setGroupData((prev) => prev.filter((g) => g.level_id.id_course.id_course !== courseId));
+            setMessage({ type: "success", text: "Curso Eliminado Correctamente." });
           } catch (err) {
             console.error("Error eliminando curso:", err);
+            setMessage({ type: "danger", text: "Hubo un error, contacte a un administrador." });
           }
         };
 
@@ -426,8 +450,10 @@ const Cursos = () => {
           try {
             await deleteLevel(levelId, keycloak.token);
             setGroupData((prev) => prev.filter((g) => g.level_id.level_id !== levelId));
+            setMessage({ type: "success", text: "Nivel Eliminado Correctamente." });
           } catch (err) {
             console.error("Error eliminando nivel:", err);
+            setMessage({ type: "danger", text: "Hubo un error, contacte a un administrador." });
           }
         };
 
@@ -435,8 +461,10 @@ const Cursos = () => {
           try {
             await deleteGroup(groupId, keycloak.token);
             setGroupData((prev) => prev.filter((g) => g.group_id !== groupId));
+            setMessage({ type: "success", text: "Grupo Eliminado Correctamente." });
           } catch (err) {
             console.error("Error eliminando grupo:", err);
+            setMessage({ type: "danger", text: "Hubo un error, contacte a un administrador." });
           }
         };
 
@@ -497,8 +525,9 @@ const Cursos = () => {
             });
             setGroupData(updated);
             handleCancelEdit();
+            setMessage({ type: "success", text: "Curso Actualizado Correctamente" });
           } catch (err) {
-            console.error("Error actualizando curso:", err);
+            setMessage({ type: "danger", text: "Hubo un error, contacte a un administrador." });
           }
         };
 
@@ -516,8 +545,10 @@ const Cursos = () => {
             });
             setGroupData(updated);
             handleCancelEdit();
+            setMessage({ type: "success", text: "Nivel Actualizado Correctamente." });
           } catch (err) {
             console.error("Error actualizando nivel:", err);
+            setMessage({ type: "danger", text: "Hubo un error, contacte a un administrador." });
           }
         };
 
@@ -527,8 +558,10 @@ const Cursos = () => {
             const updated = groupData.map((g) => (g.group_id === editedGroup.group_id ? editedGroup : g));
             setGroupData(updated);
             handleCancelEdit();
+            setMessage({ type: "success", text: "Grupo actualizado Correctamente." });
           } catch (err) {
             console.error("Error actualizando grupo:", err);
+            setMessage({ type: "danger", text: "Hubo un error, contacte a un administrador." });
           }
         };
 
@@ -599,13 +632,34 @@ const Cursos = () => {
             const fresh = await getAllGroups(keycloak.token);
             setGroupData(fresh);
             handleCancelCreatingGroup();
+            setMessage({ type: "success", text: "Grupo Guardado Correctamente." });
           } catch (err) {
             console.error("Error creando grupo:", err);
+            setMessage({ type: "danger", text: "Hubo un error, contacte a un administrador." });
           }
         };
 
         return (
           <div className="container mt-4">
+            {message.text && (
+              <ToastContainer position="bottom-end" className="p-3">
+                <Toast
+                  show={message.show}
+                  onClose={handleCloseToast}
+                  delay={3000}
+                  autohide
+                  className={`border-0 shadow-lg rounded-3 bg-${message.type} position-relative`}
+                  style={{
+                    minHeight: "80px",
+                  }}
+                >
+                  <Toast.Body className="text-white px-4 py-3 fs-6 w-100" style={{ fontSize: "1rem" }}>
+                    {message.text}
+                  </Toast.Body>
+                </Toast>
+                <style>{`@media (min-width: 768px) {.toast {max-width: 400px;}.toast-body {font-size: 1.25rem;}}`}</style>
+              </ToastContainer>
+            )}
             {Object.values(groupedCourses).map(({ course, levels }) => (
               <div key={course.id_course} className="mb-4">
                 <div className="card shadow-sm">
