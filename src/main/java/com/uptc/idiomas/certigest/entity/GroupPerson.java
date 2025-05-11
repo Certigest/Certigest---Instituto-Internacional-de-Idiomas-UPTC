@@ -37,7 +37,7 @@ public class GroupPerson {
     private Integer material_cost;
 
     @Enumerated(EnumType.STRING)
-    private LevelModality LEVEL_MODALITY;
+    public LevelModality LEVEL_MODALITY;
 
     private String level_duration;
 }

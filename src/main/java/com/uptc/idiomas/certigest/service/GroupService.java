@@ -2,6 +2,7 @@ package com.uptc.idiomas.certigest.service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -122,6 +123,7 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
             groupPerson = groupPersonRepo.findById(new GroupPersonId(person.getPersonId(), groupId))
                 .orElseThrow(() -> new EntityNotFoundException("Grupo no encontrado"));
             PersonDTONote personDTO = new PersonDTONote();
+            personDTO.setStudentId(person.getPersonId());
             personDTO.setDocument(person.getDocument());
             personDTO.setFirstName( person.getFirstName());
             personDTO.setLastName(person.getLastName());
@@ -186,13 +188,18 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
         groupPerson.setStart_date(group.getStart_date());
         groupPerson.setEnd_date(group.getEnd_date());
         groupPerson.setCalification(null);
-        groupPerson.setLevel_cost(0);
-        groupPerson.setMaterial_cost(0);
-        groupPerson.setLEVEL_MODALITY(null);
-        groupPerson.setLevel_duration("");
+        groupPerson.setLevel_cost(group.getLevel_id().getLevel_cost());
+        groupPerson.setMaterial_cost(group.getLevel_id().getMaterial_cost());
+        /* 
+        groupPerson.setLEVEL_MODALITY(GroupPerson.LevelModality.valueOf(group.getLevel_id().getLevel_modality().name()));
+        */
+        LocalDate start = group.getStart_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate end = group.getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
+        long days = ChronoUnit.DAYS.between(start, end);
+        long weeks = days / 7;
+        groupPerson.setLevel_duration(weeks + " semanas");
+        
         groupPersonRepo.save(groupPerson);
     }
-
-
 }

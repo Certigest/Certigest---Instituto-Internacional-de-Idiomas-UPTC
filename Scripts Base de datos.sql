@@ -72,8 +72,10 @@ CREATE TABLE level (
     id_course INT,
     level_name VARCHAR(100),
     state BOOLEAN,
+    level_cost INT,
+    material_cost INT,
+    LEVEL_MODALITY ENUM('In_person', 'virtual'),
     level_description TEXT
-
 );
 
 CREATE TABLE group_inst (

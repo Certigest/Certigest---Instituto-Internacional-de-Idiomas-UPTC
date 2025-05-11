@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 public class PersonDTONote {
 
+    private Integer studentId;
     private String firstName;
     private String lastName;
     private String document;

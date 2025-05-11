@@ -26,4 +26,6 @@ public class Level {
     public enum LevelModality {
         In_person, virtual
     }
+    @Enumerated(EnumType.STRING)
+    private LevelModality level_modality;
 }
