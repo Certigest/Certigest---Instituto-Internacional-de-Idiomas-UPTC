@@ -15,18 +15,18 @@ import java.util.List;
 public interface PersonRoleRepo extends JpaRepository<PersonRole, PersonRoleId> {
 
     // Obtener por nombre del rol
-    @Query("SELECT pr FROM PersonRole pr WHERE pr.role.name = :roleName")
+    @Query("SELECT pr FROM personRole pr WHERE pr.role.name = :roleName")
     List<PersonRole> findByRoleName(RoleName roleName);
 
     // Obtener todos los PersonRole de una persona
-    @Query("SELECT pr FROM PersonRole pr WHERE pr.person.id = :personId")
+    @Query("SELECT pr FROM personRole pr WHERE pr.person.id = :personId")
     List<PersonRole> findByPersonId(Integer personId);
 
     // Solo los nombres de roles de una persona
-    @Query("SELECT pr.role.name FROM PersonRole pr WHERE pr.person.id = :personId")
+    @Query("SELECT pr.role.name FROM personRole pr WHERE pr.person.id = :personId")
     List<RoleName> findRoleNamesByPersonId(Long personId);
 
     @Modifying
-    @Query("DELETE FROM PersonRole pr WHERE pr.person.personId = :personId")
+    @Query("DELETE FROM personRole pr WHERE pr.person.personId = :personId")
     void deleteByPersonId(@Param("personId") int personId);
 }

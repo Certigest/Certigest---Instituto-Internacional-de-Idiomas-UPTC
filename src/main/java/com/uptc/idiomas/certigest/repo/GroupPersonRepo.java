@@ -17,26 +17,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface GroupPersonRepo extends JpaRepository<GroupPerson, GroupPersonId> {
-    @Query("SELECT g FROM GroupPerson gp JOIN gp.group_id g WHERE gp.person_id.id = :studentId")
+    @Query("SELECT g FROM groupPerson gp JOIN gp.group_id g WHERE gp.person_id.id = :studentId")
     List<GroupInst> findGroupsByStudentId(@Param("studentId") Integer studentId);
 
-    @Query("SELECT DISTINCT gp.group_id FROM GroupPerson gp WHERE :currentDate BETWEEN gp.start_date AND gp.end_date")
+    @Query("SELECT DISTINCT gp.group_id FROM groupPerson gp WHERE :currentDate BETWEEN gp.start_date AND gp.end_date")
     List<GroupInst> findActiveGroupInstsByDate(@Param("currentDate") Date currentDate);
 
-    @Query("SELECT gp.person_id FROM GroupPerson gp WHERE gp.group_id.group_id = :groupId AND :currentDate BETWEEN gp.start_date AND gp.end_date")
+    @Query("SELECT gp.person_id FROM groupPerson gp WHERE gp.group_id.group_id = :groupId AND :currentDate BETWEEN gp.start_date AND gp.end_date")
     List<Person> findPersonsByGroupIdAndActiveDate(@Param("groupId") Integer groupId,
             @Param("currentDate") Date currentDate);
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM GroupPerson gp WHERE gp.group_id.group_id = :groupId")
+    @Query("DELETE FROM groupPerson gp WHERE gp.group_id.group_id = :groupId")
     void deleteByGroupId(@Param("groupId") Integer groupId);
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM GroupPerson gp WHERE gp.person_id.personId = :personId")
+    @Query("DELETE FROM groupPerson gp WHERE gp.person_id.personId = :personId")
     void deleteByPersonId(@Param("personId") int personId);
 
-    @Query("SELECT COUNT(gp) > 0 FROM GroupPerson gp WHERE gp.person_id.personId = :personId")
+    @Query("SELECT COUNT(gp) > 0 FROM groupPerson gp WHERE gp.person_id.personId = :personId")
     boolean existsByPerson_id_PersonId(@Param("personId") int personId);
 }

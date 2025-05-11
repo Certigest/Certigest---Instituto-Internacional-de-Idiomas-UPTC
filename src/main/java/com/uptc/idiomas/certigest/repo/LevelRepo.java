@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface LevelRepo extends JpaRepository<Level, Integer> {
-    @Query("SELECT l FROM Level l WHERE l.id_course.id_course = :idCourse")
+    @Query("SELECT l FROM level l WHERE l.id_course.id_course = :idCourse")
     List<Level> findByCourseId(@Param("idCourse") Integer idCourse);
 }

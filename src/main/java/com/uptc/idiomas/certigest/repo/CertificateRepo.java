@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface CertificateRepo extends JpaRepository<Certificate, Integer> {
-    
+
     // Buscar certificados por persona
     List<Certificate> findByPerson_PersonId(Integer personId);
 
@@ -22,6 +22,6 @@ public interface CertificateRepo extends JpaRepository<Certificate, Integer> {
     List<Certificate> findByGenerationDateBetween(java.util.Date startDate, java.util.Date endDate);
 
     @Modifying
-    @Query("DELETE FROM Certificate c WHERE c.person.personId = :personId")
+    @Query("DELETE FROM certificate c WHERE c.person.personId = :personId")
     void deleteByPersonId(@Param("personId") int personId);
 }

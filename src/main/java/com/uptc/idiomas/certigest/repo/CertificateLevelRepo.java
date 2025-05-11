@@ -14,6 +14,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CertificateLevelRepo extends JpaRepository<CertificateLevel, CertificateLevelId> {
     @Modifying
-    @Query("DELETE FROM CertificateLevel cl WHERE cl.certificate.certificateId IN :ids")
+    @Query("DELETE FROM certificateLevel cl WHERE cl.certificate.certificateId IN :ids")
     void deleteByCertificateIdIn(@Param("ids") List<Integer> certificateIds);
 }
