@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useKeycloak } from '@react-keycloak/web';
 import { getGroupsByLevel } from '../services/CourseService';
-import { useNavigate } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export default function GroupListLevel() {
-  const { id } = useParams();
+  const { courseId, levelId } = useParams();
   const { keycloak } = useKeycloak();
   const [groups, setGroups] = useState([]);
   const navigate = useNavigate();
@@ -14,7 +13,7 @@ export default function GroupListLevel() {
     const fetchGroups = async () => {
       if (keycloak?.authenticated) {
         try {
-          const data = await getGroupsByLevel(keycloak.token, id);
+          const data = await getGroupsByLevel(keycloak.token, levelId);
           setGroups(data);
         } catch (error) {
           console.error('Error al obtener los grupos:', error);
@@ -23,7 +22,7 @@ export default function GroupListLevel() {
     };
 
     fetchGroups();
-  }, [keycloak, id]);
+  }, [keycloak, courseId, levelId]);
 
   if (!keycloak?.authenticated || !groups.length) {
     return <div className="text-center mt-4">Cargando grupos...</div>;
@@ -31,6 +30,21 @@ export default function GroupListLevel() {
 
   return (
     <div className="container mt-4">
+      <div className="mb-4">
+        <ul className="nav nav-tabs">
+          <li className="nav-item">
+            <button className="nav-link" onClick={() => navigate('/inscripcion')}>
+              Inscripción
+            </button>
+          </li>
+          <li className="nav-item">
+            <button className="nav-link" onClick={() => navigate(`/niveles-curso/${courseId}`)}>
+              Niveles
+            </button>
+          </li>
+        </ul>
+      </div>
+
       <h2 className="mb-4 fw-bold">Grupos</h2>
       <div className="row">
         {groups.map((group) => (
@@ -46,16 +60,14 @@ export default function GroupListLevel() {
                 </ul>
                 <div className="text-center mt-4">
                   <button
-                    id={group.group_id}
                     className="btn btn-warning fw-bold shadow me-2"
-                    onClick={() => navigate(`/grupo-estudiantes/${group.group_id}`)}
+                    onClick={() => navigate(`/grupo-estudiantes/${courseId}/${levelId}/${group.group_id}`)}
                   >
                     Ver estudiantes
                   </button>
                   <button
-                    id={group.group_id}
                     className="btn btn-warning fw-bold shadow"
-                    onClick={() => navigate(`/inscribir/${group.group_id}`)}
+                    onClick={() => navigate(`/inscribir/${courseId}/${levelId}/${group.group_id}`)}
                   >
                     Inscribir estudiantes
                   </button>

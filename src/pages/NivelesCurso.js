@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useKeycloak } from '@react-keycloak/web';
-import { getLevelsByCourse } from '../services/CourseService'; // Asegúrate de tener este servicio
-import { useNavigate } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
+import { getLevelsByCourse } from '../services/CourseService'; 
+import { useNavigate, useParams } from 'react-router-dom';
 
 export default function LevelList() {
   const { id } = useParams();
@@ -31,6 +30,15 @@ export default function LevelList() {
 
   return (
     <div className="container mt-4">
+      <div className="mb-4">
+        <ul className="nav nav-tabs">
+          <li className="nav-item">
+            <button className="nav-link" onClick={() => navigate('/inscripcion')}>
+              Inscripción
+            </button>
+          </li>
+        </ul>
+      </div>
       <h2 className="mb-4 fw-bold">Niveles</h2>
       <div className="row">
         {levels.map((level) => (
@@ -46,7 +54,7 @@ export default function LevelList() {
                 </ul>
                 <button
                   className="btn btn-warning fw-bold shadow"
-                  onClick={() => navigate(`/grupos-nivel/${level.level_id}`)}
+                  onClick={() => navigate(`/grupos-nivel/${id}/${level.level_id}`)}
                 >
                   Ver Grupos
                 </button>

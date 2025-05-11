@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
 import { getStudentsByGroupId, removeStudentFromGroup } from '../services/CourseService';
 
 export default function GroupStudents() {
-  const { id } = useParams();
+  const { courseId, levelId, groupId } = useParams();
   const { keycloak } = useKeycloak();
   const [students, setStudents] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStudents = async () => {
       if (keycloak?.authenticated) {
         try {
-          const data = await getStudentsByGroupId(id, keycloak.token);
+          const data = await getStudentsByGroupId(groupId, keycloak.token);
           setStudents(data);
         } catch (err) {
           setErrorMessage('Error al obtener los estudiantes');
@@ -24,11 +25,11 @@ export default function GroupStudents() {
     };
 
     fetchStudents();
-  }, [id, keycloak]);
+  }, [courseId, levelId, groupId, keycloak]);
 
   const handleRemoveStudent = async (studentId) => {
     try {
-      await removeStudentFromGroup(id, studentId, keycloak.token);
+      await removeStudentFromGroup(groupId, studentId, keycloak.token);
 
       setStudents(students.filter((s) => s.personId !== studentId));
       setSuccessMessage('Estudiante eliminado con éxito');
@@ -41,7 +42,26 @@ export default function GroupStudents() {
 
   return (
     <div className="container mt-4">
-      <h2 className="fw-bold mb-4">Estudiantes del Grupo {id}</h2>
+      <div className="mb-4">
+        <ul className="nav nav-tabs">
+          <li className="nav-item">
+            <button className="nav-link" onClick={() => navigate('/inscripcion')}>
+              Inscripción
+            </button>
+          </li>
+          <li className="nav-item">
+            <button className="nav-link" onClick={() => navigate(`/niveles-curso/${courseId}`)}>
+              Niveles
+            </button>
+          </li>
+          <li className="nav-item">
+            <button className="nav-link" onClick={() => navigate(`/grupos-nivel/${courseId}/${levelId}`)}>
+              Grupos
+            </button>
+          </li>
+        </ul>
+      </div>
+      <h2 className="fw-bold mb-4">Estudiantes del Grupo</h2>
 
       {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
       {successMessage && <div className="alert alert-success">{successMessage}</div>}

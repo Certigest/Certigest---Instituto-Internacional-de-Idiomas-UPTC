@@ -105,11 +105,11 @@ function LayoutWithRoles() {
                 <Route path="/reportes" element={<Reportes />} />
                 <Route path="/cursos" element={<Cursos />} />
                 <Route path="/niveles-curso/:id" element={<LevelList />} />
-                <Route path="/grupos-nivel/:id" element={<GroupListLevel />} />
+                <Route path="/grupos-nivel/:courseId/:levelId" element={<GroupListLevel />} />
                 <Route path="/certificados" element={<Certificados />} />
                 <Route path="/inscripcion" element={<Inscripcion />} />
-                <Route path="/grupo-estudiantes/:id" element={<GroupStudents />} />
-                <Route path="/inscribir/:id" element={<EnrollStudents />} />
+                <Route path="/grupo-estudiantes/:courseId/:levelId/:groupId" element={<GroupStudents />} />
+                <Route path="/inscribir/:courseId/:levelId/:groupId" element={<EnrollStudents />} />
               </>
             )}
 
