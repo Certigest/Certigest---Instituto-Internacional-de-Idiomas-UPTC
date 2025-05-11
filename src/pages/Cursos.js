@@ -38,6 +38,9 @@ const Cursos = () => {
       level_name: "",
       level_description: "",
       state: true,
+      level_cost: 0,
+      material_cost: 0,
+      level_modality: "In_person",
       groups: [{ group_name: "", schedule: "", group_teacher: "", start_date: "", end_date: "", state: true }],
     },
   ]);
@@ -49,6 +52,9 @@ const Cursos = () => {
         level_name: "",
         level_description: "",
         state: true,
+        level_cost: 0,
+        material_cost: 0,
+        level_modality: "In_person",
         groups: [{ group_name: "", schedule: "", group_teacher: "", start_date: "", end_date: "", state: true }],
       },
     ]);
@@ -107,6 +113,9 @@ const Cursos = () => {
             level_name: level.level_name,
             level_description: level.level_description,
             state: level.state,
+            level_cost: level.level_cost,
+            material_cost: level.material_cost,
+            level_modality: level.level_modality,
           },
           keycloak.token
         );
@@ -153,6 +162,9 @@ const Cursos = () => {
         level_name: "",
         level_description: "",
         state: true,
+        level_cost: 0,
+        material_cost: 0,
+        level_modality: "In_person",
         groups: [{ group_name: "", schedule: "", group_teacher: "", start_date: "", end_date: "", state: true }],
       },
     ]);
@@ -194,6 +206,9 @@ const Cursos = () => {
   const [newLevelGroup, setNewLevelGroup] = useState({
     level_name: "",
     level_description: "",
+    level_cost: 0,
+    material_cost: 0,
+    level_modality: "In_person",
     group_name: "",
     schedule: "",
     group_teacher: null,
@@ -204,6 +219,9 @@ const Cursos = () => {
     setNewLevelGroup({
       level_name: "",
       level_description: "",
+      level_cost: 0,
+      material_cost: 0,
+      level_modality: "In_person",
       group_name: "",
       schedule: "",
       group_teacher: null,
@@ -215,6 +233,9 @@ const Cursos = () => {
     setNewLevelGroup({
       level_name: "",
       level_description: "",
+      level_cost: 0,
+      material_cost: 0,
+      level_modality: "In_person",
       group_name: "",
       schedule: "",
       group_teacher: null,
@@ -233,6 +254,9 @@ const Cursos = () => {
         id_course: { id_course: courseId },
         level_name: newLevelGroup.level_name,
         level_description: newLevelGroup.level_description,
+        level_cost: newLevelGroup.level_cost,
+        material_cost: newLevelGroup.material_cost,
+        level_modality: newLevelGroup.level_modality,
       };
       const createdLevel = await createLevel(levelToCreate, keycloak.token);
 
@@ -358,7 +382,23 @@ const Cursos = () => {
                           <label className="form-label">Descripción del Nivel</label>
                           <textarea name="level_description" className="form-control" rows="2" value={level.level_description} onChange={(e) => handleLevelChange(e, levelIndex)} required></textarea>
                         </div>
-
+                        <div className="row mb-2">
+                          <div className="col-md-6">
+                            <label className="form-label">Costo de Matricula</label>
+                            <input type="number" name="level_cost" className="form-control" value={level.level_cost} onChange={(e) => handleLevelChange(e, levelIndex)} required />
+                          </div>
+                          <div className="col-md-6">
+                            <label className="form-label">Costo de Materiales</label>
+                            <input type="number" name="material_cost" className="form-control" value={level.material_cost} onChange={(e) => handleLevelChange(e, levelIndex)} required />
+                          </div>
+                        </div>
+                        <div className="mb-3">
+                          <label className="form-label">Modalidad</label>
+                          <select name="course_type" className="form-select border-secondary" value={level.level_modality} onChange={(e) => handleLevelChange(e, levelIndex)} required>
+                            <option value="In_person">Presencial</option>
+                            <option value="virtual">Virtual</option>
+                          </select>
+                        </div>
                         {/* Grupos */}
                         <div className="bg-white border rounded p-2 mb-3">
                           <h6 className="text-secondary">Grupos</h6>

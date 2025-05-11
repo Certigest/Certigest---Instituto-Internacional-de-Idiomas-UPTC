@@ -13,6 +13,7 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import SidebarStudent from './components/SidebarStudent';
 import SidebarTeacher from './components/SidebarTeacher';
+import ResponsiveNavbar from './components/ResponsiveNavbar';
 
 import Home from './pages/Home';
 import Usuarios from './pages/Usuarios';
@@ -89,10 +90,7 @@ function LayoutWithRoles() {
 
   return (
     <div className="app-wrapper">
-      <Header />
-      <div className="d-flex">
-        {renderSidebar()}
-        <main className="content p-4 flex-grow-1">
+      <ResponsiveNavbar>
           <Routes>
             <Route path="/home" element={<Home />} />
 
@@ -134,8 +132,7 @@ function LayoutWithRoles() {
 
             <Route path="*" element={<Home />} />
           </Routes>
-        </main>
-      </div>
+      </ResponsiveNavbar>
     </div>
   );
 }
