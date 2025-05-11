@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
-import { getAllStudents, enrollStudentToGroup } from '../services/CourseService';
+import { getStudentsWhoHaveNotTakenLevel, enrollStudentToGroup } from '../services/CourseService';
 
 export default function EnrollStudents() {
-  const { id } = useParams();
+  const { courseId, levelId, groupId } = useParams();
   const { keycloak } = useKeycloak();
   const [students, setStudents] = useState([]);
   const [search, setSearch] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStudents = async () => {
       if (keycloak?.authenticated) {
         try {
-          const data = await getAllStudents(keycloak.token);
+          const data = await getStudentsWhoHaveNotTakenLevel(keycloak.token, levelId);
           setStudents(data);
         } catch (err) {
           console.error('Error al obtener los estudiantes:', err);
@@ -22,7 +23,7 @@ export default function EnrollStudents() {
     };
 
     fetchStudents();
-  }, [keycloak]);
+  }, [keycloak, courseId, levelId, groupId]);
 
   const filteredStudents = students.filter((student) => {
     const query = search.toLowerCase();
@@ -35,8 +36,11 @@ export default function EnrollStudents() {
 
   const handleEnroll = async (student) => {
     try {
-      await enrollStudentToGroup(keycloak.token, student.personId, id);
+      await enrollStudentToGroup(keycloak.token, student.personId, groupId);
       alert('Estudiante inscrito correctamente');
+      setStudents((prevStudents) =>
+        prevStudents.filter((s) => s.personId !== student.personId)
+      );
     } catch (error) {
       console.error('Error al inscribir:', error);
       alert('Error al inscribir al estudiante');
@@ -45,6 +49,25 @@ export default function EnrollStudents() {
 
   return (
     <div className="container mt-4">
+      <div className="mb-4">
+        <ul className="nav nav-tabs">
+          <li className="nav-item">
+            <button className="nav-link" onClick={() => navigate('/inscripcion')}>
+              Inscripción
+            </button>
+          </li>
+          <li className="nav-item">
+            <button className="nav-link" onClick={() => navigate(`/niveles-curso/${courseId}`)}>
+              Niveles
+            </button>
+          </li>
+          <li className="nav-item">
+            <button className="nav-link" onClick={() => navigate(`/grupos-nivel/${courseId}/${levelId}`)}>
+              Grupos
+            </button>
+          </li>
+        </ul>
+      </div>
       <h2 className="mb-3 fw-bold">Inscribir Estudiantes</h2>
 
       <input

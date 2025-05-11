@@ -201,3 +201,12 @@ export async function enrollStudentToGroup(token, studentId, groupId) {
 
   return response.data;
 }
+
+export async function getStudentsWhoHaveNotTakenLevel(token, levelId) {
+  const response = await axios.get(`${API_HOST}/person/studentsWhoHaveNotTakenLevel/${levelId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
