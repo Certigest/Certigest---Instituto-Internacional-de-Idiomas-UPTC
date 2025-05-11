@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Route,
@@ -8,7 +8,6 @@ import {
   useNavigate,
 } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
-
 import ResponsiveNavbar from './components/ResponsiveNavbar';
 
 import Home from './pages/Home';

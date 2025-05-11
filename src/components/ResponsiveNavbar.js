@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useKeycloak } from "@react-keycloak/web";
+import '../styles/Header.css';
+import '../styles/Sidebar.css';
 import axios from "axios";
 import logo from "../assets/Logo.png";
 import perfilPlaceholder from "../assets/Perfil.png";
@@ -91,9 +93,6 @@ function ResponsiveNavbar({ children }) {
             <Link className="nav-link sidebar-btn" to="/grupos-profesor">
               Grupos
             </Link>
-            <Link className="nav-link sidebar-btn" to="/calificar/1">
-              Calificar
-            </Link>
           </>
         );
       case "student":
@@ -122,7 +121,7 @@ function ResponsiveNavbar({ children }) {
     <div className="d-flex">
       <div className="d-none d-md-block bg-light p-3 border-end" style={{ width: "250px", minHeight: "100vh" }}>
         <div className="mb-4 text-center">
-          <img src={logo} alt="Logo" onClick={goToHome} style={{ height: "50px", cursor: "pointer" }} />
+          <img src={logo} alt="Logo" onClick={goToHome} style={{ height: "100px", cursor: "pointer" }} />
         </div>
         <div className="nav flex-column">{renderMenuLinks()}</div>
       </div>
@@ -153,7 +152,7 @@ function ResponsiveNavbar({ children }) {
         </div>
         <header className="border-bottom shadow-sm py-2 px-3 bg-white d-flex justify-content-between align-items-center">
           <div className="d-none d-md-block header-banner text-center mx-auto me-5">
-            <h4 className="mb-0 fw-bold text-dark">Gestión de certificados Instituto Internacional de Idiomas</h4>
+            <h4 className="mb-0 fw-bold text-dark" style={{ fontSize: 'clamp(0.8rem, 3vw, 2rem)' }}>Gestión de certificados Instituto Internacional de Idiomas</h4>
           </div>
           {selectedRole && (
             <div className="dropdown me-5">
