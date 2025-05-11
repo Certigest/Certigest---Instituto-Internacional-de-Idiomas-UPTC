@@ -1,20 +1,35 @@
-DROP DATABASE instituto_idiomas_db;
-CREATE DATABASE instituto_idiomas_db;
+#CREATE DATABASE instituto_idiomas_db;
+
+DROP TABLE IF EXISTS certificate_level;
+DROP TABLE IF EXISTS certificate_code;
+DROP TABLE IF EXISTS certificate;
+DROP TABLE IF EXISTS group_person;
+DROP TABLE IF EXISTS group_inst;
+DROP TABLE IF EXISTS level;
+DROP TABLE IF EXISTS course;
+DROP TABLE IF EXISTS person_role;
+DROP TABLE IF EXISTS role;
+DROP TABLE IF EXISTS login;
+DROP TABLE IF EXISTS person;
+DROP TABLE IF EXISTS location;
+
+COMMIT;
+
 USE instituto_idiomas_db;
 
-CREATE TABLE Location (
+CREATE TABLE location (
     id_location INT AUTO_INCREMENT PRIMARY KEY,
     id_location_f INT,
     location_name VARCHAR(100)
 );
 
-CREATE TABLE Login (
+CREATE TABLE login (
     id_login INT AUTO_INCREMENT PRIMARY KEY,
     id_person INT NOT NULL,
     user_name VARCHAR(255) NOT NULL UNIQUE
 );
 
-CREATE TABLE Person (
+CREATE TABLE person (
     person_id INT AUTO_INCREMENT PRIMARY KEY,
     id_location INT,
     first_name VARCHAR(100),
@@ -27,17 +42,17 @@ CREATE TABLE Person (
     birth_date DATE
 );
 
-CREATE TABLE Role (
+CREATE TABLE role (
     role_id INT AUTO_INCREMENT PRIMARY KEY,
     name ENUM('STUDENT', 'TEACHER', 'ADMIN') UNIQUE
 );
 
-CREATE TABLE Person_Role (
+CREATE TABLE person_role (
     person_id INT,
     role_id INT,
     PRIMARY KEY (person_id, role_id),
-    FOREIGN KEY (person_id) REFERENCES Person(person_id),
-    FOREIGN KEY (role_id) REFERENCES Role(role_id)
+    FOREIGN KEY (person_id) REFERENCES person(person_id),
+    FOREIGN KEY (role_id) REFERENCES role(role_id)
 );
 
 
@@ -52,7 +67,7 @@ CREATE TABLE course (
 
 );
 
-CREATE TABLE Level (
+CREATE TABLE level (
     level_id INT AUTO_INCREMENT PRIMARY KEY,
     id_course INT,
     level_name VARCHAR(100),
@@ -72,7 +87,7 @@ CREATE TABLE group_inst (
     schedule VARCHAR(100)
 );
 
-CREATE TABLE Group_Person (
+CREATE TABLE group_person (
     person_id INT,
     group_id INT,
     calification FLOAT,
@@ -86,53 +101,61 @@ CREATE TABLE Group_Person (
     PRIMARY KEY (person_id, group_id)
 );
 
-CREATE TABLE Certificate (
+CREATE TABLE certificate (
     certificate_id INT AUTO_INCREMENT PRIMARY KEY,
     person_id INT,
     CERTIFICATE_TYPE ENUM('BASIC', 'NOTES', 'ALL_LEVEL'),
     generation_date DATE
 );
 
-CREATE TABLE Certificate_Code (
+CREATE TABLE certificate_code (
     validation_id INT AUTO_INCREMENT PRIMARY KEY,
     certificate_id INT,
     code VARCHAR(100)
 );
 
-CREATE TABLE Certificate_Level (
+CREATE TABLE certificate_level (
     certificate_id INT,
     level_id INT,
     PRIMARY KEY (certificate_id, level_id)
 );
 
-ALTER TABLE Person
-    ADD CONSTRAINT fk_person_location FOREIGN KEY (id_location) REFERENCES Location(id_location);
+COMMIT;
 
-ALTER TABLE Level
-    ADD CONSTRAINT fk_level_course FOREIGN KEY (id_course) REFERENCES Course(id_course);
+ALTER TABLE person
+    ADD CONSTRAINT fk_person_location FOREIGN KEY (id_location) REFERENCES location(id_location);
+
+ALTER TABLE level
+    ADD CONSTRAINT fk_level_course FOREIGN KEY (id_course) REFERENCES course(id_course);
 
 ALTER TABLE group_inst
-    ADD CONSTRAINT fk_group_level FOREIGN KEY (level_id) REFERENCES Level(level_id),
-    ADD CONSTRAINT fk_group_teacher FOREIGN KEY (group_teacher) REFERENCES Person(person_id);
+    ADD CONSTRAINT fk_group_level FOREIGN KEY (level_id) REFERENCES level(level_id),
+    ADD CONSTRAINT fk_group_teacher FOREIGN KEY (group_teacher) REFERENCES person(person_id);
 
-ALTER TABLE Group_Person
-    ADD CONSTRAINT fk_gp_person FOREIGN KEY (person_id) REFERENCES Person(person_id),
+ALTER TABLE group_person
+    ADD CONSTRAINT fk_gp_person FOREIGN KEY (person_id) REFERENCES person(person_id),
     ADD CONSTRAINT fk_gp_group FOREIGN KEY (group_id) REFERENCES group_inst(group_id);
 
-ALTER TABLE Certificate
-    ADD CONSTRAINT fk_certificate_person FOREIGN KEY (person_id) REFERENCES Person(person_id);
+ALTER TABLE certificate
+    ADD CONSTRAINT fk_certificate_person FOREIGN KEY (person_id) REFERENCES person(person_id);
 
-ALTER TABLE Certificate_Code
-    ADD CONSTRAINT fk_cert_code_certificate FOREIGN KEY (certificate_id) REFERENCES Certificate(certificate_id);
+ALTER TABLE certificate_code
+    ADD CONSTRAINT fk_cert_code_certificate FOREIGN KEY (certificate_id) REFERENCES certificate(certificate_id);
 
-ALTER TABLE Certificate_Level
-    ADD CONSTRAINT fk_cert_level_certificate FOREIGN KEY (certificate_id) REFERENCES Certificate(certificate_id),
-    ADD CONSTRAINT fk_cert_level_level FOREIGN KEY (level_id) REFERENCES Level(level_id);
-ALTER TABLE Location
-    ADD CONSTRAINT fk_location_parent FOREIGN KEY (id_location_f) REFERENCES Location(id_location);
-ALTER TABLE Login
-	ADD CONSTRAINT fk_login_person FOREIGN KEY (id_person) REFERENCES Person(person_id);
-INSERT INTO Role (name) VALUES
+ALTER TABLE certificate_level
+    ADD CONSTRAINT fk_cert_level_certificate FOREIGN KEY (certificate_id) REFERENCES certificate(certificate_id),
+    ADD CONSTRAINT fk_cert_level_level FOREIGN KEY (level_id) REFERENCES level(level_id);
+ALTER TABLE location
+    ADD CONSTRAINT fk_location_parent FOREIGN KEY (id_location_f) REFERENCES location(id_location);
+ALTER TABLE login
+	ADD CONSTRAINT fk_login_person FOREIGN KEY (id_person) REFERENCES person(person_id);
+INSERT INTO role (name) VALUES
 ('STUDENT'),
 ('TEACHER'),
 ('ADMIN');
+
+INSERT INTO location (id_location, id_location_f, location_name) VALUES
+(1,NULL,'Boyaca'),
+(2,1,'Paipa');
+
+COMMIT;
