@@ -14,9 +14,9 @@ import org.springframework.stereotype.Repository;
 public interface CertificateCodeRepo extends JpaRepository<CertificateCode, Integer> {
 
     @Modifying
-    @Query("DELETE FROM certificateCode cc WHERE cc.certificate.certificateId IN :ids")
+    @Query("DELETE FROM CertificateCode cc WHERE cc.certificate.certificateId IN :ids")
     void deleteByCertificateIdIn(@Param("ids") List<Integer> certificateIds);
 
-    @Query("SELECT COUNT(cc) > 0 FROM certificateCode cc WHERE cc.certificate.person.personId = :personId")
+    @Query("SELECT COUNT(cc) > 0 FROM CertificateCode cc WHERE cc.certificate.person.personId = :personId")
     boolean existsByPersonId(@Param("personId") int personId);
 }
