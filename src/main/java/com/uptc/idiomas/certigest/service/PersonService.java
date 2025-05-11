@@ -312,4 +312,10 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + id));
     }
 
+    public List<PersonDTO> getStudentsWhoHaveNotTakenLevel(Integer levelId) {
+    List<Person> people = personRepo.findStudentsWhoHaveNotTakenLevelOrFailed(levelId);
+    return people.stream()
+                 .map(PersonMapper.INSTANCE::mapPersonToPersonDTO)
+                 .collect(Collectors.toList());
+}
 }

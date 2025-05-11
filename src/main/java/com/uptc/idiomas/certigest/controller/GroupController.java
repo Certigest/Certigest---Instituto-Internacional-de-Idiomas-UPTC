@@ -92,7 +92,6 @@ public class GroupController {
 
     @PostMapping("/enroll/{personId}/{groupId}")
     public ResponseEntity<String> enrollStudent(@PathVariable Integer personId, @PathVariable Integer groupId) {
-        System.out.println("Enrolling student with ID: " + personId + " to group with ID: " + groupId);
         try {
             groupService.addStudentToGroup(personId, groupId);
             return ResponseEntity.ok("Estudiante inscrito correctamente.");

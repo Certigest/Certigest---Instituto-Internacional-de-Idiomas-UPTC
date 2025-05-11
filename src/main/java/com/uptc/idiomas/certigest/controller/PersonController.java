@@ -155,4 +155,9 @@ public class PersonController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/studentsWhoHaveNotTakenLevel/{levelId}")
+    public List<PersonDTO> getStudentsWhoHaveNotTakenLevel(@PathVariable Integer levelId) {
+        return personService.getStudentsWhoHaveNotTakenLevel(levelId);
+    }
 }
