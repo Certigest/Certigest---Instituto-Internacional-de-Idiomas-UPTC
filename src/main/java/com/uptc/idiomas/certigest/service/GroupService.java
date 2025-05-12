@@ -16,7 +16,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import com.uptc.idiomas.certigest.dto.GroupInstDTO;
-import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
 import com.uptc.idiomas.certigest.dto.PersonEnrollInfo;
 import com.uptc.idiomas.certigest.entity.Course;
@@ -140,11 +139,11 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
         List<PersonDTONote> personDTOList = new ArrayList<>();
         for (Person person : persons) {
             groupPerson = groupPersonRepo.findById(new GroupPersonId(person.getPersonId(), groupId))
-                .orElseThrow(() -> new EntityNotFoundException("Grupo no encontrado"));
+                    .orElseThrow(() -> new EntityNotFoundException("Grupo no encontrado"));
             PersonDTONote personDTO = new PersonDTONote();
             personDTO.setStudentId(person.getPersonId());
             personDTO.setDocument(person.getDocument());
-            personDTO.setFirstName( person.getFirstName());
+            personDTO.setFirstName(person.getFirstName());
             personDTO.setLastName(person.getLastName());
             personDTO.setEmail(person.getEmail());
             personDTO.setCalification(groupPerson.getCalification());
@@ -189,7 +188,8 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
         if (existing.isPresent()) {
             Float calification = existing.get().getCalification();
             if (calification == null || calification >= 30) {
-                throw new IllegalStateException("El estudiante ya está inscrito en este grupo con calificación válida.");
+                throw new IllegalStateException(
+                        "El estudiante ya está inscrito en este grupo con calificación válida.");
             } else {
                 System.out.println("Reinscribiendo al estudiante con calificación anterior: " + calification);
                 groupPersonRepo.deleteById(id);
@@ -209,16 +209,17 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
         groupPerson.setCalification(null);
         groupPerson.setLevel_cost(group.getLevel_id().getLevel_cost());
         groupPerson.setMaterial_cost(group.getLevel_id().getMaterial_cost());
-        /* 
-        groupPerson.setLEVEL_MODALITY(GroupPerson.LevelModality.valueOf(group.getLevel_id().getLevel_modality().name()));
-        */
+        /*
+         * groupPerson.setLEVEL_MODALITY(GroupPerson.LevelModality.valueOf(group.
+         * getLevel_id().getLevel_modality().name()));
+         */
         LocalDate start = group.getStart_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate end = group.getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
         long days = ChronoUnit.DAYS.between(start, end);
         long weeks = days / 7;
         groupPerson.setLevel_duration(weeks + " semanas");
-        
+
         groupPersonRepo.save(groupPerson);
     }
 
