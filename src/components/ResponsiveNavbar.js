@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useKeycloak } from "@react-keycloak/web";
-import '../styles/Header.css';
-import '../styles/Sidebar.css';
+import { Offcanvas } from "bootstrap";
+import "../styles/Header.css";
+import "../styles/Sidebar.css";
 import axios from "axios";
 import logo from "../assets/Logo.png";
 import perfilPlaceholder from "../assets/Perfil.png";
@@ -32,11 +33,11 @@ function ResponsiveNavbar({ children }) {
           headers: {
             Authorization: `Bearer ${keycloak.token}`,
           },
-          responseType: 'blob',
+          responseType: "blob",
         });
         setProfileImageUrl(URL.createObjectURL(response.data));
       } catch (error) {
-        console.warn('No se pudo cargar la imagen de perfil:', error.response?.status);
+        console.warn("No se pudo cargar la imagen de perfil:", error.response?.status);
       }
     };
 
@@ -59,29 +60,39 @@ function ResponsiveNavbar({ children }) {
 
   const goToHome = () => navigate("/");
 
+  const closeOffcanvasAndNavigate = (path) => {
+    const offcanvasEl = document.getElementById("offcanvasNavbar");
+    const offcanvas = Offcanvas.getInstance(offcanvasEl);
+    if (offcanvas) offcanvas.hide();
+    const backdrops = document.querySelectorAll(".offcanvas-backdrop");
+    backdrops.forEach((bd) => bd.remove());
+
+    navigate(path);
+  };
+
   const renderMenuLinks = () => {
     switch (selectedRole) {
       case "admin":
         return (
           <>
-            <Link className="nav-link sidebar-btn" to="/cuenta">
+            <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/cuenta")}>
               Cuenta
-            </Link>
-            <Link className="nav-link sidebar-btn" to="/usuarios">
+            </button>
+            <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/usuarios")}>
               Usuarios
-            </Link>
-            <Link className="nav-link sidebar-btn" to="/cursos">
+            </button>
+            <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/cursos")}>
               Cursos
-            </Link>
-            <Link className="nav-link sidebar-btn" to="/certificados">
+            </button>
+            <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/certificados")}>
               Certificados
-            </Link>
-            <Link className="nav-link sidebar-btn" to="/inscripcion">
+            </button>
+            <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/inscripcion")}>
               Inscripción
-            </Link>
-            <Link className="nav-link sidebar-btn" to="/reportes">
+            </button>
+            <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/reportes")}>
               Reportes
-            </Link>
+            </button>
           </>
         );
       case "teacher":
@@ -127,32 +138,34 @@ function ResponsiveNavbar({ children }) {
       </div>
 
       <div className="flex-grow-1">
-              <div className="d-md-none bg-warning">
-        <nav className="navbar navbar-expand-md navbar-light d-md-none shadow-sm border-bottom">
-          <div className="container-fluid px-3">
-            
-            <img src={logo} alt="Logo" className="navbar-brand" onClick={goToHome} style={{ height: "60px", cursor: "pointer" }} />
-            <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
-              <span className="navbar-toggler-icon"></span>
-            </button>
-          </div>
-        </nav></div>
+        <div className="d-md-none bg-warning">
+          <nav className="navbar navbar-expand-md navbar-light d-md-none shadow-sm border-bottom">
+            <div className="container-fluid px-3">
+              <img src={logo} alt="Logo" className="navbar-brand" onClick={goToHome} style={{ height: "60px", cursor: "pointer" }} />
+              <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
+                <span className="navbar-toggler-icon"></span>
+              </button>
+            </div>
+          </nav>
+        </div>
 
         <div className="offcanvas offcanvas-start" tabIndex="-1" id="offcanvasNavbar">
           <div className="d-md-none bg-warning">
-          <div className="offcanvas-header">
-            <h5 className="offcanvas-title">Menú</h5>
-            <button type="button" className="btn-close" data-bs-dismiss="offcanvas"></button>
+            <div className="offcanvas-header">
+              <h5 className="offcanvas-title">Menú</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
           </div>
-          </div>
-          
+
           <div className="offcanvas-body">
             <div className="navbar-nav flex-column">{renderMenuLinks()}</div>
           </div>
         </div>
         <header className="border-bottom shadow-sm py-2 px-3 bg-white d-flex justify-content-between align-items-center">
           <div className="d-none d-md-block header-banner text-center mx-auto me-5">
-            <h4 className="mb-0 fw-bold text-dark" style={{ fontSize: 'clamp(0.8rem, 3vw, 2rem)' }}>Gestión de certificados Instituto Internacional de Idiomas</h4>
+            <h4 className="mb-0 fw-bold text-dark" style={{ fontSize: "clamp(0.8rem, 3vw, 2rem)" }}>
+              Gestión de certificados Instituto Internacional de Idiomas
+            </h4>
           </div>
           {selectedRole && (
             <div className="dropdown me-5">

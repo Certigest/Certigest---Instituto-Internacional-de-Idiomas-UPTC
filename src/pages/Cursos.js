@@ -394,7 +394,7 @@ const Cursos = () => {
                         </div>
                         <div className="mb-3">
                           <label className="form-label">Modalidad</label>
-                          <select name="course_type" className="form-select border-secondary" value={level.level_modality} onChange={(e) => handleLevelChange(e, levelIndex)} required>
+                          <select name="level_modality" className="form-select border-secondary" value={level.level_modality} onChange={(e) => handleLevelChange(e, levelIndex)} required>
                             <option value="In_person">Presencial</option>
                             <option value="virtual">Virtual</option>
                           </select>
@@ -550,6 +550,26 @@ const Cursos = () => {
         };
 
         const handleSaveCourse = async () => {
+          const {
+            course_name,
+            course_description,
+            language,
+            course_type
+          } = editedCourse;
+
+          if (
+            !course_name?.trim() ||
+            !course_description?.trim() ||
+            !language?.trim() ||
+            !course_type
+          ) {
+            setMessage({
+              type: 'danger',
+              text: 'Por favor, completa todos los campos del curso antes de guardar.'
+            });
+            return;
+          }
+
           try {
             await updateCourse(editedCourse, keycloak.token);
             const updated = groupData.map((g) => {
@@ -573,6 +593,27 @@ const Cursos = () => {
         };
 
         const handleSaveLevel = async () => {
+          const {
+            level_name,
+            level_description,
+            level_cost,
+            material_cost,
+            level_modality
+          } = editedLevel;
+
+          if (
+            !level_name?.trim() ||
+            !level_description?.trim() ||
+            level_cost === '' ||
+            material_cost === '' ||
+            !level_modality
+          ) {
+            setMessage({
+              type: 'danger',
+              text: 'Por favor, completa todos los campos del nivel antes de guardar.'
+            });
+            return;
+          }
           try {
             await updateLevel(editedLevel, keycloak.token);
             const updated = groupData.map((g) => {
@@ -586,6 +627,8 @@ const Cursos = () => {
             });
             setGroupData(updated);
             handleCancelEdit();
+            console.log(editedLevel);
+            console.log(updated);
             setMessage({ type: "success", text: "Nivel Actualizado Correctamente." });
           } catch (err) {
             console.error("Error actualizando nivel:", err);
@@ -594,6 +637,34 @@ const Cursos = () => {
         };
 
         const handleSaveGroup = async () => {
+          const {
+            group_name,
+            group_teacher,
+            schedule,
+            start_date,
+            end_date
+          } = editedGroup;
+          if (
+            !group_name?.trim() ||
+            !group_teacher ||
+            !schedule?.trim() ||
+            !start_date ||
+            !end_date
+          ) {
+            setMessage({
+              type: 'danger',
+              text: 'Por favor, completa todos los campos del grupo antes de guardar.'
+            });
+            return;
+          }
+
+          if (new Date(start_date) > new Date(end_date)) {
+            setMessage({
+              type: 'danger',
+              text: 'La fecha de inicio no puede ser posterior a la fecha de fin.'
+            });
+            return;
+          }
           try {
             await updateGroup(editedGroup, keycloak.token);
             const updated = groupData.map((g) => (g.group_id === editedGroup.group_id ? editedGroup : g));
@@ -683,29 +754,50 @@ const Cursos = () => {
         return (
           <div className="container mt-4">
             {message.text && (
-              <ToastContainer position="bottom-end" className="p-3">
+              <ToastContainer
+                className="p-3"
+                style={{
+                  position: "fixed",
+                  bottom: "1rem",
+                  right: "1rem",
+                  zIndex: 900,
+                }}
+              >
                 <Toast
                   show={message.show}
                   onClose={handleCloseToast}
                   delay={3000}
                   autohide
                   className={`border-0 shadow-lg rounded-3 bg-${message.type} position-relative`}
-                  style={{
-                    minHeight: "80px",
-                  }}
+                  style={{ minHeight: "80px" }}
                 >
                   <Toast.Body className="text-white px-4 py-3 fs-6 w-100" style={{ fontSize: "1rem" }}>
                     {message.text}
                   </Toast.Body>
                 </Toast>
-                <style>{`@media (min-width: 768px) {.toast {max-width: 400px;}.toast-body {font-size: 1.25rem;}}`}</style>
+
+                <style>{`
+                  @media (min-width: 768px) {
+                    .toast { max-width: 400px; }
+                    .toast-body { font-size: 1.25rem; }
+                  }
+                `}</style>
               </ToastContainer>
             )}
             {Object.values(groupedCourses).map(({ course, levels }) => (
               <div key={course.id_course} className="mb-4">
                 <div className="card shadow-sm">
                   <div className="card-header bg-warning text-white d-flex justify-content-between align-items-center">
-                    {editingCourseId === course.id_course ? <input name="course_name" value={editedCourse.course_name} onChange={handleCourseChange} className="form-control me-2" /> : <h5 className="mb-0">{course.course_name}</h5>}
+                    {editingCourseId === course.id_course ? (
+                      <div className="mb-2">
+                        <label htmlFor="course_name" className="form-label small text-muted">
+                          Nombre del Curso
+                        </label>
+                        <input id="course_name" name="course_name" value={editedCourse.course_name} onChange={handleCourseChange} className="form-control me-2"/>
+                      </div>
+                    ) : (
+                      <h5 className="mb-0">{course.course_name}</h5>
+                    )}
                     <div className="d-flex">
                       {editingCourseId === course.id_course ? (
                         <>
@@ -731,9 +823,27 @@ const Cursos = () => {
                   <div className="card-body">
                     {editingCourseId === course.id_course ? (
                       <>
-                        <input className="form-control mb-2" name="course_description" value={editedCourse.course_description} onChange={handleCourseChange} />
-                        <input className="form-control mb-2" name="language" value={editedCourse.language} onChange={handleCourseChange} />
-                        <input className="form-control mb-2" name="course_type" value={editedCourse.course_type} onChange={handleCourseChange} />
+                        <div className="mb-2">
+                          <label htmlFor="course_description" className="form-label small text-muted">
+                            Descripción del curso
+                          </label>
+                          <input type="text" id="course_description" className="form-control" name="course_description" value={editedCourse.course_description} onChange={handleCourseChange} />
+                        </div>
+
+                        <div className="mb-2">
+                          <label htmlFor="language" className="form-label small text-muted">
+                            Idioma
+                          </label>
+                          <input type="text" id="language" className="form-control" name="language" value={editedCourse.language} onChange={handleCourseChange} />
+                        </div>
+                        <div className="mb-2">
+                          <label className="form-label small text-muted">Tipo de Curso</label>
+                          <select name="course_type" className="form-select border-secondary" value={editedCourse.course_type} onChange={handleCourseChange} required>
+                            <option value="DEFAULT">Normal</option>
+                            <option value="KIDS">Niños</option>
+                            <option value="SKILLS">Curso con Habilidades</option>
+                          </select>
+                        </div>
                       </>
                     ) : (
                       <>
@@ -762,25 +872,85 @@ const Cursos = () => {
                               <button
                                 className="accordion-button d-flex justify-content-between align-items-center"
                                 type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target={`#collapse-${level.level_id}`}
+                                {...(!isEditing && {
+                                  "data-bs-toggle": "collapse",
+                                  "data-bs-target": `#collapse-${level.level_id}`,
+                                })}
                                 aria-expanded={isExpanded}
                                 aria-controls={`collapse-${level.level_id}`}
                                 onClick={(e) => {
-                                  if (isEditing) e.preventDefault();
-                                  else setExpandedLevelId(level.level_id);
+                                  if (isEditing) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    return;
+                                  } else setExpandedLevelId(level.level_id);
                                 }}
                                 style={accordionButtonStyle}
                               >
                                 {isEditing ? (
-                                  <div className="w-100 d-flex gap-2">
-                                    <input className="form-control" name="level_name" value={editedLevel.level_name} onChange={handleLevel} />
-                                    <input className="form-control" name="level_description" value={editedLevel.level_description} onChange={handleLevel} />
+                                  <div className="w-100 d-flex flex-wrap gap-2">
+                                    <div className="flex-fill">
+                                      <label htmlFor="level_name" className="form-label small text-muted">
+                                        Nombre del nivel
+                                      </label>
+                                      <input type="text" id="level_name" className="form-control" name="level_name" value={editedLevel.level_name} onChange={handleLevel} />
+                                    </div>
+
+                                    <div className="flex-fill">
+                                      <label htmlFor="level_description" className="form-label small text-muted">
+                                        Descripción del nivel
+                                      </label>
+                                      <input type="text" id="level_description" className="form-control" name="level_description" value={editedLevel.level_description} onChange={handleLevel} />
+                                    </div>
+
+                                    <div className="flex-fill">
+                                      <label htmlFor="level_cost" className="form-label small text-muted">
+                                        Costo del nivel
+                                      </label>
+                                      <input type="number" id="level_cost" className="form-control" name="level_cost" value={editedLevel.level_cost} onChange={handleLevel} />
+                                    </div>
+
+                                    <div className="flex-fill">
+                                      <label htmlFor="material_cost" className="form-label small text-muted">
+                                        Costo del material
+                                      </label>
+                                      <input type="number" id="material_cost" className="form-control" name="material_cost" value={editedLevel.material_cost} onChange={handleLevel} />
+                                    </div>
+
+                                    <div className="flex-fill">
+                                      <label htmlFor="level_modality" className="form-label small text-muted">
+                                        Modalidad
+                                      </label>
+                                      <select id="level_modality" className="form-select" name="level_modality" value={editedLevel.level_modality} onChange={handleLevel}>
+                                        <option value="In_person">Presencial</option>
+                                        <option value="virtual">Virtual</option>
+                                      </select>
+                                    </div>
                                   </div>
                                 ) : (
-                                  <span>
-                                    {level.level_name} - {level.level_description}
-                                  </span>
+                                  <div className="container mb-3">
+                                    <div className="row">
+                                      <div className="col-md-6">
+                                        <strong>Nombre:</strong> {level.level_name}
+                                      </div>
+                                      <div className="col-md-6">
+                                        <strong>Descripción:</strong> {level.level_description}
+                                      </div>
+                                    </div>
+                                    <div className="row mt-1">
+                                      <div className="col-md-6">
+                                        <strong>Costo del nivel:</strong> ${level.level_cost}
+                                      </div>
+                                      <div className="col-md-6">
+                                        <strong>Costo del material:</strong> ${level.material_cost}
+                                      </div>
+                                    </div>
+                                    <div className="row mt-1">
+                                      <div className="col-12">
+                                        <strong>Modalidad:</strong> {level.level_modality === "In_person" ? "Presencial" : "Virtual"}
+                                      </div>
+                                    </div>
+                                  </div>
                                 )}
                               </button>
                               <div className="d-flex me-3">
@@ -883,15 +1053,38 @@ const Cursos = () => {
                                                     ))}
                                                   </select>
                                                 </div>
+                                                <div className="mb-3">
+                                                  <label htmlFor="start_date" className="form-label">
+                                                    Fecha de inicio
+                                                  </label>
+                                                  <input type="date" id="start_date" className="form-control" name="start_date" value={editedGroup.start_date?.slice(0, 10) || ""} onChange={handleGroup} />
+                                                </div>
+
+                                                <div className="mb-3">
+                                                  <label htmlFor="end_date" className="form-label">
+                                                    Fecha de finalización
+                                                  </label>
+                                                  <input type="date" id="end_date" className="form-control" name="end_date" value={editedGroup.end_date?.slice(0, 10) || ""} onChange={handleGroup} />
+                                                </div>
                                               </div>
                                             ) : (
-                                              <div>
-                                                <p>
-                                                  <strong>Horario:</strong> {group.schedule}
-                                                </p>
-                                                <p>
-                                                  <strong>Profesor:</strong> {group.group_teacher ? `${group.group_teacher.firstName} ${group.group_teacher.lastName}` : "No asignado"}
-                                                </p>
+                                              <div className="row">
+                                                <div className="col-md-6">
+                                                  <p>
+                                                    <strong>Horario:</strong> {group.schedule}
+                                                  </p>
+                                                  <p>
+                                                    <strong>Profesor:</strong> {group.group_teacher ? `${group.group_teacher.firstName} ${group.group_teacher.lastName}` : "No asignado"}
+                                                  </p>
+                                                </div>
+                                                <div className="col-md-6">
+                                                  <p>
+                                                    <strong>Fecha de inicio:</strong> {new Date(group.start_date).toLocaleDateString("es-ES")}
+                                                  </p>
+                                                  <p>
+                                                    <strong>Fecha de finalización:</strong> {new Date(group.end_date).toLocaleDateString("es-ES")}
+                                                  </p>
+                                                </div>
                                               </div>
                                             )}
                                           </div>

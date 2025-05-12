@@ -94,6 +94,8 @@ export async function getAllGroups(token) {
     }
   });
 
+  console.log(response.data);
+
   return response.data;
 }
 
