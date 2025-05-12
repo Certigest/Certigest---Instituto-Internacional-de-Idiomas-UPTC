@@ -153,7 +153,14 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     public PersonDTO getAccountInfoByUsername(String username) {
         Optional<Login> loginOpt = loginRepo.findByUserName(username);
         Person personInfo = loginOpt.map(Login::getPerson).orElseGet(Person::new);
-        return PersonMapper.INSTANCE.mapPersonToPersonDTO(personInfo);
+        List<PersonRole> roles = personRoleRepo.findByPersonId(personInfo.getPersonId());
+            List<RoleDTO> roleDTOs = roles.stream()
+                .map(pr -> new RoleDTO(pr.getRole().getRole_id(), pr.getRole().getName()))
+                .collect(Collectors.toList());
+
+        PersonDTO dto = PersonMapper.INSTANCE.mapPersonToPersonDTO(personInfo);
+        dto.setRoles(roleDTOs);
+        return dto;
     }
 
     public PersonDTO ModifyAccountInfo(PersonDTO personDTO, String username) {
