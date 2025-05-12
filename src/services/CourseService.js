@@ -94,6 +94,8 @@ export async function getAllGroups(token) {
     }
   });
 
+  console.log(response.data);
+
   return response.data;
 }
 
@@ -200,4 +202,33 @@ export async function enrollStudentToGroup(token, studentId, groupId) {
   );
 
   return response.data;
+}
+
+export async function getStudentsWhoHaveNotTakenLevel(token, levelId) {
+  const response = await axios.get(`${API_HOST}/person/studentsWhoHaveNotTakenLevel/${levelId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
+
+export async function enrollStudentsMassive(token, studentsList) {
+  try {
+    const response = await axios.post(`${GROUP_URL}/enrollMassive`, studentsList, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      // Respuesta con error del servidor
+      return { error: error.response.data.error || "Error desconocido del servidor" };
+    } else {
+      // Error en la conexión o configuración
+      return { error: "Error de conexión al servidor" };
+    }
+  }
 }

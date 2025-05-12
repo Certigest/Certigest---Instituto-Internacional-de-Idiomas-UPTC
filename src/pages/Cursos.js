@@ -1,11 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useKeycloak } from "@react-keycloak/web";
-import { createCourse, getAllCourses, createLevel, createGroup, getAllTeachers, getAllGroups, updateCourse, updateGroup, updateLevel, deleteCourse, deleteGroup, deleteLevel } from "../services/CourseService";
+import { Toast, ToastContainer } from "react-bootstrap";
+import { createCourse, createLevel, createGroup, getAllTeachers, getAllGroups, updateCourse, updateGroup, updateLevel, deleteCourse, deleteGroup, deleteLevel } from "../services/CourseService";
+import ModalConfirm from "../components/ModalConfirm";
 
 const Cursos = () => {
   const { keycloak } = useKeycloak();
   const [tab, setTab] = useState("modificar");
-  const [setCourses] = useState([]);
   const [courseForm, setCourseForm] = useState({
     course_name: "",
     course_description: "",
@@ -14,9 +15,35 @@ const Cursos = () => {
     creation_date: new Date().toISOString().split("T")[0],
     state: true,
   });
-  const [message, setMessage] = useState({ type: "", text: "" });
 
-  const [levels, setLevels] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(() => () => {});
+  const [modalMessage, setModalMessage] = useState("");
+
+  const openConfirmModal = (action, message) => {
+    setConfirmAction(() => action);
+    setModalMessage(message);
+    setIsModalOpen(true);
+  };
+
+  const closeConfirmModal = () => {
+    setIsModalOpen(false);
+    setConfirmAction(() => () => {});
+  };
+
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const handleCloseToast = () => setMessage({ ...message, show: false });
+  const [levels, setLevels] = useState([
+    {
+      level_name: "",
+      level_description: "",
+      state: true,
+      level_cost: 0,
+      material_cost: 0,
+      level_modality: "In_person",
+      groups: [{ group_name: "", schedule: "", group_teacher: "", start_date: "", end_date: "", state: true }],
+    },
+  ]);
 
   const handleAddLevel = () => {
     setLevels([
@@ -25,7 +52,10 @@ const Cursos = () => {
         level_name: "",
         level_description: "",
         state: true,
-        groups: [{ group_name: "", schedule: "", group_teacher: "" , start_date: "", end_date:"", state: true,}],
+        level_cost: 0,
+        material_cost: 0,
+        level_modality: "In_person",
+        groups: [{ group_name: "", schedule: "", group_teacher: "", start_date: "", end_date: "", state: true }],
       },
     ]);
   };
@@ -45,7 +75,7 @@ const Cursos = () => {
 
   const handleAddGroup = (levelIndex) => {
     const updated = [...levels];
-    updated[levelIndex].groups.push({ group_name: "", schedule: "", group_teacher: "" , start_date: "", end_date:"", state: true,});
+    updated[levelIndex].groups.push({ group_name: "", schedule: "", group_teacher: "", start_date: "", end_date: "", state: true });
     setLevels(updated);
   };
 
@@ -62,15 +92,6 @@ const Cursos = () => {
       return updatedLevels;
     });
   };
-
-  const loadCourses = useCallback(async () => {
-    try {
-      const data = await getAllCourses(keycloak.token);
-      setCourses(data);
-    } catch (err) {
-      console.error("Error cargando cursos:", err);
-    }
-  }, [keycloak.token, setCourses]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -92,6 +113,9 @@ const Cursos = () => {
             level_name: level.level_name,
             level_description: level.level_description,
             state: level.state,
+            level_cost: level.level_cost,
+            material_cost: level.material_cost,
+            level_modality: level.level_modality,
           },
           keycloak.token
         );
@@ -133,14 +157,18 @@ const Cursos = () => {
       creation_date: "",
     });
 
-    setLevels([]);
+    setLevels([
+      {
+        level_name: "",
+        level_description: "",
+        state: true,
+        level_cost: 0,
+        material_cost: 0,
+        level_modality: "In_person",
+        groups: [{ group_name: "", schedule: "", group_teacher: "", start_date: "", end_date: "", state: true }],
+      },
+    ]);
   };
-
-  useEffect(() => {
-    if (tab === "ver" && keycloak?.authenticated) {
-      loadCourses();
-    }
-  }, [tab, keycloak, loadCourses]);
 
   useEffect(() => {
     async function fetchTeachers() {
@@ -174,22 +202,26 @@ const Cursos = () => {
     group_teacher: null,
   });
 
-
   const [creatingLevelForCourseId, setCreatingLevelForCourseId] = useState(null);
   const [newLevelGroup, setNewLevelGroup] = useState({
     level_name: "",
     level_description: "",
+    level_cost: 0,
+    material_cost: 0,
+    level_modality: "In_person",
     group_name: "",
     schedule: "",
     group_teacher: null,
   });
-
 
   const handleStartCreatingLevel = (courseId) => {
     setCreatingLevelForCourseId(courseId);
     setNewLevelGroup({
       level_name: "",
       level_description: "",
+      level_cost: 0,
+      material_cost: 0,
+      level_modality: "In_person",
       group_name: "",
       schedule: "",
       group_teacher: null,
@@ -201,6 +233,9 @@ const Cursos = () => {
     setNewLevelGroup({
       level_name: "",
       level_description: "",
+      level_cost: 0,
+      material_cost: 0,
+      level_modality: "In_person",
       group_name: "",
       schedule: "",
       group_teacher: null,
@@ -219,6 +254,9 @@ const Cursos = () => {
         id_course: { id_course: courseId },
         level_name: newLevelGroup.level_name,
         level_description: newLevelGroup.level_description,
+        level_cost: newLevelGroup.level_cost,
+        material_cost: newLevelGroup.material_cost,
+        level_modality: newLevelGroup.level_modality,
       };
       const createdLevel = await createLevel(levelToCreate, keycloak.token);
 
@@ -255,7 +293,7 @@ const Cursos = () => {
           updated[levelIndex][name] = value;
           setLevels(updated);
         };
-        
+
         const handleGroupChange = (e, levelIndex, groupIndex) => {
           const { name, value } = e.target;
           const updated = [...levels];
@@ -268,154 +306,173 @@ const Cursos = () => {
             <h3 className="text-dark mb-4">Crear Curso</h3>
 
             {message.text && (
-              <div className={`alert alert-${message.type} mt-2`} role="alert">
-                {message.text}
-              </div>
+              <ToastContainer position="bottom-end" className="p-3">
+                <Toast
+                  show={message.show}
+                  onClose={handleCloseToast}
+                  delay={3000}
+                  autohide
+                  className={`border-0 shadow-lg rounded-3 bg-${message.type} position-relative`}
+                  style={{
+                    minHeight: "80px",
+                  }}
+                >
+                  <Toast.Body className="text-white px-4 py-3 fs-6 w-100" style={{ fontSize: "1rem" }}>
+                    {message.text}
+                  </Toast.Body>
+                </Toast>
+                <style>{`@media (min-width: 768px) {.toast {max-width: 400px;}.toast-body {font-size: 1.25rem;}}`}</style>
+              </ToastContainer>
             )}
+            <form onSubmit={handleSubmit}>
+              <div className="row">
+                {/* FORMULARIO PRINCIPAL */}
+                <div className="col-md-6">
+                  <div className="mb-3">
+                    <label className="form-label">Nombre del Curso</label>
+                    <input type="text" name="course_name" className="form-control border-secondary" value={courseForm.course_name} onChange={handleInputChange} required />
+                  </div>
 
-            <div className="row">
-              {/* FORMULARIO PRINCIPAL */}
-              <div className="col-md-6">
-                <div className="mb-3">
-                  <label className="form-label">Nombre del Curso</label>
-                  <input type="text" name="course_name" className="form-control border-secondary" value={courseForm.course_name} onChange={handleInputChange} required />
+                  <div className="mb-3">
+                    <label className="form-label">Descripción del Curso</label>
+                    <textarea name="course_description" className="form-control border-secondary" rows="3" value={courseForm.course_description} onChange={handleInputChange} required></textarea>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Tipo de Curso</label>
+                    <select name="course_type" className="form-select border-secondary" value={courseForm.course_type} onChange={handleInputChange} required>
+                      <option value="DEFAULT">Normal</option>
+                      <option value="KIDS">Niños</option>
+                      <option value="SKILLS">Curso con Habilidades</option>
+                    </select>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Idioma</label>
+                    <input type="text" name="language" className="form-control border-secondary" value={courseForm.language} onChange={handleInputChange} required />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Fecha de Creación</label>
+                    <input type="date" name="creation_date" className="form-control border-secondary" value={courseForm.creation_date} onChange={handleInputChange} required />
+                  </div>
                 </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Descripción del Curso</label>
-                  <textarea name="course_description" className="form-control border-secondary" rows="3" value={courseForm.course_description} onChange={handleInputChange} required></textarea>
-                </div>
+                {/* SECCIÓN NIVELES */}
+                <div className="col-md-6">
+                  <div className="p-3 border border-warning border-3 rounded bg-warning" style={{ maxHeight: "500px", overflowY: "auto" }}>
+                    {levels.map((level, levelIndex) => (
+                      <div key={levelIndex} className="mb-4 p-3 border border-warning rounded bg-light">
+                        {/* Encabezado Nivel */}
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                          <h5 className="text-warning mb-0">Nivel #{levelIndex + 1}</h5>
+                          {levels.length > 1 && (
+                            <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => handleRemoveLevel(levelIndex)}>
+                              Eliminar Nivel
+                            </button>
+                          )}
+                        </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Tipo de Curso</label>
-                  <select name="course_type" className="form-select border-secondary" value={courseForm.course_type} onChange={handleInputChange} required>
-                    <option value="DEFAULT">Normal</option>
-                    <option value="KIDS">Niños</option>
-                    <option value="SKILLS">Curso con Habilidades</option>
-                  </select>
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label">Idioma</label>
-                  <input type="text" name="language" className="form-control border-secondary" value={courseForm.language} onChange={handleInputChange} required />
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label">Fecha de Creación</label>
-                  <input type="date" name="creation_date" className="form-control border-secondary" value={courseForm.creation_date} onChange={handleInputChange} required />
-                </div>
-              </div>
-
-              {/* SECCIÓN NIVELES */}
-              <div className="col-md-6">
-                <div className="p-3 border border-warning border-3 rounded bg-warning" style={{ maxHeight: "500px", overflowY: "auto" }}>
-                  {levels.map((level, levelIndex) => (
-                    <div key={levelIndex} className="mb-4 p-3 border border-warning rounded bg-light">
-                      {/* Encabezado Nivel */}
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h5 className="text-warning mb-0">Nivel #{levelIndex + 1}</h5>
-                        <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => handleRemoveLevel(levelIndex)}>
-                          Eliminar Nivel
-                        </button>
-                      </div>
-
-                      {/* Campos del Nivel */}
-                      <div className="mb-2">
-                        <label className="form-label">Nombre del Nivel</label>
-                        <input type="text" name="level_name" className="form-control" value={level.level_name} onChange={(e) => handleLevelChange(e, levelIndex)} />
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label">Descripción del Nivel</label>
-                        <textarea name="level_description" className="form-control" rows="2" value={level.level_description} onChange={(e) => handleLevelChange(e, levelIndex)}></textarea>
-                      </div>
-
-                      {/* Grupos */}
-                      <div className="bg-white border rounded p-2 mb-3">
-                        <h6 className="text-secondary">Grupos</h6>
-                        {level.groups.map((group, groupIndex) => (
-                          <div key={groupIndex} className="mb-3 p-3 bg-body border-start border-secondary border-3 rounded position-relative">
-                            <div className="d-flex justify-content-between align-items-center mb-2">
-                              <h6 className="text-secondary mb-0">Grupo #{groupIndex + 1}</h6>
-                              {level.groups.length > 1 && (
-                                <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => handleRemoveGroup(levelIndex, groupIndex)}>
-                                  Eliminar Grupo
-                                </button>
-                              )}
-                            </div>
-
-                            <div className="mb-2">
-                              <label className="form-label">Nombre del Grupo</label>
-                              <input type="text" name="group_name" className="form-control" value={group.group_name} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required />
-                            </div>
-
-                            <div className="mb-2">
-                              <label className="form-label">Horario</label>
-                              <input type="text" name="schedule" className="form-control" value={group.schedule} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required />
-                            </div>
-                            <div className="mb-2">
-                              <label className="form-label">Profesor Asignado</label>
-                              <select name="group_teacher" className="form-select" value={group.group_teacher || ""} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required>
-                                <option value="">Seleccione un profesor</option>
-                                {teachers.map((teacher) => (
-                                  <option key={teacher.personId} value={teacher.personId}>
-                                    {teacher.firstName} {teacher.lastName} - {teacher.email}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                            <div className="row mb-2">
-                              <div className="col">
-                                <label className="form-label">Fecha de Inicio</label>
-                                <input
-                                  type="date"
-                                  name="start_date"
-                                  className="form-control"
-                                  value={group.start_date || ""}
-                                  onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)}
-                                  required
-                                />
-                              </div>
-                              <div className="col">
-                                <label className="form-label">Fecha de Fin</label>
-                                <input
-                                  type="date"
-                                  name="end_date"
-                                  className="form-control"
-                                  value={group.end_date || ""}
-                                  onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)}
-                                  required
-                                />
-                              </div>
-                            </div>
+                        {/* Campos del Nivel */}
+                        <div className="mb-2">
+                          <label className="form-label">Nombre del Nivel</label>
+                          <input type="text" name="level_name" className="form-control" value={level.level_name} onChange={(e) => handleLevelChange(e, levelIndex)} required />
+                        </div>
+                        <div className="mb-3">
+                          <label className="form-label">Descripción del Nivel</label>
+                          <textarea name="level_description" className="form-control" rows="2" value={level.level_description} onChange={(e) => handleLevelChange(e, levelIndex)} required></textarea>
+                        </div>
+                        <div className="row mb-2">
+                          <div className="col-md-6">
+                            <label className="form-label">Costo de Matricula</label>
+                            <input type="number" name="level_cost" className="form-control" value={level.level_cost} onChange={(e) => handleLevelChange(e, levelIndex)} required />
                           </div>
-                        ))}
-                      </div>
+                          <div className="col-md-6">
+                            <label className="form-label">Costo de Materiales</label>
+                            <input type="number" name="material_cost" className="form-control" value={level.material_cost} onChange={(e) => handleLevelChange(e, levelIndex)} required />
+                          </div>
+                        </div>
+                        <div className="mb-3">
+                          <label className="form-label">Modalidad</label>
+                          <select name="level_modality" className="form-select border-secondary" value={level.level_modality} onChange={(e) => handleLevelChange(e, levelIndex)} required>
+                            <option value="In_person">Presencial</option>
+                            <option value="virtual">Virtual</option>
+                          </select>
+                        </div>
+                        {/* Grupos */}
+                        <div className="bg-white border rounded p-2 mb-3">
+                          <h6 className="text-secondary">Grupos</h6>
+                          {level.groups.map((group, groupIndex) => (
+                            <div key={groupIndex} className="mb-3 p-3 bg-body border-start border-secondary border-3 rounded position-relative">
+                              <div className="d-flex justify-content-between align-items-center mb-2">
+                                <h6 className="text-secondary mb-0">Grupo #{groupIndex + 1}</h6>
+                                {level.groups.length > 1 && (
+                                  <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => handleRemoveGroup(levelIndex, groupIndex)}>
+                                    Eliminar Grupo
+                                  </button>
+                                )}
+                              </div>
 
-                      {/* Botón agregar grupo */}
-                      <div className="text-center">
-                        <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => handleAddGroup(levelIndex)}>
-                          Agregar Grupo
-                        </button>
+                              <div className="mb-2">
+                                <label className="form-label">Nombre del Grupo</label>
+                                <input type="text" name="group_name" className="form-control" value={group.group_name} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required />
+                              </div>
+
+                              <div className="mb-2">
+                                <label className="form-label">Horario</label>
+                                <input type="text" name="schedule" className="form-control" value={group.schedule} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required />
+                              </div>
+                              <div className="mb-2">
+                                <label className="form-label">Profesor Asignado</label>
+                                <select name="group_teacher" className="form-select" value={group.group_teacher || ""} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required>
+                                  <option value="">Seleccione un profesor</option>
+                                  {teachers.map((teacher) => (
+                                    <option key={teacher.personId} value={teacher.personId}>
+                                      {teacher.firstName} {teacher.lastName} - {teacher.email}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div className="row mb-2">
+                                <div className="col">
+                                  <label className="form-label">Fecha de Inicio</label>
+                                  <input type="date" name="start_date" className="form-control" value={group.start_date || ""} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required />
+                                </div>
+                                <div className="col">
+                                  <label className="form-label">Fecha de Fin</label>
+                                  <input type="date" name="end_date" className="form-control" value={group.end_date || ""} onChange={(e) => handleGroupChange(e, levelIndex, groupIndex)} required />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Botón agregar grupo */}
+                        <div className="text-center">
+                          <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => handleAddGroup(levelIndex)}>
+                            Agregar Grupo
+                          </button>
+                        </div>
                       </div>
+                    ))}
+
+                    {/* Botón agregar nivel */}
+                    <div className="text-center">
+                      <button type="button" className="btn btn-outline-dark mt-2" onClick={handleAddLevel}>
+                        Agregar Nivel
+                      </button>
                     </div>
-                  ))}
-
-                  {/* Botón agregar nivel */}
-                  <div className="text-center">
-                    <button type="button" className="btn btn-outline-dark mt-2" onClick={handleAddLevel}>
-                      Agregar Nivel
-                    </button>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* BOTÓN DE ENVÍO GLOBAL */}
-            <div className="text-end mt-4">
-              <button type="submit" className="btn btn-warning fw-bold shadow" onClick={handleSubmit}>
-                Crear Curso
-              </button>
-            </div>
+              {/* BOTÓN DE ENVÍO GLOBAL */}
+              <div className="text-end mt-4">
+                <button type="submit" className="btn btn-warning fw-bold shadow">
+                  Crear Curso
+                </button>
+              </div>
+            </form>
           </div>
         );
       case "ver":
@@ -423,8 +480,10 @@ const Cursos = () => {
           try {
             await deleteCourse(courseId, keycloak.token);
             setGroupData((prev) => prev.filter((g) => g.level_id.id_course.id_course !== courseId));
+            setMessage({ type: "success", text: "Curso Eliminado Correctamente." });
           } catch (err) {
             console.error("Error eliminando curso:", err);
+            setMessage({ type: "danger", text: "Hubo un error, contacte a un administrador." });
           }
         };
 
@@ -432,8 +491,10 @@ const Cursos = () => {
           try {
             await deleteLevel(levelId, keycloak.token);
             setGroupData((prev) => prev.filter((g) => g.level_id.level_id !== levelId));
+            setMessage({ type: "success", text: "Nivel Eliminado Correctamente." });
           } catch (err) {
             console.error("Error eliminando nivel:", err);
+            setMessage({ type: "danger", text: "Hubo un error, contacte a un administrador." });
           }
         };
 
@@ -441,8 +502,10 @@ const Cursos = () => {
           try {
             await deleteGroup(groupId, keycloak.token);
             setGroupData((prev) => prev.filter((g) => g.group_id !== groupId));
+            setMessage({ type: "success", text: "Grupo Eliminado Correctamente." });
           } catch (err) {
             console.error("Error eliminando grupo:", err);
+            setMessage({ type: "danger", text: "Hubo un error, contacte a un administrador." });
           }
         };
 
@@ -487,6 +550,26 @@ const Cursos = () => {
         };
 
         const handleSaveCourse = async () => {
+          const {
+            course_name,
+            course_description,
+            language,
+            course_type
+          } = editedCourse;
+
+          if (
+            !course_name?.trim() ||
+            !course_description?.trim() ||
+            !language?.trim() ||
+            !course_type
+          ) {
+            setMessage({
+              type: 'danger',
+              text: 'Por favor, completa todos los campos del curso antes de guardar.'
+            });
+            return;
+          }
+
           try {
             await updateCourse(editedCourse, keycloak.token);
             const updated = groupData.map((g) => {
@@ -503,12 +586,34 @@ const Cursos = () => {
             });
             setGroupData(updated);
             handleCancelEdit();
+            setMessage({ type: "success", text: "Curso Actualizado Correctamente" });
           } catch (err) {
-            console.error("Error actualizando curso:", err);
+            setMessage({ type: "danger", text: "Hubo un error, contacte a un administrador." });
           }
         };
 
         const handleSaveLevel = async () => {
+          const {
+            level_name,
+            level_description,
+            level_cost,
+            material_cost,
+            level_modality
+          } = editedLevel;
+
+          if (
+            !level_name?.trim() ||
+            !level_description?.trim() ||
+            level_cost === '' ||
+            material_cost === '' ||
+            !level_modality
+          ) {
+            setMessage({
+              type: 'danger',
+              text: 'Por favor, completa todos los campos del nivel antes de guardar.'
+            });
+            return;
+          }
           try {
             await updateLevel(editedLevel, keycloak.token);
             const updated = groupData.map((g) => {
@@ -522,19 +627,53 @@ const Cursos = () => {
             });
             setGroupData(updated);
             handleCancelEdit();
+            console.log(editedLevel);
+            console.log(updated);
+            setMessage({ type: "success", text: "Nivel Actualizado Correctamente." });
           } catch (err) {
             console.error("Error actualizando nivel:", err);
+            setMessage({ type: "danger", text: "Hubo un error, contacte a un administrador." });
           }
         };
 
         const handleSaveGroup = async () => {
+          const {
+            group_name,
+            group_teacher,
+            schedule,
+            start_date,
+            end_date
+          } = editedGroup;
+          if (
+            !group_name?.trim() ||
+            !group_teacher ||
+            !schedule?.trim() ||
+            !start_date ||
+            !end_date
+          ) {
+            setMessage({
+              type: 'danger',
+              text: 'Por favor, completa todos los campos del grupo antes de guardar.'
+            });
+            return;
+          }
+
+          if (new Date(start_date) > new Date(end_date)) {
+            setMessage({
+              type: 'danger',
+              text: 'La fecha de inicio no puede ser posterior a la fecha de fin.'
+            });
+            return;
+          }
           try {
             await updateGroup(editedGroup, keycloak.token);
             const updated = groupData.map((g) => (g.group_id === editedGroup.group_id ? editedGroup : g));
             setGroupData(updated);
             handleCancelEdit();
+            setMessage({ type: "success", text: "Grupo actualizado Correctamente." });
           } catch (err) {
             console.error("Error actualizando grupo:", err);
+            setMessage({ type: "danger", text: "Hubo un error, contacte a un administrador." });
           }
         };
 
@@ -605,18 +744,60 @@ const Cursos = () => {
             const fresh = await getAllGroups(keycloak.token);
             setGroupData(fresh);
             handleCancelCreatingGroup();
+            setMessage({ type: "success", text: "Grupo Guardado Correctamente." });
           } catch (err) {
             console.error("Error creando grupo:", err);
+            setMessage({ type: "danger", text: "Hubo un error, contacte a un administrador." });
           }
         };
 
         return (
           <div className="container mt-4">
+            {message.text && (
+              <ToastContainer
+                className="p-3"
+                style={{
+                  position: "fixed",
+                  bottom: "1rem",
+                  right: "1rem",
+                  zIndex: 900,
+                }}
+              >
+                <Toast
+                  show={message.show}
+                  onClose={handleCloseToast}
+                  delay={3000}
+                  autohide
+                  className={`border-0 shadow-lg rounded-3 bg-${message.type} position-relative`}
+                  style={{ minHeight: "80px" }}
+                >
+                  <Toast.Body className="text-white px-4 py-3 fs-6 w-100" style={{ fontSize: "1rem" }}>
+                    {message.text}
+                  </Toast.Body>
+                </Toast>
+
+                <style>{`
+                  @media (min-width: 768px) {
+                    .toast { max-width: 400px; }
+                    .toast-body { font-size: 1.25rem; }
+                  }
+                `}</style>
+              </ToastContainer>
+            )}
             {Object.values(groupedCourses).map(({ course, levels }) => (
               <div key={course.id_course} className="mb-4">
                 <div className="card shadow-sm">
                   <div className="card-header bg-warning text-white d-flex justify-content-between align-items-center">
-                    {editingCourseId === course.id_course ? <input name="course_name" value={editedCourse.course_name} onChange={handleCourseChange} className="form-control me-2" /> : <h5 className="mb-0">{course.course_name}</h5>}
+                    {editingCourseId === course.id_course ? (
+                      <div className="mb-2">
+                        <label htmlFor="course_name" className="form-label small text-muted">
+                          Nombre del Curso
+                        </label>
+                        <input id="course_name" name="course_name" value={editedCourse.course_name} onChange={handleCourseChange} className="form-control me-2"/>
+                      </div>
+                    ) : (
+                      <h5 className="mb-0">{course.course_name}</h5>
+                    )}
                     <div className="d-flex">
                       {editingCourseId === course.id_course ? (
                         <>
@@ -632,7 +813,7 @@ const Cursos = () => {
                           <button className="btn btn-sm btn-primary me-2" onClick={() => handleEditCourse(course)}>
                             Modificar
                           </button>
-                          <button className="btn btn-sm btn-danger" onClick={() => handleDeleteCourse(course.id_course)}>
+                          <button className="btn btn-sm btn-danger" onClick={() => openConfirmModal(() => handleDeleteCourse(course.id_course), `¿Estás seguro de que quieres eliminar el curso "${course.course_name}"?`)}>
                             Eliminar
                           </button>
                         </>
@@ -642,9 +823,27 @@ const Cursos = () => {
                   <div className="card-body">
                     {editingCourseId === course.id_course ? (
                       <>
-                        <input className="form-control mb-2" name="course_description" value={editedCourse.course_description} onChange={handleCourseChange} />
-                        <input className="form-control mb-2" name="language" value={editedCourse.language} onChange={handleCourseChange} />
-                        <input className="form-control mb-2" name="course_type" value={editedCourse.course_type} onChange={handleCourseChange} />
+                        <div className="mb-2">
+                          <label htmlFor="course_description" className="form-label small text-muted">
+                            Descripción del curso
+                          </label>
+                          <input type="text" id="course_description" className="form-control" name="course_description" value={editedCourse.course_description} onChange={handleCourseChange} />
+                        </div>
+
+                        <div className="mb-2">
+                          <label htmlFor="language" className="form-label small text-muted">
+                            Idioma
+                          </label>
+                          <input type="text" id="language" className="form-control" name="language" value={editedCourse.language} onChange={handleCourseChange} />
+                        </div>
+                        <div className="mb-2">
+                          <label className="form-label small text-muted">Tipo de Curso</label>
+                          <select name="course_type" className="form-select border-secondary" value={editedCourse.course_type} onChange={handleCourseChange} required>
+                            <option value="DEFAULT">Normal</option>
+                            <option value="KIDS">Niños</option>
+                            <option value="SKILLS">Curso con Habilidades</option>
+                          </select>
+                        </div>
                       </>
                     ) : (
                       <>
@@ -673,25 +872,85 @@ const Cursos = () => {
                               <button
                                 className="accordion-button d-flex justify-content-between align-items-center"
                                 type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target={`#collapse-${level.level_id}`}
+                                {...(!isEditing && {
+                                  "data-bs-toggle": "collapse",
+                                  "data-bs-target": `#collapse-${level.level_id}`,
+                                })}
                                 aria-expanded={isExpanded}
                                 aria-controls={`collapse-${level.level_id}`}
                                 onClick={(e) => {
-                                  if (isEditing) e.preventDefault();
-                                  else setExpandedLevelId(level.level_id);
+                                  if (isEditing) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    return;
+                                  } else setExpandedLevelId(level.level_id);
                                 }}
                                 style={accordionButtonStyle}
                               >
                                 {isEditing ? (
-                                  <div className="w-100 d-flex gap-2">
-                                    <input className="form-control" name="level_name" value={editedLevel.level_name} onChange={handleLevel} />
-                                    <input className="form-control" name="level_description" value={editedLevel.level_description} onChange={handleLevel} />
+                                  <div className="w-100 d-flex flex-wrap gap-2">
+                                    <div className="flex-fill">
+                                      <label htmlFor="level_name" className="form-label small text-muted">
+                                        Nombre del nivel
+                                      </label>
+                                      <input type="text" id="level_name" className="form-control" name="level_name" value={editedLevel.level_name} onChange={handleLevel} />
+                                    </div>
+
+                                    <div className="flex-fill">
+                                      <label htmlFor="level_description" className="form-label small text-muted">
+                                        Descripción del nivel
+                                      </label>
+                                      <input type="text" id="level_description" className="form-control" name="level_description" value={editedLevel.level_description} onChange={handleLevel} />
+                                    </div>
+
+                                    <div className="flex-fill">
+                                      <label htmlFor="level_cost" className="form-label small text-muted">
+                                        Costo del nivel
+                                      </label>
+                                      <input type="number" id="level_cost" className="form-control" name="level_cost" value={editedLevel.level_cost} onChange={handleLevel} />
+                                    </div>
+
+                                    <div className="flex-fill">
+                                      <label htmlFor="material_cost" className="form-label small text-muted">
+                                        Costo del material
+                                      </label>
+                                      <input type="number" id="material_cost" className="form-control" name="material_cost" value={editedLevel.material_cost} onChange={handleLevel} />
+                                    </div>
+
+                                    <div className="flex-fill">
+                                      <label htmlFor="level_modality" className="form-label small text-muted">
+                                        Modalidad
+                                      </label>
+                                      <select id="level_modality" className="form-select" name="level_modality" value={editedLevel.level_modality} onChange={handleLevel}>
+                                        <option value="In_person">Presencial</option>
+                                        <option value="virtual">Virtual</option>
+                                      </select>
+                                    </div>
                                   </div>
                                 ) : (
-                                  <span>
-                                    {level.level_name} - {level.level_description}
-                                  </span>
+                                  <div className="container mb-3">
+                                    <div className="row">
+                                      <div className="col-md-6">
+                                        <strong>Nombre:</strong> {level.level_name}
+                                      </div>
+                                      <div className="col-md-6">
+                                        <strong>Descripción:</strong> {level.level_description}
+                                      </div>
+                                    </div>
+                                    <div className="row mt-1">
+                                      <div className="col-md-6">
+                                        <strong>Costo del nivel:</strong> ${level.level_cost}
+                                      </div>
+                                      <div className="col-md-6">
+                                        <strong>Costo del material:</strong> ${level.material_cost}
+                                      </div>
+                                    </div>
+                                    <div className="row mt-1">
+                                      <div className="col-12">
+                                        <strong>Modalidad:</strong> {level.level_modality === "In_person" ? "Presencial" : "Virtual"}
+                                      </div>
+                                    </div>
+                                  </div>
                                 )}
                               </button>
                               <div className="d-flex me-3">
@@ -710,7 +969,7 @@ const Cursos = () => {
                                       Modificar
                                     </button>
                                     {!isOnlyLevelInCourse && (
-                                      <button className="btn btn-sm btn-danger" onClick={() => handleDeleteLevel(level.level_id)}>
+                                      <button className="btn btn-sm btn-danger" onClick={() => openConfirmModal(() => handleDeleteLevel(level.level_id), `¿Estás seguro de que quieres eliminar el nivel "${level.level_name}"?`)}>
                                         Eliminar
                                       </button>
                                     )}
@@ -746,7 +1005,7 @@ const Cursos = () => {
                                                     Modificar
                                                   </button>
                                                   {!isOnlyGroupInLevel && (
-                                                    <button className="btn btn-sm btn-danger" onClick={() => handleDeleteGroup(group.group_id)}>
+                                                    <button className="btn btn-sm btn-danger" onClick={() => openConfirmModal(() => handleDeleteGroup(group.group_id), `¿Estás seguro de que quieres eliminar el grupo "${group.group_name}"?`)}>
                                                       Eliminar
                                                     </button>
                                                   )}
@@ -794,15 +1053,38 @@ const Cursos = () => {
                                                     ))}
                                                   </select>
                                                 </div>
+                                                <div className="mb-3">
+                                                  <label htmlFor="start_date" className="form-label">
+                                                    Fecha de inicio
+                                                  </label>
+                                                  <input type="date" id="start_date" className="form-control" name="start_date" value={editedGroup.start_date?.slice(0, 10) || ""} onChange={handleGroup} />
+                                                </div>
+
+                                                <div className="mb-3">
+                                                  <label htmlFor="end_date" className="form-label">
+                                                    Fecha de finalización
+                                                  </label>
+                                                  <input type="date" id="end_date" className="form-control" name="end_date" value={editedGroup.end_date?.slice(0, 10) || ""} onChange={handleGroup} />
+                                                </div>
                                               </div>
                                             ) : (
-                                              <div>
-                                                <p>
-                                                  <strong>Horario:</strong> {group.schedule}
-                                                </p>
-                                                <p>
-                                                  <strong>Profesor:</strong> {group.group_teacher ? `${group.group_teacher.firstName} ${group.group_teacher.lastName}` : "No asignado"}
-                                                </p>
+                                              <div className="row">
+                                                <div className="col-md-6">
+                                                  <p>
+                                                    <strong>Horario:</strong> {group.schedule}
+                                                  </p>
+                                                  <p>
+                                                    <strong>Profesor:</strong> {group.group_teacher ? `${group.group_teacher.firstName} ${group.group_teacher.lastName}` : "No asignado"}
+                                                  </p>
+                                                </div>
+                                                <div className="col-md-6">
+                                                  <p>
+                                                    <strong>Fecha de inicio:</strong> {new Date(group.start_date).toLocaleDateString("es-ES")}
+                                                  </p>
+                                                  <p>
+                                                    <strong>Fecha de finalización:</strong> {new Date(group.end_date).toLocaleDateString("es-ES")}
+                                                  </p>
+                                                </div>
                                               </div>
                                             )}
                                           </div>
@@ -941,6 +1223,16 @@ const Cursos = () => {
                 </div>
               </div>
             ))}
+            {isModalOpen && (
+              <ModalConfirm
+                message={modalMessage}
+                onConfirm={() => {
+                  confirmAction();
+                  closeConfirmModal();
+                }}
+                onCancel={closeConfirmModal}
+              />
+            )}
           </div>
         );
       default:

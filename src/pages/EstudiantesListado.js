@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
 import { getStudentsByGroupId, sendCalifications } from '../services/CourseService';
+import ModalConfirm from '../components/ModalConfirm';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export default function RateGroup() {
   const { id } = useParams();
@@ -10,6 +11,22 @@ export default function RateGroup() {
   const [califications, setCalifications] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(() => () => {});
+  const [modalMessage, setModalMessage] = useState("");
+  const navigate = useNavigate();
+
+  const openConfirmModal = (action, message) => {
+    setConfirmAction(() => action);
+    setModalMessage(message);
+    setIsModalOpen(true);
+  };
+
+  const closeConfirmModal = () => {
+    setIsModalOpen(false);
+    setConfirmAction(() => () => {});
+  };
+
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -22,7 +39,7 @@ export default function RateGroup() {
               firstName: student.firstName,
               lastName: student.lastName,
               document: student.document,
-              calification: '',
+              calification: student.calification,
             }))
           );
         } catch (err) {
@@ -114,10 +131,23 @@ export default function RateGroup() {
       </div>
 
       <div className="text-end">
-        <button className="btn btn-warning fw-bold shadow" onClick={handleSubmit}>
+        <button className="btn btn-secondary me-2" onClick={() => navigate('/grupos-profesor')}>
+            Regresar
+        </button>
+        <button className="btn btn-warning fw-bold shadow" onClick={() => openConfirmModal(() => handleSubmit(), "¿Está seguro de que desea enviar las calificaciones?")}>
           Calificar
         </button>
       </div>
+      {isModalOpen && (
+        <ModalConfirm
+          message={modalMessage}
+          onConfirm={() => {
+            confirmAction();
+            closeConfirmModal();
+          }}
+          onCancel={closeConfirmModal}
+        />
+      )}
     </div>
   );
 }

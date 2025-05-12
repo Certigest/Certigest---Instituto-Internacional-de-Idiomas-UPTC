@@ -8,11 +8,7 @@ import {
   useNavigate,
 } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
-
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
-import SidebarStudent from './components/SidebarStudent';
-import SidebarTeacher from './components/SidebarTeacher';
+import ResponsiveNavbar from './components/ResponsiveNavbar';
 
 import Home from './pages/Home';
 import Usuarios from './pages/Usuarios';
@@ -33,6 +29,8 @@ import GroupStudents from './pages/EstudiantesGrupo';
 import EnrollStudents from './pages/ListadoEstudiantesInscripción';
 import PublicHomePage from './pages/PublicHomePage';
 import PublicValidatePage from './pages/PublicValidatePage';
+import ViewStudentCertificates from './pages/ViewStudentCertificates';
+import ExcelUploader from './pages/InscripcionArchivo';
 
 
 import './styles/global.css';
@@ -74,25 +72,9 @@ function LayoutWithRoles() {
     return <Navigate to="/home" replace />;
   }
 
-  const renderSidebar = () => {
-    switch (selectedRole) {
-      case 'admin':
-        return <Sidebar isOpen={true} onClose={() => {}} onToggleSidebar={() => {}} />;
-      case 'teacher':
-        return <SidebarTeacher isOpen={true} onClose={() => {}} onToggleSidebar={() => {}} />;
-      case 'student':
-        return <SidebarStudent isOpen={true} onClose={() => {}} onToggleSidebar={() => {}} />;
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className="app-wrapper">
-      <Header />
-      <div className="d-flex">
-        {renderSidebar()}
-        <main className="content p-4 flex-grow-1">
+      <ResponsiveNavbar>
           <Routes>
             <Route path="/home" element={<Home />} />
 
@@ -105,11 +87,12 @@ function LayoutWithRoles() {
                 <Route path="/reportes" element={<Reportes />} />
                 <Route path="/cursos" element={<Cursos />} />
                 <Route path="/niveles-curso/:id" element={<LevelList />} />
-                <Route path="/grupos-nivel/:id" element={<GroupListLevel />} />
+                <Route path="/grupos-nivel/:courseId/:levelId" element={<GroupListLevel />} />
                 <Route path="/certificados" element={<Certificados />} />
                 <Route path="/inscripcion" element={<Inscripcion />} />
-                <Route path="/grupo-estudiantes/:id" element={<GroupStudents />} />
-                <Route path="/inscribir/:id" element={<EnrollStudents />} />
+                <Route path="/grupo-estudiantes/:courseId/:levelId/:groupId" element={<GroupStudents />} />
+                <Route path="/inscribir/:courseId/:levelId/:groupId" element={<EnrollStudents />} />
+                <Route path="/inscripcion-masiva" element={<ExcelUploader />} />
               </>
             )}
 
@@ -129,13 +112,13 @@ function LayoutWithRoles() {
                 <Route path="/editar-contraseña" element={<EditPassword />} />
                 <Route path="/editar-cuenta" element={<EditPersonalAccount />} />
                 <Route path="/cursos" element={<ViewStudentCourses />} />
+                <Route path="/certificados" element={<ViewStudentCertificates />} />
               </>
             )}
 
             <Route path="*" element={<Home />} />
           </Routes>
-        </main>
-      </div>
+      </ResponsiveNavbar>
     </div>
   );
 }

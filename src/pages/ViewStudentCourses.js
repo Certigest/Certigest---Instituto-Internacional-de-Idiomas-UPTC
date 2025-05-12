@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { getGroupsByStudent } from '../services/CourseService';
+import { useKeycloak } from '@react-keycloak/web';
+import Dropdown from 'react-bootstrap/Dropdown';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
-const StudentGroupsTable = ({ keycloak }) => {
+const StudentGroupsTable = () => {
+  const { keycloak } = useKeycloak();
   const [groups, setGroups] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -17,13 +21,65 @@ const StudentGroupsTable = ({ keycloak }) => {
         }
       }
     };
-
     fetchGroups();
   }, [keycloak]);
 
-  const formatDate = (date) => {
-    const newDate = new Date(date);
-    return newDate.toLocaleDateString();
+  const formatDate = (date) => new Date(date).toLocaleDateString();
+
+  const shouldShowNotesOption = (endDate, calification) => {
+    return new Date(endDate) < new Date() && calification != null;
+  };
+
+  const openPdf = async (response) => {
+    if (!response.ok) throw new Error('Error al generar certificado');
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+    window.open(url, '_blank');
+  };
+
+  const handleLevelCertificate = async (group_id, type) => {
+    const payload = {
+      levelId: group_id.level_id.level_id,
+      certificateType: type,
+    };
+    try {
+      const response = await fetch(
+        'http://localhost:8080/certificate/generateLevelCertificate',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      await openPdf(response);
+    } catch (err) {
+      console.error(err);
+      alert('No se pudo generar el certificado de nivel.');
+    }
+  };
+
+  const handleAllLevelsCertificate = async (group) => {
+    const payload = { courseName: group.level_id.id_course.course_name };
+    try {
+      const response = await fetch(
+        'http://localhost:8080/certificate/generateAllLevelsCertificate',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      await openPdf(response);
+    } catch (err) {
+      console.error(err);
+      alert('No se pudo generar el certificado de curso completo.');
+    }
   };
 
   return (
@@ -43,32 +99,59 @@ const StudentGroupsTable = ({ keycloak }) => {
               <th>Fecha Fin</th>
               <th>Horario</th>
               <th>Modalidad</th>
-              <th>Duración</th>
+              <th>Duración (Horas)</th>
               <th>Nota</th>
-              <th>Acción</th>
+              <th>Certificado</th>
             </tr>
           </thead>
           <tbody>
             {groups.length > 0 ? (
-              groups.map((group) => (
-                <tr key={group.group_id}>
-                  <td>{group.level_id?.id_course?.course_name || 'Desconocido'}</td>
-                  <td>{group.level_id?.level_name || 'Desconocido'}</td>
-                  <td>{group.group_name}</td>
-                  <td>{formatDate(group.start_date)}</td>
-                  <td>{formatDate(group.end_date)}</td>
-                  <td>{group.schedule}</td>
-                  <td>{group.LEVEL_MODALITY}</td>
-                  <td>{group.level_duration}</td>
-                  <td>{group.calification !== null ? group.calification : 'N/A'}</td>
+              groups.map(({ group_id, calification, start_date, end_date, level_duration }) => (
+                <tr key={group_id}>
+                  <td>{group_id?.level_id?.id_course?.course_name || 'Desconocido'}</td>
+                  <td>{group_id?.level_id?.level_name || 'Desconocido'}</td>
+                  <td>{group_id.group_name}</td>
+                  <td>{formatDate(start_date)}</td>
+                  <td>{formatDate(end_date)}</td>
+                  <td>{group_id.schedule}</td>
                   <td>
-                    <button className="btn btn-primary">Acción</button>
+                    {{
+                      'In_person': 'Presencial',
+                      'virtual': 'Virtual',
+                    }[group_id.level_id.level_modality] || 'Desconocido'}
                   </td>
+                  <td>{level_duration}</td>
+                  <td>{calification != null ? calification : 'N/A'}</td>
+                  <td>
+                      <Dropdown as={ButtonGroup}>
+                        <Dropdown.Toggle variant="primary" id={`dropdown-${group_id.level_id.level_id}`}>
+                          Seleccione un Tipo
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu>
+                          <Dropdown.Item onClick={() => handleLevelCertificate(group_id, 'BASIC')}>
+                            Básico
+                          </Dropdown.Item>
+
+                          {shouldShowNotesOption(end_date, calification) && (
+                            <Dropdown.Item onClick={() => handleLevelCertificate(group_id, 'NOTES')}>
+                              Notas
+                            </Dropdown.Item>
+                          )}
+
+                          <Dropdown.Item onClick={() => handleAllLevelsCertificate(group_id)}>
+                            Curso Completo
+                          </Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="10" className="text-center">No hay grupos disponibles</td>
+                <td colSpan="10" className="text-center">
+                  No hay grupos disponibles
+                </td>
               </tr>
             )}
           </tbody>
