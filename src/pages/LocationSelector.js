@@ -18,6 +18,7 @@ const LocationSelector = ({ onSelect }) => {
       .then(response => setDepartamentos(response.data))
       .catch(error => console.error('Error al obtener departamentos:', error));
   }, [API_HOST]);
+  
 
   useEffect(() => {
     if (selectedDepartment) {

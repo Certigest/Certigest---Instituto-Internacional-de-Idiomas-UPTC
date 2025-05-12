@@ -47,7 +47,7 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
     try {
       const { documento, correo } = formData;
       if (paso === 1) {
-        const res = await axios.get(`${API_HOST}/person/existsByDocument`,  {
+        const res = await axios.get(`${API_HOST}/person/existsByDocument`, {
           params: { document: documento }, headers: getAuthHeaders()
         });
         if (res.data) {
