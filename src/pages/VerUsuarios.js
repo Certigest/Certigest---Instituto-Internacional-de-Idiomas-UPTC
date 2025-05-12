@@ -4,7 +4,6 @@ import keycloak from "../services/keycloak-config";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import imagenUsuario from "../assets/imagenUsuario.png";
-import { useNavigate } from "react-router-dom";
 import FormularioUsuario2 from "../pages/FormularioUsuario2";
 
 const VerUsuarios = () => {
