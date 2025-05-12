@@ -15,3 +15,5 @@ public interface RoleMapper {
 
     RoleDTO mapRoleToRoleDTO(Role role);
 }
+
+

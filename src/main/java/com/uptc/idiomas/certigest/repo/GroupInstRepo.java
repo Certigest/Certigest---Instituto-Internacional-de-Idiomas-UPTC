@@ -1,7 +1,6 @@
 package com.uptc.idiomas.certigest.repo;
 
 import com.uptc.idiomas.certigest.entity.GroupInst;
-import com.uptc.idiomas.certigest.entity.Person;
 
 import java.util.List;
 
