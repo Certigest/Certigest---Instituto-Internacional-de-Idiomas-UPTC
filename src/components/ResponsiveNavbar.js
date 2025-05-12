@@ -115,6 +115,9 @@ function ResponsiveNavbar({ children }) {
             <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/cursos")}>
               Cursos
             </button>
+            <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/certificados")}>
+              Certificados
+            </button>
           </>
         );
       default:
