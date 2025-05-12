@@ -167,6 +167,7 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
             Person.DocumentType documentType = Person.DocumentType.valueOf(personDTO.getDocumentType().toUpperCase());
             person.setDocumentType(documentType);
             person.setDocument(personDTO.getDocument());
+            person.setEmail(personDTO.getEmail());
             person.setPhone(personDTO.getPhone());
             person.setBirthDate(personDTO.getBirthDate());
 
@@ -305,6 +306,10 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     public Person getPersonByDocument(String document) {
         return personRepo.findByDocument(document)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + document));
+    }
+
+    public Optional<Person> getOptionalByDocument(String document) {
+        return personRepo.findByDocument(document);
     }
 
     public Person getPersonById(Integer id) {

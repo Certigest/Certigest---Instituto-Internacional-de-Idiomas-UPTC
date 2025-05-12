@@ -9,19 +9,28 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.swing.GroupLayout;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import com.uptc.idiomas.certigest.dto.GroupInstDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
+import com.uptc.idiomas.certigest.dto.PersonEnrollInfo;
+import com.uptc.idiomas.certigest.entity.Course;
 import com.uptc.idiomas.certigest.entity.GroupInst;
 import com.uptc.idiomas.certigest.entity.GroupPerson;
 import com.uptc.idiomas.certigest.entity.GroupPersonId;
+import com.uptc.idiomas.certigest.entity.Level;
 import com.uptc.idiomas.certigest.entity.Person;
 import com.uptc.idiomas.certigest.mapper.GroupInstMapper;
+import com.uptc.idiomas.certigest.mapper.PersonMapper;
+import com.uptc.idiomas.certigest.repo.CourseRepo;
 import com.uptc.idiomas.certigest.repo.GroupInstRepo;
 import com.uptc.idiomas.certigest.repo.GroupPersonRepo;
+import com.uptc.idiomas.certigest.repo.LevelRepo;
+
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
@@ -35,6 +44,10 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
     private GroupInstRepo groupRepo;
     @Autowired
     private GroupPersonRepo groupPersonRepo;
+    @Autowired 
+    private CourseRepo courseService;
+    @Autowired 
+    private LevelRepo levelService;
 
     private final GroupInstMapper mapper = GroupInstMapper.INSTANCE;
 
@@ -86,6 +99,13 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
 
     public List<GroupInstDTO> findByLevelId(Integer levelId) {
         return groupRepo.findByLevelId(levelId)
+                .stream()
+                .map(mapper::mapGroupInstToGroupInstDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<GroupInstDTO> findActiveByLevelId(Integer levelId) {
+        return groupRepo.findActiveByLevelId(levelId)
                 .stream()
                 .map(mapper::mapGroupInstToGroupInstDTO)
                 .collect(Collectors.toList());
@@ -202,4 +222,169 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
 
         groupPersonRepo.save(groupPerson);
     }
+
+    public List<PersonEnrollInfo> enrollStudentsMassive(List<PersonEnrollInfo> enrollInfoList) {
+    List<PersonEnrollInfo> failEnrollStudents = new ArrayList<>();
+
+    for (PersonEnrollInfo student : enrollInfoList) {
+        try {
+            Optional<Person> personOpt = personService.getOptionalByDocument(student.getDocumentNumber());
+            if (personOpt.isEmpty()) {
+                student.setDescription("Estudiante no encontrado");
+                failEnrollStudents.add(student);
+                continue;
+            }
+
+            Optional<Course> courseOpt = courseService.findByCourse_name(student.getCourse());
+            if (courseOpt.isEmpty()) {
+                student.setDescription("Curso no encontrado");
+                failEnrollStudents.add(student);
+                continue;
+            }
+
+            int courseId = courseOpt.get().getId_course();
+
+            Optional<Level> levelOpt = levelService.findByLevelNameAndCourseId(student.getLevel(), courseId);
+            if (levelOpt.isEmpty()) {
+                student.setDescription("Nivel no encontrado");
+                failEnrollStudents.add(student);
+                continue;
+            }
+
+            int levelId = levelOpt.get().getLevel_id();
+
+            Optional<GroupInst> groupOpt = groupRepo.findByCourseIdAndLevelIdAndGroupName(courseId, levelId, student.getGroup());
+            PersonEnrollInfo result;
+
+            if (groupOpt.isPresent()) {
+                result = enrollStudentToGroup(personOpt.get().getPersonId(), groupOpt.get().getGroup_id(), student);
+            } else {
+                try {
+                    result = enrollStudentToGenericGroup(personOpt.get().getPersonId(), courseId, levelId, student);
+                } catch (Exception e) {
+                    student.setDescription("Error en inscripción a grupo genérico: " + e.getMessage());
+                    failEnrollStudents.add(student);
+                    continue;
+                }
+            }
+
+            if (!"Agregado".equals(result.getDescription())) {
+                failEnrollStudents.add(result);
+            }
+
+        } catch (Exception ex) {
+            student.setDescription("Error general: " + ex.getMessage());
+            failEnrollStudents.add(student);
+        }
+    }
+
+    return failEnrollStudents;
+}
+
+
+
+    public PersonEnrollInfo enrollStudentToGenericGroup(Integer personId, Integer courseId, Integer levelId, PersonEnrollInfo student) {
+    try {
+        System.out.println("Antes de buscar el grupo genérico: " + student.getFullName());
+
+        // Buscar si ya existe un grupo genérico para el curso y nivel dados
+        Optional<GroupInst> existingGroupOpt = groupRepo.findByCourseIdAndLevelIdAndGroupName(courseId, levelId, "Grupo genérico");
+        System.out.println("Entra: " + student.getFullName());
+
+        GroupInst newGroupInst;
+        if (existingGroupOpt.isPresent()) {
+            newGroupInst = existingGroupOpt.get();
+        } else {
+            GroupInst newGroup = new GroupInst();
+            newGroup.setGroup_name("Grupo genérico");
+            newGroup.setState(false);
+
+            Level level = levelService.findByLevelNameAndCourseId(student.getLevel(), courseId)
+                .orElseThrow(() -> new IllegalStateException("Nivel no encontrado para el curso ID: " + courseId + " y nivel: " + student.getLevel()));
+
+            newGroup.setLevel_id(level);
+            newGroupInst = groupRepo.save(newGroup);
+            System.out.println("Grupo genérico creado con ID: " + newGroupInst.getGroup_id());
+        }
+
+        // Validar si ya está registrado en ese grupo
+        GroupPersonId newId = new GroupPersonId(personId, newGroupInst.getGroup_id());
+        Optional<GroupPerson> existing = groupPersonRepo.findById(newId);
+        if (existing.isPresent()) {
+            student.setDescription("El estudiante ya está inscrito en el nivel");
+            return student;
+        }
+
+        // Obtener persona
+        Person person = personService.getPersonById(personId);
+        if (person == null) {
+            throw new IllegalStateException("Persona no encontrada con ID: " + personId);
+        }
+
+        GroupPerson groupPerson = new GroupPerson();
+        groupPerson.setId(newId);
+        groupPerson.setPerson_id(person);
+        groupPerson.setGroup_id(newGroupInst);
+
+        groupPerson.setStart_date(student.getStartDate());
+        groupPerson.setEnd_date(student.getEndDate());
+        groupPerson.setCalification(student.getGrade());
+        groupPerson.setLevel_cost(student.getLevelCost());
+        groupPerson.setMaterial_cost(student.getMaterialCost());
+
+        LocalDate start = student.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate end = student.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        long days = ChronoUnit.DAYS.between(start, end);
+        long weeks = days / 7;
+        groupPerson.setLevel_duration(weeks + " semanas");
+
+        groupPersonRepo.save(groupPerson);
+        student.setDescription("Agregado");
+        System.out.println("Asociación guardada exitosamente");
+
+        return student;
+    } catch (Exception e) {
+        System.err.println("Error al matricular al estudiante: " + e.getMessage());
+        student.setDescription("Error en inscripción: " + e.getMessage());
+        return student;
+    }
+}
+
+ 
+
+    public PersonEnrollInfo enrollStudentToGroup(Integer personId, Integer groupId, PersonEnrollInfo student) {
+    GroupPersonId id = new GroupPersonId(personId, groupId);
+
+    Optional<GroupPerson> existing = groupPersonRepo.findById(id);
+    if (existing.isPresent()) {
+        student.setDescription("El estudiante ya está inscrito en este grupo");
+        return student;
+    }
+
+    GroupInst group = groupRepo.findById(groupId)
+            .orElseThrow(() -> new IllegalStateException("Grupo no encontrado"));
+
+    GroupPerson groupPerson = new GroupPerson();
+    groupPerson.setId(id);
+    groupPerson.setPerson_id(personService.getPersonById(personId));
+    groupPerson.setGroup_id(group);
+
+    groupPerson.setStart_date(student.getStartDate());
+    groupPerson.setEnd_date(student.getEndDate());
+    groupPerson.setCalification(student.getGrade());
+    groupPerson.setLevel_cost(student.getLevelCost());
+    groupPerson.setMaterial_cost(student.getMaterialCost());
+
+    LocalDate start = student.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    LocalDate end = student.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    long days = ChronoUnit.DAYS.between(start, end);
+    long weeks = days / 7;
+    groupPerson.setLevel_duration(weeks + " semanas");
+
+    groupPersonRepo.save(groupPerson);
+    student.setDescription("Agregado");
+    System.out.println("Estudiante inscrito correctamente: " + student.getFullName());
+    return student;
+}
+
 }

@@ -1,6 +1,7 @@
 package com.uptc.idiomas.certigest.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,4 +61,7 @@ public class LevelService extends BasicServiceImpl<LevelDTO, Level, Integer> {
                 .collect(Collectors.toList());
     }
 
+    public Optional<Level> findByLevelNameAndCourseName(String level_name, Integer course_id) {
+        return levelRepo.findByLevelNameAndCourseId(level_name, course_id);
+    }
 }
