@@ -9,7 +9,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Group_Person")
+@Table(name = "group_person")
 public class GroupPerson {
 
     @EmbeddedId
@@ -37,7 +37,7 @@ public class GroupPerson {
     private Integer material_cost;
 
     @Enumerated(EnumType.STRING)
-    private LevelModality LEVEL_MODALITY;
+    public LevelModality LEVEL_MODALITY;
 
     private String level_duration;
 }

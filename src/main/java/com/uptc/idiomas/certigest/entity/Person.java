@@ -10,6 +10,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "person")
 public class Person {
 
     public enum DocumentType {

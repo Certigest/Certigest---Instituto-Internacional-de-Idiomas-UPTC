@@ -9,6 +9,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "certificate_code")
 public class CertificateCode {
 
     @Id

@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Login")
+@Table(name = "login")
 public class Login {
 
     @Id

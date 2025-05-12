@@ -10,6 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @IdClass(CertificateLevelId.class)
+@Table(name = "certificate_level")
 public class CertificateLevel {
 
     @Id

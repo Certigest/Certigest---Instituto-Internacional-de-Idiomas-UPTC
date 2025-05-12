@@ -10,6 +10,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "course")
 public class Course {
 
     public enum CourseType {
@@ -19,7 +20,8 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_course;
-
+    
+    @Column(name = "course_name")
     private String course_name;
     private String course_description;
 

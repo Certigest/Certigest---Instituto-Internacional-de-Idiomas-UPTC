@@ -17,7 +17,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Role")
+@Table(name = "role")
 public class Role {
 
     public enum RoleName {

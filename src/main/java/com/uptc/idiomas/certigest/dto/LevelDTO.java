@@ -12,5 +12,12 @@ public class LevelDTO {
     private CourseDTO id_course;
     private String level_name;
     private String level_description;
+    private Integer level_cost;
+    private Integer material_cost;
     private Boolean state;
+    private LevelModality level_modality;
+
+    public enum LevelModality {
+        In_person, virtual
+    }
 }
