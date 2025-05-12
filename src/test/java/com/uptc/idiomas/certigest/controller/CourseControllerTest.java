@@ -5,6 +5,9 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uptc.idiomas.certigest.dto.CourseDTO;
 import com.uptc.idiomas.certigest.service.CourseService;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,7 @@ public class CourseControllerTest {
     @BeforeEach
     void setUp() {
         sampleCourse = new CourseDTO();
+        sampleCourse.setId_course(1);
         sampleCourse.setCourse_name("Sample Course");
         sampleCourse.setCourse_description("Sample Description");
     }
@@ -73,7 +77,7 @@ public class CourseControllerTest {
 
     @Test
     void testGetCourseById_NotFound() throws Exception {
-        when(courseService.findById(999)).thenReturn(null);
+        when(courseService.findById(999)).thenThrow(new EntityNotFoundException());
 
         mockMvc.perform(get("/course/999"))
                 .andExpect(status().isNotFound());

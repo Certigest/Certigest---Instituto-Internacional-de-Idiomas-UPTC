@@ -48,7 +48,7 @@ public class GroupInstRepoTest {
         entityManager.persist(groupInst);
 
         GroupInst groupInstInactive = new GroupInst();
-        groupInstInactive.setGroup_name("Test Active Group");
+        groupInstInactive.setGroup_name("Test Inactive Group");
         groupInstInactive.setState(false);
         entityManager.persist(groupInstInactive);
 

@@ -46,7 +46,6 @@ public class GroupServiceTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         group = new GroupInst();
         group.setGroup_name("G1");
         group.setGroup_teacher(new Person());

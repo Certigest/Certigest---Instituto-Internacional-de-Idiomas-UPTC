@@ -26,6 +26,7 @@ public class CourseRepoTest {
         course.setCourse_name("Test Course");
         course.setCourse_description("Test Description");
         entityManager.persist(course);
+        entityManager.flush();
     }
 
     @Test
