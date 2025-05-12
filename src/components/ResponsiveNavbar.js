@@ -66,8 +66,6 @@ function ResponsiveNavbar({ children }) {
     const offcanvasEl = document.getElementById("offcanvasNavbar");
     const offcanvas = Offcanvas.getInstance(offcanvasEl);
     if (offcanvas) offcanvas.hide();
-    const backdrops = document.querySelectorAll(".offcanvas-backdrop");
-    backdrops.forEach((bd) => bd.remove());
 
     navigate(path);
   };
@@ -151,7 +149,7 @@ function ResponsiveNavbar({ children }) {
           </nav>
         </div>
 
-        <div className="offcanvas offcanvas-start" tabIndex="-1" id="offcanvasNavbar">
+        <div className="offcanvas offcanvas-start" tabIndex="-1" id="offcanvasNavbar" data-bs-backdrop="false">
           <div className="d-md-none bg-warning">
             <div className="offcanvas-header">
               <h5 className="offcanvas-title">Menú</h5>
@@ -184,7 +182,7 @@ function ResponsiveNavbar({ children }) {
               </Dropdown.Menu>
             </Dropdown>
           )}
-          <div className="me-3 text-end">
+          <div className="me-3 text-end position-relative">
             <div className="small text-dark">
               <button className="btn btn-link text-dark p-0" onClick={toggleMenu} style={{ background: "none", border: "none" }}>
                 <img src={profileImageUrl || perfilPlaceholder} alt="Perfil" className="rounded-circle" style={{ width: "40px", height: "40px", objectFit: "cover" }} />
@@ -192,13 +190,14 @@ function ResponsiveNavbar({ children }) {
 
               {isOpen && (
                 <div
-                  className="dropdown-menu show"
+                  className="dropdown-menu position-absolute mt-2 show"
                   aria-labelledby="profileDropdown"
                   style={{
                     position: "absolute",
                     top: "10vm",
                     right: "10px",
                     zIndex: 1000,
+                    width: "max-content",
                   }}
                 >
                   <div className="dropdown-item text-dark">
