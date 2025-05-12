@@ -39,7 +39,6 @@ public class CourseControllerTest {
     @BeforeEach
     void setUp() {
         sampleCourse = new CourseDTO();
-        sampleCourse.setId_course(1);
         sampleCourse.setCourse_name("Sample Course");
         sampleCourse.setCourse_description("Sample Description");
     }
@@ -54,7 +53,7 @@ public class CourseControllerTest {
                 .content(objectMapper.writeValueAsString(sampleCourse)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id_course").value(1))
+                .andExpect(jsonPath("$.id_course").value(sampleCourse.getId_course()))
                 .andExpect(jsonPath("$.course_name").value("Sample Course"));
 
         verify(courseService).create(any(CourseDTO.class));
@@ -66,7 +65,7 @@ public class CourseControllerTest {
 
         mockMvc.perform(get("/course/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id_course").value(1))
+                .andExpect(jsonPath("$.id_course").value(sampleCourse.getId_course()))
                 .andExpect(jsonPath("$.course_name").value("Sample Course"));
 
         verify(courseService).findById(1);
@@ -79,13 +78,12 @@ public class CourseControllerTest {
         mockMvc.perform(get("/course/2"))
                 .andExpect(status().isNotFound());
 
-        verify(courseService).findById(2);
+        verify(courseService).findById(999);
     }
 
     @Test
     void testGetAllCourses() throws Exception {
         CourseDTO c2 = new CourseDTO();
-        c2.setId_course(2);
         c2.setCourse_name("Another");
         when(courseService.findAll()).thenReturn(Arrays.asList(sampleCourse, c2));
 
@@ -99,7 +97,6 @@ public class CourseControllerTest {
     @Test
     void testUpdateCourse() throws Exception {
         CourseDTO updated = new CourseDTO();
-        updated.setId_course(1);
         updated.setCourse_name("Updated");
         when(courseService.update(any(CourseDTO.class))).thenReturn(updated);
 

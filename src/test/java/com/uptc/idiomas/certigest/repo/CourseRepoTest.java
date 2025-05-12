@@ -31,7 +31,7 @@ public class CourseRepoTest {
     @Test
     void testFindByCourseId() {
         Course course2 = courseRepo.findById(course.getId_course()).orElse(null);
-        assertEquals(course2.getId_course(), 1);
+        assertEquals(course2.getId_course(), course.getId_course());
         assertEquals(course2.getCourse_name(), "Test Course");
         assertEquals(course2.getCourse_description(), "Test Description");
     }
