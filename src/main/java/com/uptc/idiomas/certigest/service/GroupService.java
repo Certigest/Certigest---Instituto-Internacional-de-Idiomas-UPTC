@@ -17,6 +17,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import com.uptc.idiomas.certigest.dto.GroupInstDTO;
+import com.uptc.idiomas.certigest.dto.GroupPersonDTO;
+import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
 import com.uptc.idiomas.certigest.dto.PersonEnrollInfo;
 import com.uptc.idiomas.certigest.entity.Course;
@@ -26,6 +28,7 @@ import com.uptc.idiomas.certigest.entity.GroupPersonId;
 import com.uptc.idiomas.certigest.entity.Level;
 import com.uptc.idiomas.certigest.entity.Person;
 import com.uptc.idiomas.certigest.mapper.GroupInstMapper;
+import com.uptc.idiomas.certigest.mapper.GroupPersonMapper;
 import com.uptc.idiomas.certigest.mapper.PersonMapper;
 import com.uptc.idiomas.certigest.repo.CourseRepo;
 import com.uptc.idiomas.certigest.repo.GroupInstRepo;
@@ -126,11 +129,11 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
         return groupTeacherList;
     }
 
-    public List<GroupInstDTO> getGroupsByStudentUsername(String username) {
+    public List<GroupPersonDTO> getGroupsByStudentUsername(String username) {
         Person student = personService.getPersonByUserName(username);
-        List<GroupInst> groups = groupPersonRepo.findGroupsByStudentId(student.getPersonId());
+        List<GroupPerson> groups = groupPersonRepo.findGroupsByStudentId(student.getPersonId());
         return groups.stream()
-                .map(group -> GroupInstMapper.INSTANCE.mapGroupInstToGroupInstDTO(group))
+                .map(group -> GroupPersonMapper.INSTANCE.mapGroupPersonToGroupPersonDTO(group))
                 .collect(Collectors.toList());
     }
 

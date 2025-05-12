@@ -1,20 +1,33 @@
 package com.uptc.idiomas.certigest.service;
 
+import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import com.itextpdf.barcodes.BarcodeQRCode;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.io.source.ByteArrayOutputStream;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.kernel.pdf.xobject.PdfFormXObject;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.properties.TextAlignment;
 import com.uptc.idiomas.certigest.dto.CertificateDTO;
 import com.uptc.idiomas.certigest.dto.CertificateHistoryDTO;
 import com.uptc.idiomas.certigest.entity.Certificate;
@@ -81,22 +94,99 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
         if (content.toLowerCase().startsWith("no")) {
             throw new RuntimeException(content); // O manejarlo mejor con una excepción personalizada
         }
-        return generatePDF(content);
+        return generatePDF(content, new Date(), optionalCode);
     }
 
 
 
-    private byte[] generatePDF(String content) {
+    private byte[] generatePDF(String content, Date generationDate, String certificateCode) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(baos);
             PdfDocument pdf = new PdfDocument(writer);
-            Document document = new Document(pdf);
-            document.add(new Paragraph(content));
+            Document document = new Document(pdf, PageSize.LETTER.rotate());
+
+            // Márgenes para ajustar mejor el contenido verticalmente
+            document.setMargins(130, 80, 100, 80); // ↑ Aumentamos el margen superior
+
+            // Página y fondo
+            PdfPage page = pdf.addNewPage();
+            URL bgUrl = getClass().getResource("/static/images/Certificado-pica (1).png");
+            ImageData bg = ImageDataFactory.create(bgUrl);
+            PdfCanvas canvas = new PdfCanvas(page);
+            canvas.addImageFittedIntoRectangle(bg, page.getPageSize(), false);
+
+            // Espacio opcional superior (para no pegar el título al borde)
+            document.add(new Paragraph("\n"));
+
+            // Título
+            Paragraph titulo = new Paragraph("UNIVERSIDAD PEDAGÓGICA Y TECNOLÓGICA DE COLOMBIA\nINSTITUTO INTERNACIONAL DE IDIOMAS")
+                .setBold()
+                .setFontSize(16)
+                .setTextAlignment(TextAlignment.CENTER);
+            document.add(titulo);
+
+            //Codigo certificado
+            Paragraph codigoCertificado = new Paragraph(certificateCode)
+                .setFontSize(9)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setFontColor(ColorConstants.DARK_GRAY);
+            document.add(codigoCertificado);
+
+            // Espacio
+            document.add(new Paragraph("\n\n"));
+
+            // Contenido del certificado, centrado
+            Paragraph cuerpo = new Paragraph(content)
+                .setFontSize(12)
+                .setTextAlignment(TextAlignment.CENTER);
+            document.add(cuerpo);
+
+            // Contenido de ciudad y fecha
+            String fechaFormateada = formatearFechaEstiloCertificado(generationDate);
+            Paragraph fecha = new Paragraph(fechaFormateada)
+                .setFontSize(10)
+                .setTextAlignment(TextAlignment.CENTER);
+            document.add(fecha);
+
+
+            // Espacio para separación antes de firma
+            document.add(new Paragraph("\n\n\n\n\n"));
+
+            // Firma
+            Paragraph firma = new Paragraph("__________________________\nCoordinador Instituto de Idiomas")
+                .setFontSize(10)
+                .setTextAlignment(TextAlignment.CENTER);
+            document.add(firma);
+
+            //AGREGAR QR -- CAmbiar cuando este desplegado
+            String qrContent = "http://localhost:3000/public-validate?code=" + certificateCode;
+
+            BarcodeQRCode qrCode = new BarcodeQRCode(qrContent);
+            PdfFormXObject qrObject = qrCode.createFormXObject(ColorConstants.BLACK, pdf);
+            Image qrImage = new Image(qrObject).scaleAbsolute(80, 80);
+
+            float x = pdf.getDefaultPageSize().getWidth() - 100;
+            float y = 40;
+            qrImage.setFixedPosition(x, y);
+            document.add(qrImage);
+
             document.close();
             return baos.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("Error al generar el PDF", e);
         }
+    }
+
+    private String formatearFechaEstiloCertificado(Date fecha) {
+        SimpleDateFormat formatoDia = new SimpleDateFormat("d", new Locale("es", "ES"));
+        SimpleDateFormat formatoMes = new SimpleDateFormat("MMMM", new Locale("es", "ES"));
+        SimpleDateFormat formatoAnio = new SimpleDateFormat("yyyy");
+
+        String dia = formatoDia.format(fecha);
+        String mes = formatoMes.format(fecha);
+        String anio = formatoAnio.format(fecha);
+
+        return String.format("Tunja, Colombia, %s de %s del año %s", dia, mes, anio);
     }
 
     private String generateLevelCertificateText(Person person, String certificateType, LocalDate endDate, Level level, GroupPerson groupPerson) {
@@ -143,9 +233,8 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
     }
 
     private String generateTitle(Person person) {
-        return "Universidad Pedagogica y Tecnologica de Colombia \n Instituto Internacional de Idiomas \n Informa que, " +
-                person.getFirstName() + " " + person.getLastName() + ", identificado con " + person.getDocumentType() 
-                + " No " + person.getDocument();
+        return "Informa que, " + person.getFirstName() + " " + person.getLastName() + ", identificado con "
+                    + person.getDocumentType() + " " + person.getDocument();
     }
 
     private String generateCode(LocalDate endDate, String certificateType, Person person, Level level) {
@@ -229,7 +318,7 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
     public byte[] validateCertificatePdf(String id) {
         CertificateCode certificateCode = certificateCodeRepo.findByCode(id);
         if (certificateCode == null) {
-            return generatePDF("No existe el certificado.");
+            throw new RuntimeException("No existe el certificado.");
         }
     
         Certificate certificate = certificateCode.getCertificate();
@@ -238,23 +327,23 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
     
         List<CertificateLevel> levels = certificateLevelRepo.findByCertificate_CertificateId(certificate.getCertificateId());
         if (levels.isEmpty()) {
-            return generatePDF("Este certificado no tiene niveles asociados.");
+            throw new RuntimeException("No tiene niveles asociados este certificado");
         }
     
         if (certificateType.equalsIgnoreCase("ALL_LEVEL")) {
             String courseName = levels.get(0).getLevel().getId_course().getCourse_name();
             String output = generateAllLevelsCertificateText(person, courseName);
-            return generatePDF(output);
+            return generatePDF(output, certificate.getGenerationDate(), certificateCode.getCode());
         }
 
         Level level = levels.get(0).getLevel();
         GroupPerson groupPerson = groupService.getGroupByPersonAndLevel(person.getPersonId(), level.getLevel_id());
         if (groupPerson == null) {
-            return generatePDF("No se encontró la relación entre la persona y el nivel del certificado.");
+            throw new RuntimeException("No se encontró la relación entre la persona y el nivel del certificado.");
         }
         LocalDate endDate = groupPerson.getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         String output = generateLevelCertificateText(person, certificateType, endDate, level, groupPerson);
-        return generatePDF(output);
+        return generatePDF(output, certificate.getGenerationDate(), certificateCode.getCode());
     }
 
     public byte[] generateAllLevelsCertificatePdf(String username, String courseName) {
@@ -273,7 +362,7 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
             saveAllCertificateInDB(person, "ALL_LEVEL", code, approvedLevels);
         }
 
-        return generatePDF(output);
+        return generatePDF(output, new Date(), code);
     }
 
     private List<Level> getApprovebLevels(List<GroupPerson> groupsPerson, String courseName) {
@@ -302,7 +391,7 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
     
         List<String> approvedLevels = new ArrayList<>();
         int hours = 0;
-    
+        
         for (GroupPerson gp : groupsPerson) {
             Level level = gp.getGroup_id().getLevel_id();
             Course course = level.getId_course();

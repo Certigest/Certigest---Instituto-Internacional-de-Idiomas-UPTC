@@ -31,8 +31,9 @@ public class CertificateController {
     }
 
     @PostMapping("/generateAllLevelsCertificate")
-    public ResponseEntity<byte[]> generateAllLevelsCertificate(@AuthenticationPrincipal Jwt jwt, @RequestBody String courseName) {
+    public ResponseEntity<byte[]> generateAllLevelsCertificate(@AuthenticationPrincipal Jwt jwt,  @RequestBody Map<String,String> data) {
         String username = jwt.getClaim("preferred_username");
+        String courseName = data.get("courseName"); 
         byte[] pdf = certificateService.generateAllLevelsCertificatePdf(username, courseName);
         return buildPdfResponse(pdf, "all_levels_certificate.pdf");
     }
