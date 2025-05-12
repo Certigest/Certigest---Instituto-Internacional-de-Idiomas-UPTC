@@ -55,37 +55,37 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     private CertificateLevelRepo certificateLevelRepo;
     @Autowired
     private CertificateCodeRepo certificateCodeRepo;
-    //@Autowired
-    //private EmailService emailService;
-
-    
+    // @Autowired
+    // private EmailService emailService;
 
     @Override
     protected JpaRepository<Person, Integer> getRepo() {
         return personRepo;
     }
+
     public boolean existsByDocument(String document) {
         return personRepo.existsByDocument(document);
     }
 
     public boolean existsByEmail(String email) {
-       return personRepo.existsByEmail(email);
+        return personRepo.existsByEmail(email);
     }
+
     public PersonDTO addPersonInDb(PersonDTO personDTO) {
-    
+
         Location location = null;
-    
+
         // Verificamos si la persona tiene una ubicación asociada
         if (personDTO.getLocation() != null && personDTO.getLocation().getIdLocation() != null) {
             location = locationRepo.findById(personDTO.getLocation().getIdLocation())
                     .orElse(null); // Si no existe, location será null
         }
-    
+
         // Convertimos el DTO de la persona a una entidad Person
         Person person = PersonMapper.INSTANCE.mapPersonDTOToPerson(personDTO);
         person.setLocation(location); // Asignamos la ubicación si existe
         Person personSaved = personRepo.save(person); // Guardamos la persona en la base de datos
-    
+
         // Crear un nombre de usuario único basado en el nombre y apellido
         String[] nameParts = personDTO.getFirstName().trim().split("\\s+");
         String[] lastNameParts = personDTO.getLastName().trim().split("\\s+");
@@ -96,20 +96,20 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
             finalUsername = baseUsername + count; // Generamos variaciones en caso de nombres duplicados
             count++;
         } while (loginRepo.existsByUserName(finalUsername)); // Verificamos si el nombre de usuario ya existe
-    
+
         // Creamos un nuevo registro de login con el nombre de usuario generado
         Login login = new Login();
         login.setUserName(finalUsername);
         login.setPerson(personSaved);
         loginRepo.save(login); // Guardamos el login
-    
+
         // Asociamos los roles a la persona si se recibieron en el DTO
         if (personDTO.getRoles() != null) {
             for (RoleDTO roleDTO : personDTO.getRoles()) {
                 RoleName roleName = roleDTO.getName(); // Obtenemos el nombre del rol (e.g., ADMIN)
                 Role role = roleRepo.findByName(roleName)
                         .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + roleName));
-    
+
                 // Asociamos el rol con la persona
                 PersonRole personRole = new PersonRole();
                 personRole.setPerson(personSaved);
@@ -117,13 +117,13 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
                 personRoleRepo.save(personRole); // Guardamos la asociación de rol
             }
         }
-    
+
         // Creamos el usuario en Keycloak con los roles asignados
         List<String> rolesSeleccionados = personDTO.getRoles()
                 .stream()
                 .map(r -> r.getName().name().toLowerCase())
                 .collect(Collectors.toList()); // Obtenemos los roles como una lista de cadenas
-    
+
         // Llamada al servicio de Keycloak para crear el usuario
         keycloakService.createUser(
                 finalUsername,
@@ -131,14 +131,38 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
                 personDTO.getDocument(), // El documento de la persona es la contraseña
                 rolesSeleccionados);
 
-        //String email = personDTO.getEmail();
-        //String username = finalUsername;
-        //String password = personDTO.getDocument();
-        //emailService.sendCredentialsEmail(email, username, password);
+        // String email = personDTO.getEmail();
+        // String username = finalUsername;
+        // String password = personDTO.getDocument();
+        // emailService.sendCredentialsEmail(email, username, password);
         // Devolvemos el DTO de la persona recién creada
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(personSaved);
     }
-    
+    @Transactional
+    public void modifyAccount(PersonDTO personDTO) {
+    // Buscar persona existente por documento
+    Person existingPerson = personRepo.findByDocument(personDTO.getDocument())
+        .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con documento: " + personDTO.getDocument()));
+
+    // Actualizar campos básicos
+    existingPerson.setFirstName(personDTO.getFirstName());
+    existingPerson.setLastName(personDTO.getLastName());
+    existingPerson.setEmail(personDTO.getEmail());
+    existingPerson.setPhone(personDTO.getPhone());
+    existingPerson.setBirthDate(personDTO.getBirthDate());
+    existingPerson.setDocument(personDTO.getDocumentType());
+    existingPerson.setStatus(personDTO.getStatus());
+
+    // Actualizar ubicación si se incluye
+    if (personDTO.getLocation() != null && personDTO.getLocation().getIdLocation() != null) {
+        Location location = locationRepo.findById(personDTO.getLocation().getIdLocation())
+            .orElse(null);
+        existingPerson.setLocation(location);
+    }
+
+    personRepo.save(existingPerson);
+}
+
 
     public PersonDTO getAccountInfoByEmail(String email) {
         Optional<Person> personOpt = personRepo.findByEmail(email);
@@ -223,43 +247,42 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
 
     public List<PersonDTO> getAllPersons() {
         List<Person> persons = personRepo.findAll();
-    
+
         return persons.stream().map(person -> {
             PersonDTO dto = PersonMapper.INSTANCE.mapPersonToPersonDTO(person);
-    
+
             if (person.getLocation() != null) {
                 Location location = person.getLocation();
-    
+
                 // Obtener departamento como parent del location
                 LocationDTO parentDTO = null;
                 if (location.getParent() != null) {
                     parentDTO = new LocationDTO(
-                        location.getParent().getIdLocation(),
-                        location.getParent().getLocationName(),
-                        null // El parent del departamento lo dejamos null para evitar recursividad infinita
+                            location.getParent().getIdLocation(),
+                            location.getParent().getLocationName(),
+                            null // El parent del departamento lo dejamos null para evitar recursividad infinita
                     );
                 }
-    
+
                 LocationDTO locationDTO = new LocationDTO(
-                    location.getIdLocation(),
-                    location.getLocationName(),
-                    parentDTO
-                );
-    
+                        location.getIdLocation(),
+                        location.getLocationName(),
+                        parentDTO);
+
                 dto.setLocation(locationDTO);
             }
-    
+
             List<PersonRole> roles = personRoleRepo.findByPersonId(person.getPersonId());
             List<RoleDTO> roleDTOs = roles.stream()
-                .map(pr -> new RoleDTO(pr.getRole().getRole_id(), pr.getRole().getName()))
-                .collect(Collectors.toList());
-    
+                    .map(pr -> new RoleDTO(pr.getRole().getRole_id(), pr.getRole().getName()))
+                    .collect(Collectors.toList());
+
             dto.setRoles(roleDTOs);
-    
+
             return dto;
         }).collect(Collectors.toList());
     }
-    
+
     @Transactional
     public void deletePersonById(int personId) {
         Person person = personRepo.findById(personId)
@@ -269,8 +292,8 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
         String username = loginRepo.findByPerson(person)
                 .map(Login::getUserName)
                 .orElse(null);
-         // Eliminar en Keycloak si existe username
-         if (username != null) {
+        // Eliminar en Keycloak si existe username
+        if (username != null) {
             keycloakService.deleteUserByUsername(username);
         }
         // Eliminar grupos si existen

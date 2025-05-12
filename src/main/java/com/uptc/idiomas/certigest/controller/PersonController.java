@@ -79,7 +79,7 @@ public class PersonController {
         PersonDTO personInfo = personService.getAccountInfoByUsername(username);
         return new ResponseEntity<>(personInfo, HttpStatus.OK);
     }
-
+   
     @PostMapping("/modify-personal-account")
     public ResponseEntity<PersonDTO> modifyAccountInfo(@AuthenticationPrincipal Jwt jwt,
             @RequestBody PersonDTO personDTO) {
