@@ -124,34 +124,41 @@ export default function Cuenta() {
           <div className="row">
             <div className="col-12 col-md-6 mb-3">
               <label className="form-label">Nombres</label>
-              <input type="text" className="form-control" name="firstName" value={editedUser.firstName || ''} onChange={handleChange} />
+              <input type="text" className="form-control" name="firstName" value={editedUser.firstName || ''} onChange={handleChange} placeholder="Ej: Juan Carlos" maxLength={50} required />
             </div>
+
             <div className="col-12 col-md-6 mb-3">
               <label className="form-label">Apellidos</label>
-              <input type="text" className="form-control" name="lastName" value={editedUser.lastName || ''} onChange={handleChange} />
+              <input type="text" className="form-control" name="lastName" value={editedUser.lastName || ''} onChange={handleChange} placeholder="Ej: Rodríguez Pérez" maxLength={50} required />
             </div>
+
             <div className="col-12 col-md-6 mb-3">
               <label className="form-label">Tipo de documento</label>
-              <select className="form-select" name="documentType" value={editedUser.documentType || ''} onChange={handleChange}>
-                <option value="CC">CC</option>
-                <option value="TI">TI</option>
+              <select className="form-select" name="documentType" value={editedUser.documentType || ''} onChange={handleChange} required>
+                <option value="">Seleccione...</option>
+                <option value="CC">Cédula de ciudadanía (CC)</option>
+                <option value="TI">Tarjeta de identidad (TI)</option>
               </select>
             </div>
+
             <div className="col-12 col-md-6 mb-3">
               <label className="form-label">Documento</label>
               <input type="text" className="form-control" name="document" value={editedUser.document || ''} disabled />
             </div>
+
             <div className="col-12 col-md-6 mb-3">
               <label className="form-label">Correo</label>
-              <input type="email" className="form-control" name="email" value={editedUser.email || ''} onChange={handleChange} />
+              <input type="email" className="form-control" name="email" value={editedUser.email || ''} onChange={handleChange} placeholder="ejemplo@correo.com" required />
             </div>
+
             <div className="col-12 col-md-6 mb-3">
               <label className="form-label">Celular</label>
-              <input type="text" className="form-control" name="phone" value={editedUser.phone || ''} onChange={handleChange} />
+              <input type="tel" className="form-control" name="phone" value={editedUser.phone || ''} onChange={handleChange} placeholder="Ej: 3001234567" pattern="[0-9]{10}" maxLength={10} inputMode="numeric" required />
             </div>
+
             <div className="col-12 col-md-6 mb-3">
               <label className="form-label">Fecha de nacimiento</label>
-              <input type="date" className="form-control" name="birthDate" value={editedUser.birthDate ? editedUser.birthDate.split('T')[0] : ''} onChange={handleChange} />
+              <input type="date" className="form-control" name="birthDate" value={editedUser.birthDate ? editedUser.birthDate.split('T')[0] : ''} onChange={handleChange} max={new Date().toISOString().split('T')[0]} required />
             </div>
           </div>
         </div>
