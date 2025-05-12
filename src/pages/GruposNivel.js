@@ -38,7 +38,7 @@ export default function GroupListLevel() {
             </button>
           </li>
           <li className="nav-item">
-            <button className="nav-link" onClick={() => navigate(`/niveles-curso/${courseId}`)}>
+            <button className="nav-link" onClick={() => navigate(`/niveles-curso/${courseId}/${levelId}`)}>
               Niveles
             </button>
           </li>
@@ -70,6 +70,12 @@ export default function GroupListLevel() {
                     onClick={() => navigate(`/inscribir/${courseId}/${levelId}/${group.group_id}`)}
                   >
                     Inscribir estudiantes
+                  </button>
+                  <button
+                    className="btn btn-warning fw-bold shadow"
+                    onClick={() => navigate(`/calificar-admin/${courseId}/${levelId}/${group.group_id}`)}
+                  >
+                    Calificar
                   </button>
                 </div>
               </div>

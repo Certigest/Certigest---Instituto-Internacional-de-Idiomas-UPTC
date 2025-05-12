@@ -5,12 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import ModalConfirm from '../components/ModalConfirm';
 
 export default function Cuenta() {
-  
   const { keycloak } = useKeycloak();
   const [editedUser, setEditedUser] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewImageUrl, setPreviewImageUrl] = useState(null);
   const [showNotification, setShowNotification] = useState(false);
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState(() => () => {});
@@ -33,12 +33,8 @@ export default function Cuenta() {
         try {
           const data = await getAccountInfo(keycloak.token);
           setEditedUser(data);
-
-          // Cargar imagen de perfil si existe
           const imageUrl = await getProfileImage(keycloak.token);
-          if (imageUrl) {
-            setPreviewImageUrl(imageUrl);
-          }
+          if (imageUrl) setPreviewImageUrl(imageUrl);
         } catch (error) {
           console.error('Error al obtener la información de cuenta o imagen:', error);
         }
@@ -67,19 +63,40 @@ export default function Cuenta() {
     }
   };
 
-  const handleCancel = () => {
-    window.history.back();
+  const validateFields = () => {
+    const newErrors = {};
+
+    if (!editedUser.firstName || /\d/.test(editedUser.firstName)) {
+      newErrors.firstName = 'Nombres inválidos';
+    }
+    if (!editedUser.lastName || /\d/.test(editedUser.lastName)) {
+      newErrors.lastName = 'Apellidos inválidos';
+    }
+    if (!editedUser.documentType) {
+      newErrors.documentType = 'Seleccione un tipo de documento';
+    }
+    if (!editedUser.email || !/\S+@\S+\.\S+/.test(editedUser.email)) {
+      newErrors.email = 'Correo electrónico inválido';
+    }
+    if (!editedUser.phone || !/^\d{10}$/.test(editedUser.phone)) {
+      newErrors.phone = 'Número de celular inválido';
+    }
+    if (!editedUser.birthDate) {
+      newErrors.birthDate = 'Fecha de nacimiento requerida';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSave = async () => {
+    if (!validateFields()) return;
+
     try {
       await modifyAccountInfo(editedUser);
-
       if (selectedImage) {
         await uploadProfileImage(selectedImage);
-        const newImageUrl = URL.createObjectURL(selectedImage);
-        setEditedUser(prev => ({ ...prev, profilePictureUrl: newImageUrl }));
-        setPreviewImageUrl(newImageUrl);
+        setPreviewImageUrl(URL.createObjectURL(selectedImage));
       }
 
       setShowNotification(true);
@@ -92,21 +109,24 @@ export default function Cuenta() {
     }
   };
 
+  const handleCancel = () => {
+    navigate(-1);
+  };
+
   if (!editedUser) return <div className="text-center mt-4">Cargando...</div>;
 
   return (
     <div className="container mt-4">
       <h2 className="mb-4 fw-bold">Información Personal</h2>
       <div className="row bg-white p-4 rounded shadow">
-        <div className="col-12 col-md-3 d-flex flex-column justify-content-center align-items-center mb-3 mb-md-0">
+        <div className="col-md-3 d-flex flex-column align-items-center justify-content-center text-center mb-3 mb-md-0">
           <img
             src={previewImageUrl || editedUser.profilePictureUrl || '/profile-pic.png'}
             alt="Foto de perfil"
             className="img-fluid rounded shadow mb-2"
             style={{ width: '160px', height: '160px', objectFit: 'cover' }}
           />
-
-          <div className="mt-2">
+          <div>
             <label htmlFor="profileImage" className="btn btn-outline-warning btn-sm fw-bold shadow">
               Cambiar foto
             </label>
@@ -120,60 +140,83 @@ export default function Cuenta() {
           </div>
         </div>
 
-        <div className="col-12 col-md-9">
+        <div className="col-md-9">
           <div className="row">
-            <div className="col-12 col-md-6 mb-3">
-              <label className="form-label">Nombres</label>
-              <input type="text" className="form-control" name="firstName" value={editedUser.firstName || ''} onChange={handleChange} placeholder="Ej: Juan Carlos" maxLength={50} required />
-            </div>
+            {[
+              { label: "Nombres", name: "firstName", type: "text", placeholder: "Ej: Juan", maxLength: 50 },
+              { label: "Apellidos", name: "lastName", type: "text", placeholder: "Ej: Pérez", maxLength: 50 },
+              {
+                label: "Correo", name: "email", type: "email", placeholder: "correo@ejemplo.com"
+              },
+              {
+                label: "Celular", name: "phone", type: "tel", placeholder: "Ej: 3001234567", maxLength: 10
+              },
+              {
+                label: "Fecha de nacimiento", name: "birthDate", type: "date", max: new Date().toISOString().split('T')[0]
+              }
+            ].map(({ label, name, type, placeholder, ...props }) => (
+              <div className="col-md-6 mb-3" key={name}>
+                <label className="form-label">{label}</label>
+                <input
+                  type={type}
+                  className={`form-control ${errors[name] ? 'is-invalid' : ''}`}
+                  name={name}
+                  value={name === "birthDate" && editedUser[name] ? editedUser[name].split('T')[0] : editedUser[name] || ''}
+                  onChange={handleChange}
+                  placeholder={placeholder}
+                  {...props}
+                />
+                {errors[name] && <div className="invalid-feedback">{errors[name]}</div>}
+              </div>
+            ))}
 
-            <div className="col-12 col-md-6 mb-3">
-              <label className="form-label">Apellidos</label>
-              <input type="text" className="form-control" name="lastName" value={editedUser.lastName || ''} onChange={handleChange} placeholder="Ej: Rodríguez Pérez" maxLength={50} required />
-            </div>
-
-            <div className="col-12 col-md-6 mb-3">
+            <div className="col-md-6 mb-3">
               <label className="form-label">Tipo de documento</label>
-              <select className="form-select" name="documentType" value={editedUser.documentType || ''} onChange={handleChange} required>
+              <select
+                className={`form-select ${errors.documentType ? 'is-invalid' : ''}`}
+                name="documentType"
+                value={editedUser.documentType || ''}
+                onChange={handleChange}
+              >
                 <option value="">Seleccione...</option>
-                <option value="CC">Cédula de ciudadanía (CC)</option>
-                <option value="TI">Tarjeta de identidad (TI)</option>
+                <option value="CC">Cédula de ciudadanía</option>
+                <option value="TI">Tarjeta de identidad</option>
               </select>
+              {errors.documentType && <div className="invalid-feedback">{errors.documentType}</div>}
             </div>
 
-            <div className="col-12 col-md-6 mb-3">
+            <div className="col-md-6 mb-3">
               <label className="form-label">Documento</label>
-              <input type="text" className="form-control" name="document" value={editedUser.document || ''} disabled />
-            </div>
-
-            <div className="col-12 col-md-6 mb-3">
-              <label className="form-label">Correo</label>
-              <input type="email" className="form-control" name="email" value={editedUser.email || ''} onChange={handleChange} placeholder="ejemplo@correo.com" required />
-            </div>
-
-            <div className="col-12 col-md-6 mb-3">
-              <label className="form-label">Celular</label>
-              <input type="tel" className="form-control" name="phone" value={editedUser.phone || ''} onChange={handleChange} placeholder="Ej: 3001234567" pattern="[0-9]{10}" maxLength={10} inputMode="numeric" required />
-            </div>
-
-            <div className="col-12 col-md-6 mb-3">
-              <label className="form-label">Fecha de nacimiento</label>
-              <input type="date" className="form-control" name="birthDate" value={editedUser.birthDate ? editedUser.birthDate.split('T')[0] : ''} onChange={handleChange} max={new Date().toISOString().split('T')[0]} required />
+              <input
+                type="text"
+                className="form-control"
+                name="document"
+                value={editedUser.document || ''}
+                disabled
+              />
             </div>
           </div>
         </div>
       </div>
 
       <div className="text-center mt-4">
-        <button className="btn btn-secondary me-2" onClick={handleCancel}>Cancelar</button>
-        <button className="btn btn-warning fw-bold shadow" onClick={() => openConfirmModal(() => handleSave(), "¿Está seguro que desea guardar los cambios?")}>Guardar Cambios</button>
+        <button className="btn btn-secondary me-2" onClick={handleCancel}>
+          Cancelar
+        </button>
+        <button
+          className="btn btn-warning fw-bold shadow"
+          onClick={() => openConfirmModal(handleSave, "¿Está seguro que desea guardar los cambios?")}
+        >
+          Guardar Cambios
+        </button>
       </div>
 
       {showNotification && (
-        <div className="alert alert-success mt-3" role="alert" >
+        <div className="alert alert-success mt-3" role="alert">
           Cambios guardados
         </div>
       )}
+
       {isModalOpen && (
         <ModalConfirm
           message={modalMessage}
