@@ -36,8 +36,6 @@ public class CourseServiceTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-
         course = new Course();
         course.setId_course(1);
         course.setCourse_name("Test Course");

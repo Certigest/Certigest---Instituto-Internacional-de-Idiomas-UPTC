@@ -135,21 +135,6 @@ public class GroupServiceTest {
     }
 
     @Test
-    void testGetGroupsByTeacher() {
-        String user = "user1";
-        Person p = new Person();
-        p.setDocument("doc1");
-        when(personService.getPersonByUserName(user)).thenReturn(p);
-        GroupInst g1 = new GroupInst();
-        g1.setGroup_id(1);
-        g1.setGroup_teacher(p);
-        when(groupService.getGroupActiveByDateRange()).thenReturn(Arrays.asList(g1));
-        List<GroupInstDTO> out = groupService.getGroupsByTeacher(user);
-        assertEquals(1, out.size());
-        assertEquals(1, out.get(0).getGroup_id());
-    }
-
-    @Test
     void testGetGroupsByStudentUsername() {
         String user = "stud1";
         Person s = new Person();

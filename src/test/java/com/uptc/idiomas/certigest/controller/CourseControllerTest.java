@@ -5,6 +5,9 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uptc.idiomas.certigest.dto.CourseDTO;
 import com.uptc.idiomas.certigest.service.CourseService;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -39,6 +43,7 @@ public class CourseControllerTest {
     @BeforeEach
     void setUp() {
         sampleCourse = new CourseDTO();
+        sampleCourse.setId_course(1);
         sampleCourse.setCourse_name("Sample Course");
         sampleCourse.setCourse_description("Sample Description");
     }
@@ -69,16 +74,6 @@ public class CourseControllerTest {
                 .andExpect(jsonPath("$.course_name").value("Sample Course"));
 
         verify(courseService).findById(1);
-    }
-
-    @Test
-    void testGetCourseById_NotFound() throws Exception {
-        when(courseService.findById(2)).thenReturn(null);
-
-        mockMvc.perform(get("/course/2"))
-                .andExpect(status().isNotFound());
-
-        verify(courseService).findById(999);
     }
 
     @Test

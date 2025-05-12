@@ -59,9 +59,7 @@ public class LevelRepoTest {
 
     @Test
     void testFindByCourseId() {
-        Course course = entityManager.find(Course.class, this.course.getId_course());
-
-        List<Level> levels = levelRepo.findByCourseId(course.getId_course());
+        List<Level> levels = levelRepo.findByCourseId(this.course.getId_course());
         assertFalse(levels.isEmpty(), "Levels should not be empty");
         Level level = levels.get(0);
         assertEquals(level.getLevel_id(), this.level.getLevel_id());
