@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { getGroupsByStudent } from '../services/CourseService';
 import { useKeycloak } from '@react-keycloak/web';
+import Dropdown from 'react-bootstrap/Dropdown';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 const StudentGroupsTable = () => {
   const { keycloak } = useKeycloak();
@@ -35,9 +37,9 @@ const StudentGroupsTable = () => {
     window.open(url, '_blank');
   };
 
-  const handleLevelCertificate = async (group, type) => {
+  const handleLevelCertificate = async (group_id, type) => {
     const payload = {
-      levelId: group.group_id.level_id.level_id,
+      levelId: group_id.level_id.level_id,
       certificateType: type,
     };
     try {
@@ -60,7 +62,7 @@ const StudentGroupsTable = () => {
   };
 
   const handleAllLevelsCertificate = async (group) => {
-  const payload = { courseName: group.level_id.id_course.course_name };
+    const payload = { courseName: group.level_id.id_course.course_name };
     try {
       const response = await fetch(
         'http://localhost:8080/certificate/generateAllLevelsCertificate',
@@ -99,67 +101,50 @@ const StudentGroupsTable = () => {
               <th>Modalidad</th>
               <th>Duración (Horas)</th>
               <th>Nota</th>
-              <th>Acción</th>
+              <th>Certificado</th>
             </tr>
           </thead>
           <tbody>
             {groups.length > 0 ? (
-              groups.map((group) => (
-                <tr key={group.group_id}>
-                  <td>{group.group_id?.level_id?.id_course?.course_name || 'Desconocido'}</td>
-                  <td>{group.group_id?.level_id?.level_name || 'Desconocido'}</td>
-                  <td>{group.group_id.group_name}</td>
-                  <td>{formatDate(group.start_date)}</td>
-                  <td>{formatDate(group.end_date)}</td>
-                  <td>{group.group_id.schedule}</td>
+              groups.map(({ group_id, calification, start_date, end_date, level_duration }) => (
+                <tr key={group_id}>
+                  <td>{group_id?.level_id?.id_course?.course_name || 'Desconocido'}</td>
+                  <td>{group_id?.level_id?.level_name || 'Desconocido'}</td>
+                  <td>{group_id.group_name}</td>
+                  <td>{formatDate(start_date)}</td>
+                  <td>{formatDate(end_date)}</td>
+                  <td>{group_id.schedule}</td>
                   <td>
                     {{
                       'In_person': 'Presencial',
                       'virtual': 'Virtual',
-                    }[group.group_id.level_id.level_modality] || ''}
+                    }[group_id.level_id.level_modality] || 'Desconocido'}
                   </td>
-                  <td>{group.level_duration}</td>
-                  <td>{group.calification != null ? group.calification : 'N/A'}</td>
+                  <td>{level_duration}</td>
+                  <td>{calification != null ? calification : 'N/A'}</td>
                   <td>
-                    <div className="dropdown">
-                      <button
-                        className="btn btn-primary dropdown-toggle"
-                        type="button"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      >
-                        Acción
-                      </button>
-                      <ul className="dropdown-menu">
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleLevelCertificate(group, 'BASIC')}
-                          >
+                      <Dropdown as={ButtonGroup}>
+                        <Dropdown.Toggle variant="primary" id={`dropdown-${group_id.level_id.level_id}`}>
+                          Seleccione un Tipo
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu>
+                          <Dropdown.Item onClick={() => handleLevelCertificate(group_id, 'BASIC')}>
                             Básico
-                          </button>
-                        </li>
-                        {shouldShowNotesOption(group.end_date, group.calification) && (
-                          <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() => handleLevelCertificate(group, 'NOTES')}
-                            >
+                          </Dropdown.Item>
+
+                          {shouldShowNotesOption(end_date, calification) && (
+                            <Dropdown.Item onClick={() => handleLevelCertificate(group_id, 'NOTES')}>
                               Notas
-                            </button>
-                          </li>
-                        )}
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleAllLevelsCertificate(group)}
-                          >
+                            </Dropdown.Item>
+                          )}
+
+                          <Dropdown.Item onClick={() => handleAllLevelsCertificate(group_id)}>
                             Curso Completo
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                  </td>
+                          </Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </td>
                 </tr>
               ))
             ) : (
