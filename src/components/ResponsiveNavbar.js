@@ -7,6 +7,8 @@ import "../styles/Sidebar.css";
 import axios from "axios";
 import logo from "../assets/Logo.png";
 import perfilPlaceholder from "../assets/Perfil.png";
+import Dropdown from "react-bootstrap/Dropdown";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const appRoles = ["admin", "teacher", "student"];
 
@@ -168,20 +170,19 @@ function ResponsiveNavbar({ children }) {
             </h4>
           </div>
           {selectedRole && (
-            <div className="dropdown me-5">
-              <button className="btn btn-sm btn-warning dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <Dropdown className="me-5">
+              <Dropdown.Toggle variant="warning" size="sm">
                 Rol: {selectedRole}
-              </button>
-              <ul className="dropdown-menu">
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu>
                 {availableRoles.map((role) => (
-                  <li key={role}>
-                    <button className="dropdown-item" onClick={() => handleRoleChange(role)}>
-                      {role}
-                    </button>
-                  </li>
+                  <Dropdown.Item key={role} onClick={() => handleRoleChange(role)}>
+                    {role}
+                  </Dropdown.Item>
                 ))}
-              </ul>
-            </div>
+              </Dropdown.Menu>
+            </Dropdown>
           )}
           <div className="me-3 text-end">
             <div className="small text-dark">
