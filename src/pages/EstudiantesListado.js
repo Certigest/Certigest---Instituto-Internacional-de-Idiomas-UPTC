@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
 import { getStudentsByGroupId, sendCalifications } from '../services/CourseService';
 import ModalConfirm from '../components/ModalConfirm';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export default function RateGroup() {
   const { id } = useParams();
@@ -14,6 +14,7 @@ export default function RateGroup() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState(() => () => {});
   const [modalMessage, setModalMessage] = useState("");
+  const navigate = useNavigate();
 
   const openConfirmModal = (action, message) => {
     setConfirmAction(() => action);
@@ -130,6 +131,9 @@ export default function RateGroup() {
       </div>
 
       <div className="text-end">
+        <button className="btn btn-secondary me-2" onClick={() => navigate('/grupos-profesor')}>
+            Regresar
+        </button>
         <button className="btn btn-warning fw-bold shadow" onClick={() => openConfirmModal(() => handleSubmit(), "¿Está seguro de que desea enviar las calificaciones?")}>
           Calificar
         </button>
