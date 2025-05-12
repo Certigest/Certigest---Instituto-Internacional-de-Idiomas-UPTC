@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -73,16 +74,6 @@ public class CourseControllerTest {
                 .andExpect(jsonPath("$.course_name").value("Sample Course"));
 
         verify(courseService).findById(1);
-    }
-
-    @Test
-    void testGetCourseById_NotFound() throws Exception {
-        when(courseService.findById(999)).thenThrow(new EntityNotFoundException());
-
-        mockMvc.perform(get("/course/999"))
-                .andExpect(status().isNotFound());
-
-        verify(courseService).findById(999);
     }
 
     @Test

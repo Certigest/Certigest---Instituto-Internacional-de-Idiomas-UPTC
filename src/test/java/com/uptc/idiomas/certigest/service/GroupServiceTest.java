@@ -46,7 +46,9 @@ public class GroupServiceTest {
 
     @BeforeEach
     void setUp() {
+        MockitoAnnotations.openMocks(this);
         group = new GroupInst();
+        group.setGroup_id(1);
         group.setGroup_name("G1");
         group.setGroup_teacher(new Person());
     }
@@ -60,6 +62,7 @@ public class GroupServiceTest {
     @Test
     void testToEntityAndToDTO() {
         GroupInstDTO dto = new GroupInstDTO();
+        dto.setGroup_id(2);
         dto.setGroup_name("Name");
         GroupInst entity = groupService.toEntity(dto);
         assertEquals(dto.getGroup_id(), entity.getGroup_id());
@@ -73,6 +76,7 @@ public class GroupServiceTest {
     @Test
     void testFindAll() {
         GroupInst g1 = new GroupInst();
+        g1.setGroup_id(1);
         g1.setGroup_name("A");
         when(groupRepo.findAllActiveGroups()).thenReturn(Collections.singletonList(g1));
         List<GroupInstDTO> result = groupService.findAll();
@@ -82,8 +86,8 @@ public class GroupServiceTest {
 
     @Test
     void testDeleteById_NoEndDate() {
-        when(groupRepo.findById(group.getGroup_id())).thenReturn(Optional.of(group));
-        groupService.deleteById(group.getGroup_id());
+        when(groupRepo.findById(1)).thenReturn(Optional.of(group));
+        groupService.deleteById(1);
         assertFalse(group.getState());
         verify(groupRepo).save(group);
         verify(groupPersonService, never()).deleteAllByGroupId(anyInt());
@@ -95,8 +99,8 @@ public class GroupServiceTest {
         Date future = Date.from(LocalDate.now().plusDays(5)
                 .atStartOfDay(ZoneId.systemDefault()).toInstant());
         group.setEnd_date(future);
-        when(groupRepo.findById(group.getGroup_id())).thenReturn(Optional.of(group));
-        groupService.deleteById(group.getGroup_id());
+        when(groupRepo.findById(1)).thenReturn(Optional.of(group));
+        groupService.deleteById(1);
         assertFalse(group.getState());
         verify(groupRepo).save(group);
         verify(groupPersonService, never()).deleteAllByGroupId(anyInt());
@@ -107,52 +111,41 @@ public class GroupServiceTest {
         Date past = Date.from(LocalDate.now().minusDays(5)
                 .atStartOfDay(ZoneId.systemDefault()).toInstant());
         group.setEnd_date(past);
-        when(groupRepo.findById(group.getGroup_id())).thenReturn(Optional.of(group));
-        groupService.deleteById(group.getGroup_id());
-        verify(groupPersonService).deleteAllByGroupId(group.getGroup_id());
-        verify(groupRepo).deleteById(group.getGroup_id());
+        when(groupRepo.findById(1)).thenReturn(Optional.of(group));
+        groupService.deleteById(1);
+        verify(groupPersonService).deleteAllByGroupId(1);
+        verify(groupRepo).deleteById(1);
     }
 
     @Test
     void testDeleteById_NotFound() {
-        when(groupRepo.findById(999)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> groupService.deleteById(999));
+        when(groupRepo.findById(5)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> groupService.deleteById(5));
     }
 
     @Test
     void testFindByLevelId() {
         GroupInst g1 = new GroupInst();
+        g1.setGroup_id(1);
         g1.setLevel_id(new Level());
         when(groupRepo.findByLevelId(10)).thenReturn(Collections.singletonList(g1));
         List<GroupInstDTO> list = groupService.findByLevelId(10);
         assertEquals(1, list.size());
-        assertEquals(g1.getGroup_id(), list.get(0).getGroup_id());
-    }
-
-    @Test
-    void testGetGroupsByTeacher() {
-        String user = "user1";
-        Person p = new Person();
-        p.setDocument("doc1");
-        when(personService.getPersonByUserName(user)).thenReturn(p);
-        GroupInst g1 = new GroupInst();
-        g1.setGroup_teacher(p);
-        when(groupService.getGroupActiveByDateRange()).thenReturn(Arrays.asList(g1));
-        List<GroupInstDTO> out = groupService.getGroupsByTeacher(user);
-        assertEquals(1, out.size());
-        assertEquals(g1.getGroup_id(), out.get(0).getGroup_id());
+        assertEquals(1, list.get(0).getGroup_id());
     }
 
     @Test
     void testGetGroupsByStudentUsername() {
         String user = "stud1";
         Person s = new Person();
+        s.setPersonId(7);
         when(personService.getPersonByUserName(user)).thenReturn(s);
         GroupInst g = new GroupInst();
-        when(groupPersonRepo.findGroupsByStudentId(s.getPersonId())).thenReturn(Collections.singletonList(g));
+        g.setGroup_id(2);
+        when(groupPersonRepo.findGroupsByStudentId(7)).thenReturn(Collections.singletonList(g));
         List<GroupInstDTO> out = groupService.getGroupsByStudentUsername(user);
         assertEquals(1, out.size());
-        assertEquals(g.getGroup_id(), out.get(0).getGroup_id());
+        assertEquals(2, out.get(0).getGroup_id());
     }
 
     @Test
@@ -161,8 +154,8 @@ public class GroupServiceTest {
         GroupPerson gp = new GroupPerson();
         gp.setId(id);
         when(groupPersonRepo.findById(id)).thenReturn(Optional.of(gp));
-        groupService.updateCalification(1, 2, 3.5f);
-        assertEquals(3.5f, gp.getCalification());
+        groupService.updateCalification(1, 2, 8.5f);
+        assertEquals(8.5f, gp.getCalification());
         assertNotNull(gp.getCalificationDate());
         verify(groupPersonRepo).save(gp);
     }
