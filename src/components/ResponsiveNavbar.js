@@ -104,6 +104,9 @@ function ResponsiveNavbar({ children }) {
             <Link className="nav-link sidebar-btn" to="/cursos">
               Cursos
             </Link>
+            <Link className="nav-link sidebar-btn" to="/certificados">
+              Certificados
+            </Link>
           </>
         );
       default:

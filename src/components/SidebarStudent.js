@@ -26,6 +26,7 @@ function SidebarStudent({ isOpen, onClose, onToggleSidebar }) {
         <div className="d-flex flex-column">
           <Link className="sidebar-btn" to="/cuenta" onClick={handleLinkClick}>Cuenta</Link>
           <Link className="sidebar-btn" to="/cursos" onClick={handleLinkClick}>Cursos</Link>
+          <Link className="sidebar-btn" to="/certificados" onClick={handleLinkClick}>Certificados</Link>
         </div>
       </nav>
     </>

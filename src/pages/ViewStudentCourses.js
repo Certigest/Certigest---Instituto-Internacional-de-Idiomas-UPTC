@@ -22,9 +22,62 @@ const StudentGroupsTable = () => {
     fetchGroups();
   }, [keycloak]);
 
-  const formatDate = (date) => {
-    const newDate = new Date(date);
-    return newDate.toLocaleDateString();
+  const formatDate = (date) => new Date(date).toLocaleDateString();
+
+  const shouldShowNotesOption = (endDate, calification) => {
+    return new Date(endDate) < new Date() && calification != null;
+  };
+
+  const openPdf = async (response) => {
+    if (!response.ok) throw new Error('Error al generar certificado');
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+    window.open(url, '_blank');
+  };
+
+  const handleLevelCertificate = async (group, type) => {
+    const payload = {
+      levelId: group.group_id.level_id.level_id,
+      certificateType: type,
+    };
+    try {
+      const response = await fetch(
+        'http://localhost:8080/certificate/generateLevelCertificate',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      await openPdf(response);
+    } catch (err) {
+      console.error(err);
+      alert('No se pudo generar el certificado de nivel.');
+    }
+  };
+
+  const handleAllLevelsCertificate = async (group) => {
+  const payload = { courseName: group.level_id.id_course.course_name };
+    try {
+      const response = await fetch(
+        'http://localhost:8080/certificate/generateAllLevelsCertificate',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      await openPdf(response);
+    } catch (err) {
+      console.error(err);
+      alert('No se pudo generar el certificado de curso completo.');
+    }
   };
 
   return (
@@ -44,7 +97,7 @@ const StudentGroupsTable = () => {
               <th>Fecha Fin</th>
               <th>Horario</th>
               <th>Modalidad</th>
-              <th>Duración</th>
+              <th>Duración (Horas)</th>
               <th>Nota</th>
               <th>Acción</th>
             </tr>
@@ -53,23 +106,67 @@ const StudentGroupsTable = () => {
             {groups.length > 0 ? (
               groups.map((group) => (
                 <tr key={group.group_id}>
-                  <td>{group.level_id?.id_course?.course_name || 'Desconocido'}</td>
-                  <td>{group.level_id?.level_name || 'Desconocido'}</td>
-                  <td>{group.group_name}</td>
+                  <td>{group.group_id?.level_id?.id_course?.course_name || 'Desconocido'}</td>
+                  <td>{group.group_id?.level_id?.level_name || 'Desconocido'}</td>
+                  <td>{group.group_id.group_name}</td>
                   <td>{formatDate(group.start_date)}</td>
                   <td>{formatDate(group.end_date)}</td>
-                  <td>{group.schedule}</td>
-                  <td>{group.LEVEL_MODALITY}</td>
-                  <td>{group.level_duration}</td>
-                  <td>{group.calification !== null ? group.calification : 'N/A'}</td>
+                  <td>{group.group_id.schedule}</td>
                   <td>
-                    <button className="btn btn-primary">Acción</button>
+                    {{
+                      'In_person': 'Presencial',
+                      'virtual': 'Virtual',
+                    }[group.group_id.level_id.level_modality] || ''}
+                  </td>
+                  <td>{group.level_duration}</td>
+                  <td>{group.calification != null ? group.calification : 'N/A'}</td>
+                  <td>
+                    <div className="dropdown">
+                      <button
+                        className="btn btn-primary dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        Acción
+                      </button>
+                      <ul className="dropdown-menu">
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleLevelCertificate(group, 'BASIC')}
+                          >
+                            Básico
+                          </button>
+                        </li>
+                        {shouldShowNotesOption(group.end_date, group.calification) && (
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleLevelCertificate(group, 'NOTES')}
+                            >
+                              Notas
+                            </button>
+                          </li>
+                        )}
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleAllLevelsCertificate(group)}
+                          >
+                            Curso Completo
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="10" className="text-center">No hay grupos disponibles</td>
+                <td colSpan="10" className="text-center">
+                  No hay grupos disponibles
+                </td>
               </tr>
             )}
           </tbody>

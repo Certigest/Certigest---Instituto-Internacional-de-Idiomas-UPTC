@@ -29,6 +29,7 @@ import GroupStudents from './pages/EstudiantesGrupo';
 import EnrollStudents from './pages/ListadoEstudiantesInscripción';
 import PublicHomePage from './pages/PublicHomePage';
 import PublicValidatePage from './pages/PublicValidatePage';
+import ViewStudentCertificates from './pages/ViewStudentCertificates';
 
 
 import './styles/global.css';
@@ -109,6 +110,7 @@ function LayoutWithRoles() {
                 <Route path="/editar-contraseña" element={<EditPassword />} />
                 <Route path="/editar-cuenta" element={<EditPersonalAccount />} />
                 <Route path="/cursos" element={<ViewStudentCourses />} />
+                <Route path="/certificados" element={<ViewStudentCertificates />} />
               </>
             )}
 
