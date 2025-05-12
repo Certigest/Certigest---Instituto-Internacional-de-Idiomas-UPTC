@@ -100,23 +100,23 @@ function ResponsiveNavbar({ children }) {
       case "teacher":
         return (
           <>
-            <Link className="nav-link sidebar-btn" to="/cuenta">
+            <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/cuenta")}>
               Cuenta
-            </Link>
-            <Link className="nav-link sidebar-btn" to="/grupos-profesor">
-              Grupos
-            </Link>
+            </button>
+            <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/grupos-profesor")}>
+              Cursos
+            </button>
           </>
         );
       case "student":
         return (
           <>
-            <Link className="nav-link sidebar-btn" to="/cuenta">
+            <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/cuenta")}>
               Cuenta
-            </Link>
-            <Link className="nav-link sidebar-btn" to="/cursos">
+            </button>
+            <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/cursos")}>
               Cursos
-            </Link>
+            </button>
           </>
         );
       default:
