@@ -1,6 +1,7 @@
 package com.uptc.idiomas.certigest.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,11 +10,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import com.nimbusds.jwt.JWT;
 import com.uptc.idiomas.certigest.dto.GroupInstDTO;
 import com.uptc.idiomas.certigest.service.GroupService;
 import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
+import com.uptc.idiomas.certigest.dto.PersonEnrollInfo;
 
 @RestController
 @RequestMapping("/group")
@@ -24,7 +25,7 @@ public class GroupController {
 
     @GetMapping("/by-level/{levelId}")
     public ResponseEntity<List<GroupInstDTO>> getGroupsByLevel(@PathVariable Integer levelId) {
-        List<GroupInstDTO> groups = groupService.findByLevelId(levelId);
+        List<GroupInstDTO> groups = groupService.findActiveByLevelId(levelId);
         return ResponseEntity.ok(groups);
     }
 
@@ -99,6 +100,18 @@ public class GroupController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al inscribir al estudiante.");
+        }
+    }
+    @PostMapping("/enrollMassive")
+    public ResponseEntity<?> enrollStudentsMassive(@RequestBody List<PersonEnrollInfo> studentsList) {
+        try {
+            List<PersonEnrollInfo> response = groupService.enrollStudentsMassive(studentsList);
+            return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Map.of("error", "Error al inscribir a los estudiantes."));
         }
     }
 }

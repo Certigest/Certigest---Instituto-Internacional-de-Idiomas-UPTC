@@ -22,9 +22,7 @@ public interface PersonRepo extends JpaRepository<Person, Integer> {
     JOIN PersonRole pr ON pr.person.id = p.id
     JOIN Role r ON pr.role.id = r.id
     LEFT JOIN GroupPerson gp ON gp.person_id = p AND gp.group_id.level_id.id = :levelId
-    WHERE r.name = 'STUDENT' AND p.status = true AND (gp.person_id IS NULL OR gp.calification < 30)
+    WHERE r.name = 'STUDENT' AND p.status = true AND (gp.person_id IS NULL OR gp.calification < 3.0)
     """)
-    List<Person> findStudentsWhoHaveNotTakenLevelOrFailed(@Param("levelId") Integer levelId);
-
-    
+    List<Person> findStudentsWhoHaveNotTakenLevelOrFailed(@Param("levelId") Integer levelId);   
 }
