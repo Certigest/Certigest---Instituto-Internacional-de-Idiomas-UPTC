@@ -13,15 +13,28 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GroupInstRepo extends JpaRepository<GroupInst, Integer> {
-    @Query("SELECT g FROM GroupInst g WHERE g.level_id.level_id = :levelId")
-    List<GroupInst> findByLevelId(@Param("levelId") Integer levelId);
+  
+  @Query("SELECT g FROM GroupInst g WHERE g.level_id.level_id = :levelId")
+  List<GroupInst> findByLevelId(@Param("levelId") Integer levelId);
+  @Query("SELECT g FROM GroupInst g WHERE g.level_id.level_id = :levelId AND g.state = true")
+  List<GroupInst> findActiveByLevelId(@Param("levelId") Integer levelId);
+  @Query("SELECT g FROM GroupInst g WHERE g.state = true")
+  List<GroupInst> findAllActiveGroups();
+  @Query("SELECT g FROM GroupInst g WHERE g.group_name = :groupName AND g.level_id.level_id = :levelId AND g.level_id.id_course.id_course = :courseId")
+  Optional<GroupInst> findByCourseIdAndLevelIdAndGroupName(@Param("courseId") Integer courseId, @Param("levelId") Integer levelId, @Param("groupName") String groupName);
 
-    @Query("SELECT g FROM GroupInst g WHERE g.level_id.level_id = :levelId AND g.state = true")
-    List<GroupInst> findActiveByLevelId(@Param("levelId") Integer levelId);
-
-    @Query("SELECT g FROM GroupInst g WHERE g.state = true")
-    List<GroupInst> findAllActiveGroups();
-
-    @Query("SELECT g FROM GroupInst g WHERE g.group_name = :groupName AND g.level_id.level_id = :levelId AND g.level_id.id_course.id_course = :courseId")
-    Optional<GroupInst> findByCourseIdAndLevelIdAndGroupName(@Param("courseId") Integer courseId, @Param("levelId") Integer levelId, @Param("groupName") String groupName);
+  @Query("""
+      SELECT g FROM GroupInst g
+      WHERE g.level_id.id_course.id = :courseId
+        AND g.level_id.level_id = :levelId
+      ORDER BY g.group_id ASC
+  """)
+  Optional<GroupInst> findFirstByCourseIdAndLevelId(@Param("courseId") Integer courseId, @Param("levelId") Integer levelId);
+  @Query("""
+    SELECT g FROM GroupInst g
+    WHERE g.level_id.id_course.id = :courseId
+      AND g.level_id.level_id = :levelId
+    ORDER BY g.group_id ASC
+  """)
+  List<GroupInst> findAllByCourseIdAndLevelIdOrderByGroupId(@Param("courseId") Integer courseId, @Param("levelId") Integer levelId);
 }

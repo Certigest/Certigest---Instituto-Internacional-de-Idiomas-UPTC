@@ -16,4 +16,7 @@ public interface LevelRepo extends JpaRepository<Level, Integer> {
     List<Level> findByCourseId(@Param("idCourse") Integer idCourse);
     @Query("SELECT l FROM Level l WHERE l.level_name = :levelName AND l.id_course.id_course = :courseId")
     Optional<Level> findByLevelNameAndCourseId(@Param("levelName") String levelName, @Param("courseId") Integer courseId);
+    @Query("SELECT COUNT(gp) FROM GroupPerson gp JOIN gp.group_id g JOIN g.level_id l WHERE gp.person_id.personId = :personId AND l.level_id = :levelId")
+    long countByPersonIdAndLevelId(@Param("personId") Integer personId, @Param("levelId") Integer levelId);
+
 }

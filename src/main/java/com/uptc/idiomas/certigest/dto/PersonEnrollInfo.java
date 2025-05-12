@@ -12,11 +12,9 @@ public class PersonEnrollInfo {
     private String documentNumber;   
     private String course;           
     private String level;            
-    private String group;            
     private Float grade;
     private Integer levelCost;         
-    private Integer materialCost;      
-    private Date startDate;           
-    private Date endDate;             
+    private Integer materialCost;
+    private Date levelSeenDate;
     private String description;
 }
