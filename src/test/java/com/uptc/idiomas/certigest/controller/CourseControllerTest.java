@@ -73,9 +73,9 @@ public class CourseControllerTest {
 
     @Test
     void testGetCourseById_NotFound() throws Exception {
-        when(courseService.findById(2)).thenReturn(null);
+        when(courseService.findById(999)).thenReturn(null);
 
-        mockMvc.perform(get("/course/2"))
+        mockMvc.perform(get("/course/999"))
                 .andExpect(status().isNotFound());
 
         verify(courseService).findById(999);
