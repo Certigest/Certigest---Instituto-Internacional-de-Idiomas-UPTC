@@ -23,13 +23,15 @@ public class GroupInstRepoTest {
     @Autowired
     TestEntityManager entityManager;
 
+    private Level level;
+
     @BeforeEach
     void setUp() {
         Course course = new Course();
         course.setCourse_name("Test Course");
         entityManager.persist(course);
 
-        Level level = new Level();
+        level = new Level();
         level.setLevel_name("Test Level");
         level.setId_course(course);
         entityManager.persist(level);
@@ -65,7 +67,7 @@ public class GroupInstRepoTest {
 
     @Test
     void testFindByLevelId() {
-        List<GroupInst> groups = groupInstRepo.findByLevelId(1);
+        List<GroupInst> groups = groupInstRepo.findByLevelId(level.getLevel_id());
         assertEquals(1, groups.size());
         assertEquals("Test Active Group", groups.get(0).getGroup_name());
         assertEquals("Test Level", groups.get(0).getLevel_id().getLevel_name());

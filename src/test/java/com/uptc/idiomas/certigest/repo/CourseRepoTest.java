@@ -18,9 +18,11 @@ public class CourseRepoTest {
     @Autowired
     TestEntityManager entityManager;
 
+    private Course course;
+
     @BeforeEach
     void setUp() {
-        Course course = new Course();
+        course = new Course();
         course.setCourse_name("Test Course");
         course.setCourse_description("Test Description");
         entityManager.persist(course);
@@ -28,9 +30,9 @@ public class CourseRepoTest {
 
     @Test
     void testFindByCourseId() {
-        Course course = courseRepo.findById(1).orElse(null);
-        assertEquals(course.getId_course(), 1);
-        assertEquals(course.getCourse_name(), "Test Course");
-        assertEquals(course.getCourse_description(), "Test Description");
+        Course course2 = courseRepo.findById(course.getId_course()).orElse(null);
+        assertEquals(course2.getId_course(), 1);
+        assertEquals(course2.getCourse_name(), "Test Course");
+        assertEquals(course2.getCourse_description(), "Test Description");
     }
 }
