@@ -20,7 +20,8 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_course;
-
+    
+    @Column(name = "course_name")
     private String course_name;
     private String course_description;
 

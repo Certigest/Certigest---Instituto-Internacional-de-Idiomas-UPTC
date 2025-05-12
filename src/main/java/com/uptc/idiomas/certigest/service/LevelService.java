@@ -1,6 +1,7 @@
 package com.uptc.idiomas.certigest.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.Optional;
 
@@ -67,5 +68,8 @@ public class LevelService extends BasicServiceImpl<LevelDTO, Level, Integer> {
             return levelOpt.get();
         else
             throw new EntityNotFoundException("Nivel no encontrado con ID: " + levelId);
+    }
+    public Optional<Level> findByLevelNameAndCourseName(String level_name, Integer course_id) {
+        return levelRepo.findByLevelNameAndCourseId(level_name, course_id);
     }
 }
