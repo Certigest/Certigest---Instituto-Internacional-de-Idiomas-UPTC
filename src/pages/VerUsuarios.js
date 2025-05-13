@@ -52,29 +52,41 @@ const VerUsuarios = () => {
   const totalPaginas = Math.ceil(usuariosFiltrados.length / usuariosPorPagina);
 
   const handleEliminarUsuario = async (id) => {
-    if (window.confirm("¿Estás seguro de eliminar este usuario?")) {
-      try {
-        await keycloak.updateToken(30);
+  if (window.confirm("¿Estás seguro de eliminar este usuario?")) {
+    try {
+      await keycloak.updateToken(30);
 
-        let response = await axios.delete(`${API_HOST}/person/${id}`, {
-          headers: {
-            Authorization: `Bearer ${keycloak.token}`,
-          },
-        });
+      // Primera eliminación
+      let response1 = await axios.delete(`${API_HOST}/person/${id}`, {
+        headers: {
+          Authorization: `Bearer ${keycloak.token}`,
+        },
+      });
 
-        if (response.status === 200) {
-          setUsuarios(usuarios.filter((user) => user.personId !== id));
-          setUsuarioSeleccionado(null);
-          alert("Usuario eliminado correctamente.");
-        } else {
-          alert("No se pudo eliminar el usuario.");
-        }
-      } catch (err) {
-        console.error("Error al eliminar usuario:", err);
+      // Segunda eliminación (por redundancia)
+      let response2 = await axios.delete(`${API_HOST}/person/${id}`, {
+        headers: {
+          Authorization: `Bearer ${keycloak.token}`,
+        },
+      });
+
+      // Verificamos solo la primera respuesta (asumiendo que fue exitosa)
+      if (response1.status === 200) {
+        setUsuarios(usuarios.filter((user) => user.personId !== id));
+        setUsuarioSeleccionado(null);
+        alert("Usuario eliminado correctamente).");
+      } else {
         alert("No se pudo eliminar el usuario.");
       }
+      if (response2.status === 200) {
+        setUsuarioSeleccionado(null);
+      } 
+    } catch (err) {
+      console.error("Error al eliminar usuario:", err);
+      alert("No se pudo eliminar el usuario.");
     }
-  };
+  }
+};
 
   const handleEditarUsuario = (usuario) => {
     setUsuarioSeleccionado(usuario);
