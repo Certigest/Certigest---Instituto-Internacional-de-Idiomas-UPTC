@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import keycloak from "../services/keycloak-config";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import imagenUsuario from "../assets/imagenUsuario.png";
 import FormularioUsuario2 from "../pages/FormularioUsuario2";
+import { Modal } from "bootstrap";
 
 const VerUsuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -14,6 +15,11 @@ const VerUsuarios = () => {
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const [editarUsuario, setEditarUsuario] = useState(false);
   const usuariosPorPagina = 10;
+  const [idParaEliminar, setIdParaEliminar] = useState(null);
+  const modalRef = useRef(null);
+  const modalAlertaRef = useRef(null);
+  const [mensajeModal, setMensajeModal] = useState("");
+  const [tituloModal, setTituloModal] = useState("");
 
   const API_HOST = process.env.REACT_APP_API_HOST;
 
@@ -51,47 +57,58 @@ const VerUsuarios = () => {
   const usuariosPaginados = usuariosFiltrados.slice(indexInicio, indexFin);
   const totalPaginas = Math.ceil(usuariosFiltrados.length / usuariosPorPagina);
 
-  const handleEliminarUsuario = async (id) => {
-  if (window.confirm("¿Estás seguro de eliminar este usuario?")) {
-    try {
-      await keycloak.updateToken(30);
+  const confirmarEliminacion = async () => {
+  try {
+    await keycloak.updateToken(30);
 
-      // Primera eliminación
-      let response1 = await axios.delete(`${API_HOST}/person/${id}`, {
-        headers: {
-          Authorization: `Bearer ${keycloak.token}`,
-        },
-      });
+    const response1 = await axios.delete(`${API_HOST}/person/${idParaEliminar}`, {
+      headers: { Authorization: `Bearer ${keycloak.token}` },
+    });
 
-      // Segunda eliminación (por redundancia)
-      let response2 = await axios.delete(`${API_HOST}/person/${id}`, {
-        headers: {
-          Authorization: `Bearer ${keycloak.token}`,
-        },
-      });
+    const response2 = await axios.delete(`${API_HOST}/person/${idParaEliminar}`, {
+      headers: { Authorization: `Bearer ${keycloak.token}` },
+    });
 
-      // Verificamos solo la primera respuesta (asumiendo que fue exitosa)
-      if (response1.status === 200) {
-        setUsuarios(usuarios.filter((user) => user.personId !== id));
-        setUsuarioSeleccionado(null);
-        alert("Usuario eliminado correctamente).");
-      } else {
-        alert("No se pudo eliminar el usuario.");
-      }
-      if (response2.status === 200) {
-        setUsuarioSeleccionado(null);
-      } 
-    } catch (err) {
-      console.error("Error al eliminar usuario:", err);
-      alert("No se pudo eliminar el usuario.");
+    if (response1.status === 200) {
+      setUsuarios((prev) =>
+        prev.filter((user) => user.personId !== idParaEliminar)
+      );
+      setUsuarioSeleccionado(null);
+      mostrarModal("Éxito", "Usuario eliminado correctamente.");
+    } else {
+      mostrarModal("Error", "No se pudo eliminar el usuario.");
     }
+
+    if (response2.status === 200) {
+      setUsuarioSeleccionado(null);
+    }
+
+    modalRef.current?.hide();
+  } catch (err) {
+    console.error("Error al eliminar usuario:", err);
+    mostrarModal("Error", "No se pudo eliminar el usuario.");
   }
 };
+
+
 
   const handleEditarUsuario = (usuario) => {
     setUsuarioSeleccionado(usuario);
     setEditarUsuario(true); // Cambiar el estado a true para mostrar el formulario de edición
   };
+  const mostrarModalConfirmacion = (id) => {
+    setIdParaEliminar(id);
+    const modal = new Modal(document.getElementById('modalConfirmarEliminacion'));
+    modal.show();
+    modalRef.current = modal;
+  };
+  const mostrarModal = (titulo, mensaje) => {
+  setTituloModal(titulo);
+  setMensajeModal(mensaje);
+  const modalInstance = new Modal(modalAlertaRef.current);
+  modalInstance.show();
+};
+
 
   return (
     <div className="container mt-4 bg-white p-4 border rounded shadow-sm">
@@ -164,7 +181,7 @@ const VerUsuarios = () => {
                     <button
                       className="btn btn-danger rounded-circle"
                       title="Eliminar"
-                      onClick={() => handleEliminarUsuario(usuarioSeleccionado.personId)}
+                      onClick={() => mostrarModalConfirmacion(usuarioSeleccionado.personId)}
                     >
                       <i className="bi bi-x-circle-fill"></i>
                     </button>
@@ -279,8 +296,86 @@ const VerUsuarios = () => {
           )}
         </>
       )}
+      {/* Modal de confirmación para eliminar */}
+      <div
+        className="modal fade"
+        id="modalConfirmarEliminacion"
+        tabIndex="-1"
+        aria-labelledby="modalConfirmarEliminacionLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="modalConfirmarEliminacionLabel">Confirmar eliminación</h5>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Cerrar"
+              ></button>
+            </div>
+            <div className="modal-body">
+              ¿Estás seguro de que deseas eliminar este usuario?
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={() => confirmarEliminacion()}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Modal de alerta Bootstrap */}
+      <div
+        className="modal fade"
+        id="alertModal"
+        tabIndex="-1"
+        aria-labelledby="alertModalLabel"
+        aria-hidden="true"
+        ref={modalAlertaRef}
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header bg-light">
+              <h5 className="modal-title w-100 text-center fw-bold text-primary" id="alertModalLabel">
+                {tituloModal}
+              </h5>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Cerrar"
+              ></button>
+            </div>
+            <div className="modal-body text-center fs-5 text-secondary">
+              {mensajeModal}
+            </div>
+            <div className="modal-footer justify-content-center">
+              <button
+                type="button"
+                className="btn btn-success px-4"
+                data-bs-dismiss="modal"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 };
-
 export default VerUsuarios;
