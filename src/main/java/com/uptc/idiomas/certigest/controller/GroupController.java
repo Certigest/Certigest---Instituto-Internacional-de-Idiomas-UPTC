@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import com.uptc.idiomas.certigest.dto.GroupInstDTO;
 import com.uptc.idiomas.certigest.dto.GroupPersonDTO;
 import com.uptc.idiomas.certigest.service.GroupService;
-import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
-import com.uptc.idiomas.certigest.entity.GroupPerson;
-import com.uptc.idiomas.certigest.entity.GroupPerson;
 import com.uptc.idiomas.certigest.dto.PersonEnrollInfo;
 
 @RestController

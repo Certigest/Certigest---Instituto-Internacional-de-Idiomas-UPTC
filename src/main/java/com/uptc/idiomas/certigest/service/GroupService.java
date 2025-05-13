@@ -9,16 +9,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.swing.GroupLayout;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import com.uptc.idiomas.certigest.dto.GroupInstDTO;
 import com.uptc.idiomas.certigest.dto.GroupPersonDTO;
-import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
 import com.uptc.idiomas.certigest.dto.PersonEnrollInfo;
 import com.uptc.idiomas.certigest.entity.Course;
@@ -29,7 +25,6 @@ import com.uptc.idiomas.certigest.entity.Level;
 import com.uptc.idiomas.certigest.entity.Person;
 import com.uptc.idiomas.certigest.mapper.GroupInstMapper;
 import com.uptc.idiomas.certigest.mapper.GroupPersonMapper;
-import com.uptc.idiomas.certigest.mapper.PersonMapper;
 import com.uptc.idiomas.certigest.repo.CourseRepo;
 import com.uptc.idiomas.certigest.repo.GroupInstRepo;
 import com.uptc.idiomas.certigest.repo.GroupPersonRepo;

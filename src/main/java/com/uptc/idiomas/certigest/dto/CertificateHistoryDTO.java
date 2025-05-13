@@ -13,6 +13,7 @@ public class CertificateHistoryDTO  {
     private String courseName;
     private String levelName;
     private String fullName;
+    private String personId;
     private Date generationDate;
     private String certificateType;
     private String code;

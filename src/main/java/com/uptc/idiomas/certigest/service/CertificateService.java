@@ -280,6 +280,7 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
         String code = cerCode.getCode();
         Date generationDate = certificate.getGenerationDate();
         String certificateType = certificate.getCertificateType().name();
+        String personId = personService.getPersonByUserName(username).getPersonId().toString();
         String levelName = "";
         String courseName = "";
     
@@ -303,7 +304,7 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
             courseName = cl.getLevel().getId_course().getCourse_name();
         }
     
-        return new CertificateHistoryDTO(courseName, levelName, fullName, generationDate, certificateType, code);
+        return new CertificateHistoryDTO(courseName, levelName, fullName, personId, generationDate, certificateType, code);
     }
     
 
