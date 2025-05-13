@@ -28,68 +28,65 @@ function ExcelUploader() {
   };
 
   const handleFile = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+    const file = e.target.files[0];
+    if (!file) return;
 
-  if (file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
-    alert("Por favor, selecciona un archivo de Excel (.xlsx)");
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const data = new Uint8Array(event.target.result);
-    const workbook = XLSX.read(data, { type: 'array' });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const parsedData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-    const rows = parsedData.slice(1); // Omitir encabezado
-
-    if (rows.length > 30) {
-      alert("Solo puedes cargar un máximo de 30 estudiantes por archivo.");
-      if (fileInputRef.current) fileInputRef.current.value = null;
-      setStudents([]);
+    if (file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+      alert("Por favor, selecciona un archivo de Excel (.xlsx)");
       return;
     }
 
-    const studentsData = rows.map((row) => {
-      const formatDate = (value) => {
-        if (typeof value === 'number') {
-          const date = new Date((value - 25569) * 86400 * 1000);
-          const day = ("0" + date.getDate()).slice(-2);
-          const month = ("0" + (date.getMonth() + 1)).slice(-2);
-          const year = date.getFullYear();
-          return `${day}/${month}/${year}`;
-        } else if (typeof value === 'string') {
-          const dateParts = value.split('-');
-          if (dateParts.length === 3) {
-            return `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const parsedData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+      const rows = parsedData.slice(1);
+
+      if (rows.length > 30) {
+        alert("Solo puedes cargar un máximo de 30 estudiantes por archivo.");
+        if (fileInputRef.current) fileInputRef.current.value = null;
+        setStudents([]);
+        return;
+      }
+
+      const studentsData = rows.map((row) => {
+        const formatDate = (value) => {
+          if (typeof value === 'number') {
+          // Evita problemas de desfase por zona horaria
+          const parsed = XLSX.SSF.parse_date_code(value);
+          if (parsed) {
+            const year = parsed.y;
+            const month = String(parsed.m).padStart(2, '0');
+            const day = String(parsed.d).padStart(2, '0');
+            return `${year}-${month}-${day}`;
           }
-          return value;
         }
-        return value;
-      };
+          return ''; // Si el valor no es válido
+        };
 
-      return {
-        fullName: row[0],
-        documentNumber: row[1],
-        course: row[2],
-        level: row[3],
-        grade: parseFloat(row[4]),
-        levelCost: parseFloat(row[5]),
-        materialCost: parseFloat(row[6]),
-        courseDate: formatDate(row[7]),
-      };
-    });
+        return {
+          fullName: row[0],
+          documentNumber: row[1],
+          course: row[2],
+          level: row[3],
+          grade: parseFloat(row[4]),
+          levelCost: parseFloat(row[5]),
+          materialCost: parseFloat(row[6]),
+          startDate: formatDate(row[7]),
+          endDate: formatDate(row[8]),
+        };
+      });
 
-    setStudents(studentsData);
-    setFailedEnrollments([]);
-    setEnrollDone(false);
+      setStudents(studentsData);
+      setFailedEnrollments([]);
+      setEnrollDone(false);
+    };
+
+    reader.readAsArrayBuffer(file);
   };
-
-  reader.readAsArrayBuffer(file);
-};
-
 
   const handleEnroll = async () => {
     const response = await enrollStudentsMassive(keycloak.token, students);
@@ -102,24 +99,25 @@ function ExcelUploader() {
       alert(response.error);
     }
 
-    // Limpiar el input de archivo después de procesar
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';  // Esto restablece el archivo cargado
+      fileInputRef.current.value = '';
     }
   };
 
   const isFormValid = () => {
-    return students.every(student => 
-      student.fullName && 
-      student.documentNumber && 
-      student.course && 
-      student.level && 
-      !isNaN(student.grade) && 
-      student.grade >= 0 && student.grade <= 5 && // Validar que la nota esté entre 0 y 5
-      !isNaN(student.levelCost) && 
-      (student.materialCost === '' || isNaN(student.materialCost)) && 
-      student.courseDate && 
-      /\d{2}\/\d{2}\/\d{2}/.test(student.courseDate)
+    return students.every(student =>
+      student.fullName &&
+      student.documentNumber &&
+      student.course &&
+      student.level !== null &&
+      !isNaN(student.grade) &&
+      student.grade >= 0 && student.grade <= 5 &&
+      !isNaN(student.levelCost) &&
+      (student.materialCost === '' || isNaN(student.materialCost)) &&
+      student.startDate &&
+      student.endDate &&
+      /^\d{4}-\d{2}-\d{2}$/.test(student.startDate) &&
+      /^\d{4}-\d{2}-\d{2}$/.test(student.endDate)
     );
   };
 
@@ -137,7 +135,7 @@ function ExcelUploader() {
           accept=".xlsx"
           onClick={() => {
             if (fileInputRef.current) {
-              fileInputRef.current.value = null; // Esto permite volver a seleccionar el mismo archivo
+              fileInputRef.current.value = null;
             }
           }}
           onChange={handleFile}
@@ -157,10 +155,11 @@ function ExcelUploader() {
                   <th>Número de documento</th>
                   <th>Curso</th>
                   <th>Nivel</th>
-                  <th>Nota (0.0 - 5.0)</th>
-                  <th>Costo Nivel (sin puntos ni comas)</th>
-                  <th>Costo Material (sin puntos ni comas)</th>
-                  <th>Fecha del Curso (dd/mm/yyyy)</th>
+                  <th>Nota</th>
+                  <th>Costo Nivel</th>
+                  <th>Costo Material</th>
+                  <th>Fecha inicio</th>
+                  <th>Fecha fin</th>
                 </tr>
               </thead>
               <tbody>
@@ -173,7 +172,8 @@ function ExcelUploader() {
                     <td>{student.grade}</td>
                     <td>{student.levelCost}</td>
                     <td>{student.materialCost}</td>
-                    <td>{student.courseDate}</td>
+                    <td>{student.startDate}</td>
+                    <td>{student.endDate}</td>
                   </tr>
                 ))}
               </tbody>
