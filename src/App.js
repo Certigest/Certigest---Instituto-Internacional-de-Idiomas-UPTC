@@ -14,7 +14,6 @@ import Home from './pages/Home';
 import Usuarios from './pages/Usuarios';
 import Cursos from './pages/Cursos';
 import Inscripcion from './pages/Inscripcion';
-import Reportes from './pages/Reportes';
 import Cuenta from './pages/Cuenta';
 import EditPersonalAccount from './pages/ModifyAccount';
 import ViewStudentCourses from './pages/ViewStudentCourses';
