@@ -23,9 +23,13 @@ public class Level {
     private Integer level_cost;
     private Integer material_cost;
     private Boolean state;
+
     public enum LevelModality {
         In_person, virtual
     }
+
     @Enumerated(EnumType.STRING)
     private LevelModality level_modality;
+
+    private Integer level_duration;
 }

@@ -20,4 +20,6 @@ public class LevelDTO {
     public enum LevelModality {
         In_person, virtual
     }
+
+    private Integer level_duration;
 }
