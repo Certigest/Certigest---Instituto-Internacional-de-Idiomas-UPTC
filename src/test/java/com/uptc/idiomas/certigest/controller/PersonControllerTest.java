@@ -11,10 +11,9 @@ import static org.mockito.ArgumentMatchers.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -29,10 +28,10 @@ class PersonControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private PersonService personService;
 
-    @MockBean
+    @MockitoBean
     private CredentialsKeycloakService credentialsKeycloakService;
 
     @Autowired
@@ -100,12 +99,5 @@ class PersonControllerTest {
         mockMvc.perform(get("/person/personal-account")
                 .with(jwt().jwt(jwt -> jwt.claim("preferred_username", "testuser"))))
             .andExpect(status().isOk());
-    }
-
-    private Jwt createMockJwt(String username) {
-        return Jwt.withTokenValue("token")
-                .header("alg", "none")
-                .claim("preferred_username", username)
-                .build();
     }
 }

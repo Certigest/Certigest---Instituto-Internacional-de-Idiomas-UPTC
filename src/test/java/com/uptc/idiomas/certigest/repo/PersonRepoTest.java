@@ -8,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,9 +22,6 @@ public class PersonRepoTest {
     TestEntityManager entityManager;
 
     private Person person;
-    private GroupInst groupInst;
-    private Level level;
-    private GroupPerson groupPerson;
 
     @BeforeEach
     public void setUp() {

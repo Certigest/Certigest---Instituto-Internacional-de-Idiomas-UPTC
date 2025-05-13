@@ -9,8 +9,6 @@ import com.uptc.idiomas.certigest.repo.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
 
@@ -48,6 +46,8 @@ public class PersonServiceTest {
     private CertificateLevelRepo certificateLevelRepo;
     @Mock
     private CertificateCodeRepo certificateCodeRepo;
+    @Mock
+    private EmailService emailService;
 
     private PersonDTO personDTO;
     private Person person;
@@ -81,6 +81,7 @@ public class PersonServiceTest {
         assertEquals("Carlos", saved.getFirstName());
         verify(personRepo).save(any(Person.class));
         verify(loginRepo).save(any());
+        verify(emailService).sendCredentialsEmail(personDTO.getEmail(), "carloslopez1", "123456");
     }
 
     @Test
