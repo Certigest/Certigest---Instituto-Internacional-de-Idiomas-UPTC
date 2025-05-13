@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import VerUsuarios from "./VerUsuarios";
 import FormularioUsuario from "../pages/FormularioUsuario";
 import "../styles/Usuarios.css"; // Asegúrate de incluir esto si tienes estilos personalizados
-
+import ExcelUpload from "../components/ExcelUpload"; // ✅ Importado
 
 const Usuarios = () => {
   const [tab, setTab] = useState("crear");
@@ -111,7 +111,10 @@ const Usuarios = () => {
                 </button>
 
                 <p className="mt-2 mb-1">¿Tiene un archivo con usuarios ya creados?</p>
-                <button className="btn btn-warning fw-bold px-4 py-2 rounded-pill shadow">
+                <button
+                  className="btn btn-warning fw-bold px-4 py-2 rounded-pill shadow"
+                  onClick={() => setTab("excel")} 
+                >
                   Cargar Usuarios
                 </button>
               </div>
@@ -122,6 +125,16 @@ const Usuarios = () => {
             rolesSeleccionados={rolesSeleccionados}
             volver={volverASeleccion}
           />
+        ) : tab === "excel" ? (
+          <>
+            <button
+              className="btn btn-secondary mb-3"
+              onClick={volverASeleccion}
+            >
+              ← Volver
+            </button>
+            <ExcelUpload />
+          </>
         ) : (
           <VerUsuarios />
         )}
