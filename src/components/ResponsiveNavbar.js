@@ -90,9 +90,6 @@ function ResponsiveNavbar({ children }) {
             <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/inscripcion")}>
               Inscripción
             </button>
-            <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/reportes")}>
-              Reportes
-            </button>
           </>
         );
       case "teacher":

@@ -86,7 +86,6 @@ function LayoutWithRoles() {
                 <Route path="/editar-cuenta" element={<EditPersonalAccount />} />
                 <Route path="/editar-contraseña" element={<EditPassword />} />
                 <Route path="/usuarios" element={<Usuarios />} />
-                <Route path="/reportes" element={<Reportes />} />
                 <Route path="/cursos" element={<Cursos />} />
                 <Route path="/niveles-curso/:id" element={<LevelList />} />
                 <Route path="/grupos-nivel/:courseId/:levelId" element={<GroupListLevel />} />
