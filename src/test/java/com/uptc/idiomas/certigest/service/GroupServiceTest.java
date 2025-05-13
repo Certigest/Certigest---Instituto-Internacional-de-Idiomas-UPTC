@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.uptc.idiomas.certigest.dto.GroupInstDTO;
+import com.uptc.idiomas.certigest.dto.GroupPersonDTO;
 import com.uptc.idiomas.certigest.entity.GroupInst;
 import com.uptc.idiomas.certigest.entity.GroupPerson;
 import com.uptc.idiomas.certigest.entity.GroupPersonId;
@@ -141,11 +142,13 @@ public class GroupServiceTest {
         s.setPersonId(7);
         when(personService.getPersonByUserName(user)).thenReturn(s);
         GroupInst g = new GroupInst();
+        GroupPerson gp = new GroupPerson();
         g.setGroup_id(2);
-        when(groupPersonRepo.findGroupsByStudentId(7)).thenReturn(Collections.singletonList(g));
-        List<GroupInstDTO> out = groupService.getGroupsByStudentUsername(user);
+        gp.setGroup_id(g);
+        when(groupPersonRepo.findGroupsByStudentId(7)).thenReturn(Collections.singletonList(gp));
+        List<GroupPersonDTO> out = groupService.getGroupsByStudentUsername(user);
         assertEquals(1, out.size());
-        assertEquals(2, out.get(0).getGroup_id());
+        assertEquals(2, out.get(0).getGroup_id().getGroup_id());
     }
 
     @Test

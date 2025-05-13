@@ -11,8 +11,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import com.uptc.idiomas.certigest.dto.GroupInstDTO;
+import com.uptc.idiomas.certigest.dto.GroupPersonDTO;
 import com.uptc.idiomas.certigest.service.GroupService;
-import com.uptc.idiomas.certigest.dto.PersonDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
 import com.uptc.idiomas.certigest.dto.PersonEnrollInfo;
 
@@ -70,9 +70,9 @@ public class GroupController {
     }
 
     @GetMapping("/groupsStudent")
-    public ResponseEntity<List<GroupInstDTO>> getGroupsByStudent(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<List<GroupPersonDTO>> getGroupsByStudent(@AuthenticationPrincipal Jwt jwt) {
         String username = jwt.getClaim("preferred_username");
-        List<GroupInstDTO> groups = groupService.getGroupsByStudentUsername(username);
+        List<GroupPersonDTO> groups = groupService.getGroupsByStudentUsername(username);
         return new ResponseEntity<>(groups, HttpStatus.OK);
     }
 

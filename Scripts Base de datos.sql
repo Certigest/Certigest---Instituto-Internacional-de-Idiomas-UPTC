@@ -74,6 +74,7 @@ CREATE TABLE level (
     state BOOLEAN,
     level_cost INT,
     material_cost INT,
+    level_duration INT,
     LEVEL_MODALITY ENUM('In_person', 'virtual'),
     level_description TEXT
 );

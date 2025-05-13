@@ -17,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface GroupPersonRepo extends JpaRepository<GroupPerson, GroupPersonId> {
-    @Query("SELECT g FROM GroupPerson gp JOIN gp.group_id g WHERE gp.person_id.id = :studentId")
-    List<GroupInst> findGroupsByStudentId(@Param("studentId") Integer studentId);
+    @Query("SELECT gp FROM GroupPerson gp WHERE gp.person_id.id = :studentId")
+    List<GroupPerson> findGroupsByStudentId(@Param("studentId") Integer studentId);
 
     @Query("SELECT DISTINCT gp.group_id FROM GroupPerson gp WHERE :currentDate BETWEEN gp.start_date AND gp.end_date")
     List<GroupInst> findActiveGroupInstsByDate(@Param("currentDate") Date currentDate);

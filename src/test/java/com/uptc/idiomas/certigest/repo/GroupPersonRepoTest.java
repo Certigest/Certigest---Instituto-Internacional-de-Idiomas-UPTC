@@ -54,9 +54,9 @@ public class GroupPersonRepoTest {
 
     @Test
     void testFindGroupsByStudentId() {
-        List<GroupInst> groups = groupPersonRepo.findGroupsByStudentId(person.getPersonId());
+        List<GroupPerson> groups = groupPersonRepo.findGroupsByStudentId(person.getPersonId());
         assertFalse(groups.isEmpty(), "Should find groups for student");
-        assertEquals(group.getGroup_id(), groups.get(0).getGroup_id());
+        assertEquals(group.getGroup_id(), groups.get(0).getGroup_id().getGroup_id());
     }
 
     @Test

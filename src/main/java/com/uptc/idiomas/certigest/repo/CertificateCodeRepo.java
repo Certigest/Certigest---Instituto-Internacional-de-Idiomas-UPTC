@@ -19,4 +19,11 @@ public interface CertificateCodeRepo extends JpaRepository<CertificateCode, Inte
 
     @Query("SELECT COUNT(cc) > 0 FROM CertificateCode cc WHERE cc.certificate.person.personId = :personId")
     boolean existsByPersonId(@Param("personId") int personId);
+    boolean existsByCode(String code);
+
+    
+    @Query("SELECT cc FROM CertificateCode cc WHERE cc.certificate.certificateId = :certificateId")
+    CertificateCode findByCertificateId(@Param("certificateId") Integer certificateId);
+
+    CertificateCode findByCode(String code);
 }
