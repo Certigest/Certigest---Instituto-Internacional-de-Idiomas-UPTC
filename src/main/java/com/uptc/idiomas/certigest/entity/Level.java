@@ -28,4 +28,6 @@ public class Level {
     }
     @Enumerated(EnumType.STRING)
     private LevelModality level_modality;
+    
+    private Integer level_duration;
 }
