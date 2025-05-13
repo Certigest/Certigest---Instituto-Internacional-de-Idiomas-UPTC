@@ -13,7 +13,7 @@ import java.util.Date;
 @Table(name = "certificate")
 public class Certificate {
 
-    public enum CertificateType { BASIC, NOTES, ALL_LEVEL }
+    public enum CertificateType { BASIC, NOTES, ALL_LEVEL, ABILITIES }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

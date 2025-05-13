@@ -107,7 +107,7 @@ CREATE TABLE group_person (
 CREATE TABLE certificate (
     certificate_id INT AUTO_INCREMENT PRIMARY KEY,
     person_id INT,
-    CERTIFICATE_TYPE ENUM('BASIC', 'NOTES', 'ALL_LEVEL'),
+    CERTIFICATE_TYPE ENUM('BASIC', 'NOTES', 'ALL_LEVEL', 'ABILITIES'),
     generation_date DATE
 );
 
