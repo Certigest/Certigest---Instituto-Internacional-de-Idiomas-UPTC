@@ -15,6 +15,7 @@ public class PersonEnrollInfo {
     private Float grade;
     private Integer levelCost;         
     private Integer materialCost;
-    private Date levelSeenDate;
+    private Date startDate;
+    private Date endDate;
     private String description;
 }
