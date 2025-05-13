@@ -32,15 +32,14 @@ spring:
           starttls:
             enable: true
 
-# app:
-#   cors:
-#     allowed-origin: https://certigestdev.click
+app:
+  cors:
+    allowed-origin: https://certigestdev.click
 
 keycloak:
   auth-url: https://auth.certigestdev.click:8443
   realm: inst_idiomas_realm
   resource: springboot-app
-
 # ================================================
 # CONFIGURACIÓN LOCAL
 # ================================================
