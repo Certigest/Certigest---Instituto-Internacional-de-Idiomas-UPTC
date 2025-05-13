@@ -1,10 +1,14 @@
 package com.uptc.idiomas.certigest.controller;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,21 +25,26 @@ public class CertificateController {
     CertificateService certificateService;
 
     @PostMapping("/generateLevelCertificate")
-    public ResponseEntity<byte[]> generateLevelCertificate(@AuthenticationPrincipal Jwt jwt, @RequestBody Map<String, Object> data) {
+    public ResponseEntity<Map<String,String>> generateLevelCertificate(@AuthenticationPrincipal Jwt jwt, @RequestBody Map<String, Object> data) {
         String username = jwt.getClaim("preferred_username");
-        Integer levelId = ((Number) data.get("levelId")).intValue();
-        String certificateType = (String) data.get("certificateType");
-
-        byte[] pdf = certificateService.generateLevelCertificatePdf(username, certificateType, levelId);
-        return buildPdfResponse(pdf, "level_certificate.pdf");
+        Integer levelId = null;
+        if (data.get("levelId").getClass().equals("string".getClass()))
+            levelId = Integer.parseInt((String) data.get("levelId"));
+        else
+            levelId = ((Number) data.get("levelId")).intValue();
+        String certificateType= (String) data.get("certificateType");
+        String code = certificateService.generateLevelCertificateCode(username, certificateType, levelId);
+        return ResponseEntity.ok(Collections.singletonMap("code", code));
     }
 
     @PostMapping("/generateAllLevelsCertificate")
-    public ResponseEntity<byte[]> generateAllLevelsCertificate(@AuthenticationPrincipal Jwt jwt,  @RequestBody Map<String,String> data) {
+    public ResponseEntity<Map<String, String>> generateAllLevelsCertificate(@AuthenticationPrincipal Jwt jwt,  @RequestBody Map<String,Integer> data) {
         String username = jwt.getClaim("preferred_username");
-        String courseName = data.get("courseName"); 
-        byte[] pdf = certificateService.generateAllLevelsCertificatePdf(username, courseName);
-        return buildPdfResponse(pdf, "all_levels_certificate.pdf");
+        Integer courseId = data.get("courseId"); 
+        String code = certificateService.generateAllLevelsCertificateAndSave(username, courseId); 
+        Map<String, String> response = new HashMap<>();
+        response.put("code", code);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/myCertificates")
@@ -51,14 +60,10 @@ public class CertificateController {
 
     @GetMapping("/validateCertificate/{id}")
     public ResponseEntity<byte[]> validateCertificate(@PathVariable String id) {
-        byte[] pdf = certificateService.validateCertificatePdf(id);  // Este método debe generar y retornar el PDF si es válido
-        return buildPdfResponse(pdf, "validated_certificate.pdf");
-    }
-
-    private ResponseEntity<byte[]> buildPdfResponse(byte[] pdfBytes, String filename) {
+        byte[] pdfBytes  = certificateService.validateCertificatePdf(id); 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData(filename, filename);
-        return ResponseEntity.ok().headers(headers).body(pdfBytes);
+        headers.setContentDisposition(ContentDisposition.inline().filename("certificado.pdf").build());
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
     }
 }

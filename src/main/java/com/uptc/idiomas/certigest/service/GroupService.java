@@ -212,13 +212,8 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
          * groupPerson.setLEVEL_MODALITY(GroupPerson.LevelModality.valueOf(group.
          * getLevel_id().getLevel_modality().name()));
          */
-        LocalDate start = group.getStart_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate end = group.getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
-        long days = ChronoUnit.DAYS.between(start, end);
-        long weeks = days / 7;
-        groupPerson.setLevel_duration(weeks + " semanas");
-
+        
+        groupPerson.setLevel_duration("" + group.getLevel_id().getLevel_duration());
         groupPersonRepo.save(groupPerson);
     }
 
@@ -339,14 +334,17 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
             groupPerson.setGroup_id(newGroupInst);
 
             groupPerson.setCalification(student.getGrade());
-            groupPerson.setCalificationDate(student.getLevelSeenDate());
+            groupPerson.setStart_date(student.getStartDate());
+            groupPerson.setEnd_date(student.getEndDate());
             groupPerson.setLevel_cost(student.getLevelCost());
             groupPerson.setMaterial_cost(student.getMaterialCost());
-            groupPerson.setLevel_duration("Duración no especificada");
+            groupPerson.setLevel_duration("40");
+
+
 
             groupPersonRepo.save(groupPerson);
             student.setDescription("Agregado");
-            System.out.println("Asociación guardada exitosamente");
+            System.out.println("Fechas: " + student.getStartDate() + " - " + student.getEndDate());
 
             return student;
         } catch (Exception e) {
