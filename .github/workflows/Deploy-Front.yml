@@ -3,7 +3,7 @@ name: Upload React App to S3
 on:
   push:
     branches:
-      - Front
+      - Frontend
 
 jobs:
   deploy:
