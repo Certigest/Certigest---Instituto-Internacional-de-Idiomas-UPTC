@@ -1,6 +1,9 @@
 name: Upload React App to S3
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - Frontend
 
 jobs:
   deploy:

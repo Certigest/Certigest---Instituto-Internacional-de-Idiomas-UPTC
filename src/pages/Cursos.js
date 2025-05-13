@@ -203,6 +203,9 @@ const Cursos = () => {
   const [newGroup, setNewGroup] = useState({
     group_name: "",
     schedule: "",
+    start_date: "",
+    end_date: "",
+    state: true,
     group_teacher: null,
   });
 
@@ -230,6 +233,7 @@ const Cursos = () => {
       level_duration: 0,
       group_name: "",
       schedule: "",
+      start_date: "", end_date: "",
       group_teacher: null,
     });
   };
@@ -244,6 +248,7 @@ const Cursos = () => {
       level_modality: "In_person",
       level_duration: 0,
       group_name: "",
+      start_date: "", end_date: "",
       schedule: "",
       group_teacher: null,
     });
@@ -277,6 +282,9 @@ const Cursos = () => {
           schedule: newLevelGroup.schedule,
           level_id: { level_id: createdLevel.level_id },
           group_teacher: { personId: parseInt(newLevelGroup.group_teacher.personId) },
+          start_date: newLevelGroup.start_date,
+          end_date: newLevelGroup.end_date,
+          state: true,
         },
         keycloak.token
       );
@@ -701,6 +709,7 @@ const Cursos = () => {
             group_name: "",
             schedule: "",
             group_teacher: null,
+            start_date: "", end_date: "", state: true,
           });
         };
 
@@ -710,6 +719,7 @@ const Cursos = () => {
             group_name: "",
             schedule: "",
             group_teacher: null,
+            start_date: "", end_date: "", state: true
           });
         };
 
@@ -1122,6 +1132,19 @@ const Cursos = () => {
                                             ))}
                                           </select>
                                         </div>
+                                        <div className="mb-3">
+                                          <label htmlFor="start_date" className="form-label">
+                                            Fecha de inicio
+                                          </label>
+                                          <input type="date" id="start_date" className="form-control" name="start_date" value={newGroup.start_date?.slice(0, 10) || ""} onChange={handleNewGroupChange} />
+                                        </div>
+
+                                        <div className="mb-3">
+                                          <label htmlFor="end_date" className="form-label">
+                                            Fecha de finalización
+                                          </label>
+                                          <input type="date" id="end_date" className="form-control" name="end_date" value={newGroup.end_date?.slice(0, 10) || ""} onChange={handleNewGroupChange} />
+                                        </div>
                                       </div>
                                     </div>
                                   ) : (
@@ -1161,6 +1184,35 @@ const Cursos = () => {
                             <label className="form-label">Descripción del Nivel</label>
                             <textarea className="form-control" rows="2" name="level_description" value={newLevelGroup.level_description} onChange={handleNewLevelGroupChange} />
                           </div>
+                          <div className="mb-3">
+                            <label htmlFor="level_cost" className="form-label small text-muted">
+                              Costo del nivel
+                            </label>
+                            <input type="number" id="level_cost" className="form-control" name="level_cost" value={newLevelGroup.level_cost} onChange={handleNewLevelGroupChange} />
+                          </div>
+
+                          <div className="mb-3">
+                            <label htmlFor="material_cost" className="form-label small text-muted">
+                              Costo del material
+                            </label>
+                            <input type="number" id="material_cost" className="form-control" name="material_cost" value={newLevelGroup.material_cost} onChange={handleNewLevelGroupChange} />
+                          </div>
+
+                          <div className="mb-3">
+                            <label htmlFor="level_modality" className="form-label small text-muted">
+                              Modalidad
+                            </label>
+                            <select id="level_modality" className="form-select" name="level_modality" value={newLevelGroup.level_modality} onChange={handleNewLevelGroupChange}>
+                              <option value="In_person">Presencial</option>
+                              <option value="virtual">Virtual</option>
+                            </select>
+                          </div>
+                          <div className="mb-3">
+                            <label htmlFor="level_duration" className="form-label small text-muted">
+                              Duración del nivel
+                            </label>
+                            <input type="number" id="level_duration" className="form-control" name="level_duration" value={newLevelGroup.level_duration} onChange={handleNewLevelGroupChange} />
+                          </div>
                           <h6>Grupo Inicial</h6>
                           <div className="mb-3">
                             <label className="form-label">Nombre del Grupo</label>
@@ -1190,6 +1242,19 @@ const Cursos = () => {
                                 </option>
                               ))}
                             </select>
+                          </div>
+                          <div className="mb-3">
+                            <label htmlFor="start_date" className="form-label">
+                              Fecha de inicio
+                            </label>
+                            <input type="date" id="start_date" className="form-control" name="start_date" value={newLevelGroup.start_date?.slice(0, 10) || ""} onChange={handleNewLevelGroupChange} />
+                          </div>
+
+                          <div className="mb-3">
+                            <label htmlFor="end_date" className="form-label">
+                              Fecha de finalización
+                            </label>
+                            <input type="date" id="end_date" className="form-control" name="end_date" value={newLevelGroup.end_date?.slice(0, 10) || ""} onChange={handleNewLevelGroupChange} />
                           </div>
                         </div>
                       </div>
