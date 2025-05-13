@@ -33,7 +33,7 @@ const StudentGroupsTable = () => {
   const shouldShowAbilitiesOption = (endDate, calification) =>
     new Date(endDate) < new Date() && calification >= 3.0;
 
-  const API_HOST = process.env.REACT_APP_API_HOST || "http://localhost:8080"; //https://certigestdev.click
+  const API_HOST = process.env.REACT_APP_API_HOST || "https://certigestdev.click"; 
 
   const openPdf = async (response, code) => {
     if (!response.ok) throw new Error('Error al generar certificado');
