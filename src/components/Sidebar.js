@@ -27,7 +27,7 @@ function Sidebar({ isOpen, onClose, onToggleSidebar }) {
           <Link className="sidebar-btn" to="/cuenta" onClick={handleLinkClick}>Cuenta</Link>
           <Link className="sidebar-btn" to="/usuarios" onClick={handleLinkClick}>Usuarios</Link>
           <Link className="sidebar-btn" to="/cursos" onClick={handleLinkClick}>Cursos</Link>
-          <Link className="sidebar-btn" to="/certificados" onClick={handleLinkClick}>Certificados</Link>
+          <Link className="sidebar-btn" to="/certificados-admin" onClick={handleLinkClick}>Certificados</Link>
           <Link className="sidebar-btn" to="/inscripcion" onClick={handleLinkClick}>Inscripción</Link>
           <Link className="sidebar-btn" to="/reportes" onClick={handleLinkClick}>Reportes</Link>
         </div>

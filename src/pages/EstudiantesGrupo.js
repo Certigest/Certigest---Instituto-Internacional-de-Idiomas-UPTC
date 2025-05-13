@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
 import { getStudentsByGroupId, removeStudentFromGroup } from '../services/CourseService';
+import Dropdown from 'react-bootstrap/Dropdown';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 export default function GroupStudents() {
   const { courseId, levelId, groupId } = useParams();
@@ -10,6 +12,7 @@ export default function GroupStudents() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -37,6 +40,59 @@ export default function GroupStudents() {
     } catch (err) {
       setErrorMessage('Error al eliminar el estudiante');
       console.error('Error al eliminar el estudiante:', err);
+    }
+  };
+
+  const shouldShowNotesOption = (endDate, calification) => {
+    return new Date(endDate) < new Date() && calification >= 3.0;
+  };
+  const shouldShowAbilitiesOption = (endDate, calification) =>
+    new Date(endDate) < new Date() && calification >= 3.0;
+  
+  const API_HOST = process.env.REACT_APP_API_HOST || "http://localhost:8080";
+
+  const openPdf = async (response, code) => {
+    if (!response.ok) throw new Error('Error al generar certificado');
+    const url = `${API_HOST}/certificate/validateCertificate/${code}`;
+    window.open(url, '_blank');
+  };
+
+  const handleLevelCertificate = async (level_id, type) => {
+    const payload = { levelId: level_id, certificateType: type };
+    try {
+      const response = await fetch(`${API_HOST}/certificate/generateLevelCertificate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${keycloak.token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      const { code } = await response.json();
+      openPdf(response, code);
+    } catch (err) {
+      console.error(err);
+      alert('No se pudo generar el certificado de nivel.');
+    }
+  };
+
+  const handleAllLevelsCertificate = async (courseId) => {
+    const payload = { courseId };
+    try {
+      const response = await fetch(`${API_HOST}/certificate/generateAllLevelsCertificate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${keycloak.token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const { code } = await response.json();
+      openPdf(response, code); 
+    } catch (err) {
+      console.error(err);
+      alert('No se pudo generar el certificado de curso completo.');
     }
   };
 
@@ -74,24 +130,53 @@ export default function GroupStudents() {
               <th>Documento</th>
               <th>Email</th>
               <th>Acción</th>
+              <th>Certificado</th>
             </tr>
           </thead>
           <tbody>
-            {students.map((student) => (
-              <tr key={student.studentId}>
-                <td>{student.firstName} {student.lastName}</td>
-                <td>{student.document}</td>
-                <td>{student.email}</td>
-                <td>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleRemoveStudent(student.studentId)}
-                  >
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {students.map((student) => {
+              const { end_date, calification } = student; // asegúrate de que vengan estas props
+              return (
+                <tr key={student.studentId}>
+                  <td>{student.firstName} {student.lastName}</td>
+                  <td>{student.document}</td>
+                  <td>{student.email}</td>
+                  <td>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleRemoveStudent(student.studentId)}
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                  <td>
+                    <Dropdown as={ButtonGroup}>
+                      <Dropdown.Toggle variant="primary" id={`dropdown-${student.studentId}`}>
+                        Seleccione un Tipo
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu>
+                        <Dropdown.Item onClick={() => handleLevelCertificate(levelId, 'BASIC')}>
+                          Básico
+                        </Dropdown.Item>
+                        {shouldShowNotesOption(end_date, calification) && (
+                          <Dropdown.Item onClick={() => handleLevelCertificate(levelId, 'NOTES')}>
+                            Notas
+                          </Dropdown.Item>
+                        )}
+                        {shouldShowAbilitiesOption(end_date, calification) && (
+                          <Dropdown.Item onClick={() => handleLevelCertificate(levelId, 'ABILITIES')}>
+                            Habilidades
+                          </Dropdown.Item>
+                        )}
+                        <Dropdown.Item onClick={() => handleAllLevelsCertificate(courseId)}>
+                          Curso Completo
+                        </Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

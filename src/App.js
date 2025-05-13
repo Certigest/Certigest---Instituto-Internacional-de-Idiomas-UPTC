@@ -13,7 +13,6 @@ import ResponsiveNavbar from './components/ResponsiveNavbar';
 import Home from './pages/Home';
 import Usuarios from './pages/Usuarios';
 import Cursos from './pages/Cursos';
-import Certificados from './pages/Certificados';
 import Inscripcion from './pages/Inscripcion';
 import Reportes from './pages/Reportes';
 import Cuenta from './pages/Cuenta';
@@ -31,6 +30,7 @@ import PublicHomePage from './pages/PublicHomePage';
 import PublicValidatePage from './pages/PublicValidatePage';
 import ViewStudentCertificates from './pages/ViewStudentCertificates';
 import ExcelUploader from './pages/InscripcionArchivo';
+import AdministratorCertificateView from './pages/AdministratorCertificateView';
 
 
 import './styles/global.css';
@@ -88,7 +88,7 @@ function LayoutWithRoles() {
                 <Route path="/cursos" element={<Cursos />} />
                 <Route path="/niveles-curso/:id" element={<LevelList />} />
                 <Route path="/grupos-nivel/:courseId/:levelId" element={<GroupListLevel />} />
-                <Route path="/certificados" element={<Certificados />} />
+                <Route path="/certificados-admin" element={<AdministratorCertificateView />} />
                 <Route path="/inscripcion" element={<Inscripcion />} />
                 <Route path="/grupo-estudiantes/:courseId/:levelId/:groupId" element={<GroupStudents />} />
                 <Route path="/inscribir/:courseId/:levelId/:groupId" element={<EnrollStudents />} />
