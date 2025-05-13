@@ -9,13 +9,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.swing.GroupLayout;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import com.uptc.idiomas.certigest.dto.GroupInstDTO;
+import com.uptc.idiomas.certigest.dto.GroupPersonDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
 import com.uptc.idiomas.certigest.dto.PersonEnrollInfo;
 import com.uptc.idiomas.certigest.entity.Course;
@@ -25,7 +24,7 @@ import com.uptc.idiomas.certigest.entity.GroupPersonId;
 import com.uptc.idiomas.certigest.entity.Level;
 import com.uptc.idiomas.certigest.entity.Person;
 import com.uptc.idiomas.certigest.mapper.GroupInstMapper;
-import com.uptc.idiomas.certigest.mapper.PersonMapper;
+import com.uptc.idiomas.certigest.mapper.GroupPersonMapper;
 import com.uptc.idiomas.certigest.repo.CourseRepo;
 import com.uptc.idiomas.certigest.repo.GroupInstRepo;
 import com.uptc.idiomas.certigest.repo.GroupPersonRepo;
@@ -125,11 +124,11 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
         return groupTeacherList;
     }
 
-    public List<GroupInstDTO> getGroupsByStudentUsername(String username) {
+    public List<GroupPersonDTO> getGroupsByStudentUsername(String username) {
         Person student = personService.getPersonByUserName(username);
-        List<GroupInst> groups = groupPersonRepo.findGroupsByStudentId(student.getPersonId());
+        List<GroupPerson> groups = groupPersonRepo.findGroupsByStudentId(student.getPersonId());
         return groups.stream()
-                .map(group -> GroupInstMapper.INSTANCE.mapGroupInstToGroupInstDTO(group))
+                .map(group -> GroupPersonMapper.INSTANCE.mapGroupPersonToGroupPersonDTO(group))
                 .collect(Collectors.toList());
     }
 
@@ -221,6 +220,29 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
         groupPerson.setLevel_duration(weeks + " semanas");
 
         groupPersonRepo.save(groupPerson);
+    }
+
+    public GroupPerson getGroupByPersonAndLevel(Integer personId, Integer levelId) {
+        List<GroupInst> allGroups = groupRepo.findAll();
+        for (GroupInst group : allGroups) {
+            if (group.getLevel_id().getLevel_id().equals(levelId)) {
+                GroupPersonId groupPersonId = new GroupPersonId(personId, group.getGroup_id());
+                Optional<GroupPerson> groupPersonOptional = groupPersonRepo.findById(groupPersonId);
+                if (groupPersonOptional.isPresent()) {
+                    return groupPersonOptional.get();
+                }
+            }
+        }
+        throw new EntityNotFoundException("No se encontro inscrito al estudiante en ningun grupo para ese nivel");
+    }
+
+    public List<GroupPerson> getGroupByPerson(Integer personId) {
+        List<GroupPerson> groupPersonList = new ArrayList<>();
+        for (GroupPerson gp : groupPersonRepo.findAll()) {
+            if (gp.getPerson_id().getPersonId().equals(personId))
+                groupPersonList.add(gp);
+        } 
+        return groupPersonList;
     }
 
     public boolean hasPersonSeenLevel(Integer personId, Integer levelId) {

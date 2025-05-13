@@ -61,6 +61,13 @@ public class LevelService extends BasicServiceImpl<LevelDTO, Level, Integer> {
                 .collect(Collectors.toList());
     }
 
+    public Level findByLevelId(Integer levelId) {
+        Optional<Level> levelOpt = levelRepo.findById(levelId);
+        if (levelOpt.isPresent())
+            return levelOpt.get();
+        else
+            throw new EntityNotFoundException("Nivel no encontrado con ID: " + levelId);
+    }
     public Optional<Level> findByLevelNameAndCourseName(String level_name, Integer course_id) {
         return levelRepo.findByLevelNameAndCourseId(level_name, course_id);
     }
