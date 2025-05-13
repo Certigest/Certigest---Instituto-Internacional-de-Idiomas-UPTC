@@ -148,7 +148,7 @@ public class GroupServiceTest {
         when(groupPersonRepo.findGroupsByStudentId(7)).thenReturn(Collections.singletonList(gp));
         List<GroupPersonDTO> out = groupService.getGroupsByStudentUsername(user);
         assertEquals(1, out.size());
-        assertEquals(2, out.get(0).getGroup_id());
+        assertEquals(2, out.get(0).getGroup_id().getGroup_id());
     }
 
     @Test
