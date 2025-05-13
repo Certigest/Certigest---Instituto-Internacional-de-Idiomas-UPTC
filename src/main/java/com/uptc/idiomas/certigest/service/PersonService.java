@@ -55,8 +55,8 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     private CertificateLevelRepo certificateLevelRepo;
     @Autowired
     private CertificateCodeRepo certificateCodeRepo;
-    // @Autowired
-    // private EmailService emailService;
+    @Autowired
+    private EmailService emailService;
 
     @Override
     protected JpaRepository<Person, Integer> getRepo() {
@@ -131,10 +131,10 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
                 personDTO.getDocument(), // El documento de la persona es la contraseña
                 rolesSeleccionados);
 
-        // String email = personDTO.getEmail();
-        // String username = finalUsername;
-        // String password = personDTO.getDocument();
-        // emailService.sendCredentialsEmail(email, username, password);
+        String email = personDTO.getEmail();
+        String username = finalUsername;
+        String password = personDTO.getDocument();
+        emailService.sendCredentialsEmail(email, username, password);
         // Devolvemos el DTO de la persona recién creada
         return PersonMapper.INSTANCE.mapPersonToPersonDTO(personSaved);
     }
