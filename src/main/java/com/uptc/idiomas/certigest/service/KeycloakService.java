@@ -14,26 +14,45 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Servicio para interactuar con el servidor de Keycloak.
+ * Permite crear y eliminar usuarios, así como asignarles roles.
+ */
 @Service
 public class KeycloakService {
 
     private final Keycloak keycloak;
     private final String realm;
 
+    /**
+     * Constructor para inicializar el cliente de Keycloak con credenciales administrativas.
+     *
+     * @param serverUrl URL del servidor Keycloak.
+     * @param realm     Realm donde se gestionan los usuarios.
+     * @param clientId  ID del cliente (no se usa directamente, requerido para compatibilidad con configuración).
+     */
     public KeycloakService(
             @Value("${keycloak.auth-url}") String serverUrl,
             @Value("${keycloak.realm}") String realm,
             @Value("${keycloak.resource}") String clientId) {
         this.keycloak = KeycloakBuilder.builder()
                 .serverUrl(serverUrl)
-                .realm("master") // Usamos "master" para autenticación admin
-                .username("admin") // admin de keycloak
-                .password("admin123") // contraseña
+                .realm("master") // Se usa el realm master para autenticación de administrador
+                .username("admin") // Usuario administrador
+                .password("admin123") // Contraseña del administrador
                 .clientId("admin-cli")
                 .build();
         this.realm = realm;
     }
 
+    /**
+     * Crea un nuevo usuario en Keycloak con roles especificados.
+     *
+     * @param username Nombre de usuario.
+     * @param email    Correo electrónico del usuario.
+     * @param password Contraseña del usuario.
+     * @param roles    Lista de nombres de roles a asignar.
+     */
     public void createUser(String username, String email, String password, List<String> roles) {
         UserRepresentation user = new UserRepresentation();
         user.setEnabled(true);
@@ -55,7 +74,6 @@ public class KeycloakService {
 
         String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
 
-        // Asignar roles del realm
         RoleMappingResource rolesResource = keycloak.realm(realm).users().get(userId).roles();
         List<RoleRepresentation> realmRoles = keycloak.realm(realm).roles().list();
 
@@ -66,6 +84,11 @@ public class KeycloakService {
         rolesResource.realmLevel().add(rolesToAssign);
     }
 
+    /**
+     * Elimina un usuario en Keycloak por su nombre de usuario.
+     *
+     * @param username Nombre de usuario a eliminar.
+     */
     public void deleteUserByUsername(String username) {
         List<UserRepresentation> users = keycloak.realm(realm)
                 .users()

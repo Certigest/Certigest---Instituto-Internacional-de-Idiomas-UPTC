@@ -10,12 +10,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+/**
+ * Servicio para el envío de correos electrónicos relacionados con credenciales de acceso.
+ */
 @Service
 public class EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
 
+    /**
+     * Envía un correo electrónico al usuario con su nombre de usuario y contraseña.
+     * 
+     * @param email    la dirección de correo electrónico del destinatario.
+     * @param username el nombre de usuario asignado.
+     * @param password la contraseña generada.
+     * @throws RuntimeException si ocurre un error durante el envío del correo.
+     */
     public void sendCredentialsEmail(String email, String username, String password) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -35,7 +46,6 @@ public class EmailService {
             mailSender.send(message);
 
         } catch (MessagingException e) {
-            
             throw new RuntimeException("Error al enviar correo a: " + email, e);
         }
     }

@@ -15,13 +15,21 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * Servicio para interactuar con la API de administración de Keycloak.
+ * Proporciona métodos para obtener tokens, buscar usuarios y restablecer contraseñas.
+ */
 @Service
 public class CredentialsKeycloakService {
 
-
     @Value("${keycloak.auth-url}")
     private String keycloakAuthUrl;
-    
+
+    /**
+     * Obtiene un token de acceso de administrador desde Keycloak usando las credenciales del usuario admin.
+     *
+     * @return el token de acceso como cadena.
+     */
     public String obtainAdminAccessToken() {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -34,11 +42,23 @@ public class CredentialsKeycloakService {
         body.add("grant_type", "password");
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
-        ResponseEntity<Map> response = restTemplate.postForEntity(keycloakAuthUrl + "/realms/master/protocol/openid-connect/token", request, Map.class);
+        ResponseEntity<Map> response = restTemplate.postForEntity(
+                keycloakAuthUrl + "/realms/master/protocol/openid-connect/token", 
+                request, 
+                Map.class
+        );
 
         return (String) response.getBody().get("access_token");
     }
 
+    /**
+     * Obtiene el ID de usuario en Keycloak a partir del nombre de usuario.
+     *
+     * @param username nombre de usuario a buscar.
+     * @param accessToken token de acceso con permisos de administrador.
+     * @return el ID del usuario en Keycloak.
+     * @throws RuntimeException si el usuario no es encontrado.
+     */
     public String getUserIdByUsername(String username, String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -46,10 +66,11 @@ public class CredentialsKeycloakService {
         HttpEntity<Void> request = new HttpEntity<>(headers);
         
         ResponseEntity<List> response = restTemplate.exchange(
-                keycloakAuthUrl +"/admin/realms/inst_idiomas_realm/users?username=" + username,
+                keycloakAuthUrl + "/admin/realms/inst_idiomas_realm/users?username=" + username,
                 HttpMethod.GET,
                 request,
-                List.class);
+                List.class
+        );
         
         if (response.getBody() != null && !response.getBody().isEmpty()) {
             Map<String, Object> userData = (Map<String, Object>) response.getBody().get(0);
@@ -59,6 +80,13 @@ public class CredentialsKeycloakService {
         }
     }
 
+    /**
+     * Restablece la contraseña de un usuario en Keycloak.
+     *
+     * @param userId ID del usuario cuyo password se desea restablecer.
+     * @param newPassword nueva contraseña a establecer.
+     * @param accessToken token de acceso con permisos de administrador.
+     */
     public void resetPassword(String userId, String newPassword, String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -72,6 +100,9 @@ public class CredentialsKeycloakService {
         
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(passwordPayload, headers);
         
-        restTemplate.put(keycloakAuthUrl +"/admin/realms/inst_idiomas_realm/users/" + userId + "/reset-password", request);
+        restTemplate.put(
+                keycloakAuthUrl + "/admin/realms/inst_idiomas_realm/users/" + userId + "/reset-password", 
+                request
+        );
     }
 }
