@@ -32,6 +32,9 @@ export default function Cuenta() {
     return <div>Cargando...</div>;
   }
 
+  // Extraemos el nombre del rol, si existe
+  const roleNames = accountInfo.roles?.map(role => role.name).join(', ') || 'No asignado';
+
   return (
     <div className="container mt-4">
       <h2 className="mb-4 fw-bold">Información Personal</h2>
@@ -62,7 +65,7 @@ export default function Cuenta() {
                 {accountInfo.status ? 'Activo' : 'Inactivo'}
               </span>
             </div>
-            <div className="col-md-6 mb-2"><strong>Cargo:</strong> {accountInfo.role}</div>
+            <div className="col-md-6 mb-2"><strong>Cargo:</strong> {roleNames}</div>
           </div>
         </div>
       </div>

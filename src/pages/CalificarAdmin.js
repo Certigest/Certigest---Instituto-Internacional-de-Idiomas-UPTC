@@ -4,8 +4,8 @@ import { getStudentsByGroupId, sendCalifications } from '../services/CourseServi
 import ModalConfirm from '../components/ModalConfirm';
 import { useNavigate, useParams } from 'react-router-dom';
 
-export default function RateGroup() {
-  const { id } = useParams();
+export default function GroupStudentsRate() {
+  const { courseId, levelId, groupId } = useParams();
   const { keycloak } = useKeycloak();
   const [students, setStudents] = useState([]);
   const [califications, setCalifications] = useState([]);
@@ -32,7 +32,7 @@ export default function RateGroup() {
     const fetchStudents = async () => {
       if (keycloak?.authenticated) {
         try {
-          const data = await getStudentsByGroupId(id, keycloak.token);
+          const data = await getStudentsByGroupId(groupId, keycloak.token);
           setStudents(data);
           setCalifications(
             data.map((student) => ({
@@ -49,7 +49,7 @@ export default function RateGroup() {
     };
 
     fetchStudents();
-  }, [id, keycloak]);
+  }, [courseId, levelId, groupId, keycloak]);
 
   const handleInputChange = (index, value) => {
     const updated = [...califications];
@@ -65,7 +65,7 @@ export default function RateGroup() {
     }
 
     try {
-      await sendCalifications(id, keycloak.token, califications);
+      await sendCalifications(groupId, keycloak.token, califications);
       setSuccessMessage('Calificaciones enviadas correctamente');
       setErrorMessage('');
     } catch (err) {
@@ -76,6 +76,25 @@ export default function RateGroup() {
 
   return (
     <div className="container mt-4">
+      <div className="mb-4">
+        <ul className="nav nav-tabs">
+          <li className="nav-item">
+            <button className="nav-link" onClick={() => navigate('/inscripcion')}>
+              Inscripción
+            </button>
+          </li>
+          <li className="nav-item">
+            <button className="nav-link" onClick={() => navigate(`/niveles-curso/${courseId}`)}>
+              Niveles
+            </button>
+          </li>
+          <li className="nav-item">
+            <button className="nav-link" onClick={() => navigate(`/grupos-nivel/${courseId}/${levelId}`)}>
+              Grupos
+            </button>
+          </li>
+        </ul>
+      </div>
       <h2 className="fw-bold mb-4">Calificar Estudiantes - Grupo</h2>
 
       {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
@@ -131,7 +150,7 @@ export default function RateGroup() {
       </div>
 
       <div className="text-end">
-        <button className="btn btn-secondary me-2" onClick={() => navigate('/grupos-profesor')}>
+        <button className="btn btn-secondary me-2" onClick={() => navigate(`/grupos-nivel/${courseId}/${levelId}`)}>
             Regresar
         </button>
         <button className="btn btn-warning fw-bold shadow" onClick={() => openConfirmModal(() => handleSubmit(), "¿Está seguro de que desea enviar las calificaciones?")}>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
 import { getStudentsByGroupId, removeStudentFromGroup } from '../services/CourseService';
+import ModalConfirm from '../components/ModalConfirm';
 import Dropdown from 'react-bootstrap/Dropdown';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
@@ -12,7 +13,20 @@ export default function GroupStudents() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
-  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(() => () => {});
+  const [modalMessage, setModalMessage] = useState("");
+
+  const openConfirmModal = (action, message) => {
+    setConfirmAction(() => action);
+    setModalMessage(message);
+    setIsModalOpen(true);
+  };
+
+  const closeConfirmModal = () => {
+    setIsModalOpen(false);
+    setConfirmAction(() => () => {});
+  };
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -144,7 +158,7 @@ export default function GroupStudents() {
                   <td>
                     <button
                       className="btn btn-danger btn-sm"
-                      onClick={() => handleRemoveStudent(student.studentId)}
+                      onClick={() => openConfirmModal(() => handleRemoveStudent(student.studentId), "¿Está seguro que desea quitar este estudiante del grupo?")}
                     >
                       Eliminar
                     </button>
@@ -180,6 +194,16 @@ export default function GroupStudents() {
           </tbody>
         </table>
       </div>
+      {isModalOpen && (
+        <ModalConfirm
+          message={modalMessage}
+          onConfirm={() => {
+            confirmAction();
+            closeConfirmModal();
+          }}
+          onCancel={closeConfirmModal}
+        />
+      )}
     </div>
   );
 }
