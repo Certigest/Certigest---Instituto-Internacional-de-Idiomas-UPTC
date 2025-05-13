@@ -15,7 +15,7 @@ import com.uptc.idiomas.certigest.service.LocationService;
 
 @RestController
 @RequestMapping("/api/locations")
-@CrossOrigin(origins = "*")
+
 public class LocationController {
 
     @Autowired
