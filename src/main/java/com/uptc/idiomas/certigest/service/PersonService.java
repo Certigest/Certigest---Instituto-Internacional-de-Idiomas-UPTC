@@ -150,7 +150,9 @@ public class PersonService extends BasicServiceImpl<PersonDTO, Person, Integer> 
     existingPerson.setEmail(personDTO.getEmail());
     existingPerson.setPhone(personDTO.getPhone());
     existingPerson.setBirthDate(personDTO.getBirthDate());
-    existingPerson.setDocument(personDTO.getDocumentType());
+    existingPerson.setDocument(personDTO.getDocument());
+    Person.DocumentType documentType = Person.DocumentType.valueOf(personDTO.getDocumentType().toUpperCase());
+    existingPerson.setDocumentType(documentType);
     existingPerson.setStatus(personDTO.getStatus());
 
     // Actualizar ubicación si se incluye
