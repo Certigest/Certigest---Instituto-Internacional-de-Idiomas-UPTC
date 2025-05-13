@@ -32,9 +32,9 @@ spring:
           starttls:
             enable: true
 
-app:
-  cors:
-    allowed-origin: https://certigestdev.click
+# app:
+#   cors:
+#     allowed-origin: https://certigestdev.click
 
 keycloak:
   auth-url: https://auth.certigestdev.click:8443
