@@ -128,11 +128,11 @@ public class CertificateControllerTest {
         when(certificateService.validateCertificatePdf(certificateId)).thenReturn(pdfContent);
         
         
-        ResponseEntity<byte[]> response = certificateController.validateCertificate(certificateId);
+        ResponseEntity<?> response = certificateController.validateCertificate(certificateId);
         
         
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_PDF, response.getHeaders().getContentType());
-        assertArrayEquals(pdfContent, response.getBody());
+        assertArrayEquals(pdfContent, (byte[]) response.getBody());
     }
 }

@@ -13,10 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import com.uptc.idiomas.certigest.dto.CertificateHistoryDTO;
 import com.uptc.idiomas.certigest.dto.GroupInstDTO;
 import com.uptc.idiomas.certigest.dto.GroupPersonDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
 import com.uptc.idiomas.certigest.dto.PersonEnrollInfo;
+import com.uptc.idiomas.certigest.entity.Certificate;
 import com.uptc.idiomas.certigest.entity.Course;
 import com.uptc.idiomas.certigest.entity.GroupInst;
 import com.uptc.idiomas.certigest.entity.GroupPerson;
@@ -352,5 +354,12 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
             student.setDescription("Error en inscripción: " + e.getMessage());
             return student;
         }
+    }
+
+    public List<GroupPersonDTO> getGroupsByStudentByPersonId(Integer personId) {
+        List<GroupPerson> groups = groupPersonRepo.findGroupsByStudentId(personId);
+        return groups.stream()
+                .map(group -> GroupPersonMapper.INSTANCE.mapGroupPersonToGroupPersonDTO(group))
+                .collect(Collectors.toList());
     }
 }

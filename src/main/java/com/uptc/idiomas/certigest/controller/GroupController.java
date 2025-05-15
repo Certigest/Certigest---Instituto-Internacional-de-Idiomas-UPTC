@@ -214,4 +214,9 @@ public class GroupController {
                     .body(Map.of("error", "Error al inscribir a los estudiantes."));
         }
     }
+
+    @GetMapping("/groupsByPerson/{personId}")
+    public ResponseEntity<List<GroupPersonDTO>> getGroupsByPerson(@PathVariable Integer personId) {
+        return ResponseEntity.ok(groupService.getGroupsByStudentByPersonId(personId));
+    }
 }
