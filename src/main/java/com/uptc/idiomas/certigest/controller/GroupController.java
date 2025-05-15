@@ -49,7 +49,7 @@ public class GroupController {
      *         (OK) o 404 (NOT FOUND) si no se encuentra el grupo.
      */
     @GetMapping("/teacher")
-    public ResponseEntity<List<GroupInstDTO>> getMethodName(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<List<GroupInstDTO>> getGroupsByTeacher(@AuthenticationPrincipal Jwt jwt) {
         String username = jwt.getClaim("preferred_username");
         return new ResponseEntity<>(groupService.getGroupsByTeacher(username), HttpStatus.OK);
     }

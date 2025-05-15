@@ -2,6 +2,7 @@ package com.uptc.idiomas.certigest.repo;
 
 import com.uptc.idiomas.certigest.entity.Course;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,4 +15,7 @@ import org.springframework.stereotype.Repository;
 public interface CourseRepo extends JpaRepository<Course, Integer> {
     @Query("SELECT c FROM Course c WHERE c.course_name = :courseName")
     Optional<Course> findByCourse_name(@Param("courseName") String courseName);
+
+    @Query("SELECT c FROM Course c WHERE c.state = true")
+    List<Course> getAllActiveCourse();
 }

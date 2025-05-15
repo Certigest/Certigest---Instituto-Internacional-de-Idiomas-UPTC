@@ -18,11 +18,27 @@ public interface PersonRepo extends JpaRepository<Person, Integer> {
     boolean existsByDocument(String document);
     boolean existsByEmail(String email);
     @Query("""
-    SELECT p FROM Person p
-    JOIN PersonRole pr ON pr.person.id = p.id
-    JOIN Role r ON pr.role.id = r.id
-    LEFT JOIN GroupPerson gp ON gp.person_id = p AND gp.group_id.level_id.id = :levelId
-    WHERE r.name = 'STUDENT' AND p.status = true AND (gp.person_id IS NULL OR gp.calification < 3.0)
+        SELECT p FROM Person p
+        JOIN PersonRole pr ON pr.person.id = p.id
+        JOIN Role r ON pr.role.id = r.id
+        WHERE r.name = 'STUDENT' 
+          AND p.status = true 
+          AND (
+            NOT EXISTS (
+              SELECT gp FROM GroupPerson gp
+              WHERE gp.person_id = p
+                AND gp.group_id.level_id.level_id = :levelId
+            )
+            OR EXISTS (
+              SELECT gp FROM GroupPerson gp
+              WHERE gp.person_id = p
+                AND gp.group_id.level_id.level_id = :levelId
+                AND gp.calification < 3.0
+                AND gp.end_date < CURRENT_DATE
+            )
+          )
     """)
-    List<Person> findStudentsWhoHaveNotTakenLevelOrFailed(@Param("levelId") Integer levelId);   
+    List<Person> findStudentsWhoHaveNotTakenLevelOrFailed(@Param("levelId") Integer levelId);
+
+
 }

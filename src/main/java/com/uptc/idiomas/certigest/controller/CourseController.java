@@ -66,6 +66,11 @@ public class CourseController {
         return ResponseEntity.ok(courseService.findAll());
     }
 
+    @GetMapping("/allActive")
+    public ResponseEntity<List<CourseDTO>> getAllActiveCourses() {
+        return ResponseEntity.ok(courseService.getAllActiveCourses());
+    }
+
     /**
      * Actualiza un curso existente.
      *
