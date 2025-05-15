@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,7 +29,6 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.properties.TextAlignment;
-
 import com.uptc.idiomas.certigest.dto.CertificateDTO;
 import com.uptc.idiomas.certigest.dto.CertificateHistoryDTO;
 import com.uptc.idiomas.certigest.entity.Certificate;
@@ -83,6 +83,8 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
         GroupPerson gp = groupService.getGroupByPersonAndLevel(person.getPersonId(), level.getLevel_id());
         LocalDate end = gp.getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
+        validateLevelCertificate(person, certificateType, end, level, gp);
+
         String code;
         if (certificateType.equalsIgnoreCase("ABILITIES")) {
             code = normalizeText("CERT_" + certificateType.toUpperCase() + "_" + person.getDocument()
@@ -98,16 +100,70 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
         return code;
     }
 
+    public String generateLevelCertificateCodeAdmin(String personDocument, String certificateType, Integer levelId) {
+        Person person = personService.getPersonByDocument(personDocument);
+        Level level = levelService.findByLevelId(levelId);
+        GroupPerson gp = groupService.getGroupByPersonAndLevel(person.getPersonId(), level.getLevel_id());
+        LocalDate end = gp.getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        validateLevelCertificate(person, certificateType, end, level, gp);
+
+        String code;    
+        if (certificateType.equalsIgnoreCase("ABILITIES")) {
+            code = normalizeText("CERT_" + certificateType.toUpperCase() + "_" + person.getDocument()
+                    + "_" + level.getId_course().getCourse_name().replaceAll("\\s+", "")
+                    + "_" + level.getLevel_name().replaceAll("\\s+", ""));
+        } else {
+            code = normalizeText(generateCode(end, certificateType, person, level));
+        }
+
+        if (!certificateCodeRepo.existsByCode(code)) {
+            saveLevelCertificateInDB(person, certificateType, level, code);
+        }
+        return code;
+    }
+
+    private void validateLevelCertificate(Person person, String type, LocalDate endDate, Level level, GroupPerson gp) {
+        Float calification = gp.getCalification();
+        String tipo = type.equalsIgnoreCase("abilities") ? "habilidades"
+                : type.equalsIgnoreCase("notes")     ? "notas"
+                : type.equalsIgnoreCase("basic")     ? "básico"
+                : type;
+
+        if (type.equalsIgnoreCase("basic")) {
+            if (!endDate.isAfter(LocalDate.now())) {
+                if (calification == null) {
+                    throw new RuntimeException("No se puede generar el certificado porque no se ha calificado el curso.");
+                } else if (calification < 3.0) {
+                    throw new RuntimeException("No se puede generar el certificado porque no se aprobó el curso.");
+                }
+            }
+        } else if (type.equalsIgnoreCase("notes") || type.equalsIgnoreCase("ABILITIES")) {
+            if (calification == null) {
+                throw new RuntimeException("No se puede generar un certificado de " + tipo + " si el docente no ha subido notas.");
+            } else if (calification < 3.0) {
+                throw new RuntimeException("No se puede generar un certificado de " + tipo + " si no se aprobó el curso.");
+            } else if (endDate.isAfter(LocalDate.now())) {
+                throw new RuntimeException("No se puede generar un certificado de " + tipo + " si no se ha culminado el curso.");
+            }
+        } else if (!type.equalsIgnoreCase("ABILITIES")) {
+            throw new RuntimeException("No se pudo generar el certificado. Ha ocurrido un error con el tipo de certificado.");
+        }
+    }
+
     /** Genera y guarda código de certificado para todos los niveles de un curso */
     public String generateAllLevelsCertificateAndSave(String username, Integer courseId) {
         Person person = personService.getPersonByUserName(username);
         Course course = courseService.toEntity(courseService.findById(courseId));
-        String code = normalizeText("CERT_ALL_LEVEL_" + person.getDocument()
-                + "_" + course.getCourse_name().replaceAll("\\s+", ""));
 
         List<GroupPerson> groupsPerson = groupService.getGroupByPerson(person.getPersonId());
         List<Level> approvedLevels = getApprovebLevels(groupsPerson, course.getCourse_name());
         String output = generateAllLevelsCertificateText(person, course.getCourse_name());
+        String levelsPart = approvedLevels.stream()
+            .map(level -> level.getLevel_name().replaceAll("\\s+", ""))
+            .collect(Collectors.joining("_"));
+        String code = normalizeText("CERT_ALL_LEVEL_" + person.getDocument()
+                + "_" + course.getCourse_name().replaceAll("\\s+", "") + "_" + levelsPart);
 
         if (output.toLowerCase().startsWith("no")) {
             throw new RuntimeException(output);
@@ -118,6 +174,30 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
         }
         return code;
     }
+    
+    public String generateAllLevelsCertificateAndSaveAdmin(String personDocument, Integer courseId) {
+        Person person = personService.getPersonByDocument(personDocument);
+        Course course = courseService.toEntity(courseService.findById(courseId));
+
+        List<GroupPerson> groupsPerson = groupService.getGroupByPerson(person.getPersonId());
+        List<Level> approvedLevels = getApprovebLevels(groupsPerson, course.getCourse_name());
+        String output = generateAllLevelsCertificateText(person, course.getCourse_name());
+        String levelsPart = approvedLevels.stream()
+            .map(level -> level.getLevel_name().replaceAll("\\s+", ""))
+            .collect(Collectors.joining("_"));
+        String code = normalizeText("CERT_ALL_LEVEL_" + person.getDocument()
+                + "_" + course.getCourse_name().replaceAll("\\s+", "") + "_" + levelsPart);
+
+        if (output.toLowerCase().startsWith("no")) {
+            throw new RuntimeException(output);
+        }
+
+        if (!certificateCodeRepo.existsByCode(code)) {
+            saveAllCertificateInDB(person, "ALL_LEVEL", code, approvedLevels);
+        }
+        return code;
+    }
+
     private List<Level> getApprovebLevels(List<GroupPerson> groupsPerson, String courseName) {
         List<Level> approvedLevels = new ArrayList<>();
         for (GroupPerson gp : groupsPerson) {
@@ -126,7 +206,7 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
             if (course.getCourse_name().equalsIgnoreCase(courseName)) {
                 LocalDate endDate = gp.getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                 if (endDate.isBefore(LocalDate.now())) {
-                    if (gp.getCalification() >= 3.0) {
+                    if (gp.getCalification() != null && gp.getCalification() >= 3.0) {
                         approvedLevels.add(level);
                     }
                 }
@@ -198,7 +278,7 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
         Certificate cert = cerCode.getCertificate();
         Person person = cert.getPerson();
         String certType = cert.getCertificateType().name();
-
+        
         List<CertificateLevel> levels = certificateLevelRepo.findByCertificate_CertificateId(cert.getCertificateId());
         if (levels.isEmpty()) {
             throw new RuntimeException("No tiene niveles asociados este certificado");
@@ -278,7 +358,7 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
     }
 
     private String generateCode(LocalDate endDate, String type, Person person, Level level) {
-        String stage = endDate.isAfter(LocalDate.now()) ? "MATRICULA" : "APROBACION";
+        String stage = endDate.isAfter(LocalDate.now()) && type.equals("BASIC") ? "MATRICULA" : "APROBACION";
         return "CERT_" + stage + "_" + type.toUpperCase() + "_" + person.getDocument()
                 + "_" + level.getId_course().getCourse_name().replaceAll("\\s+", "")
                 + "_" + level.getLevel_name().replaceAll("\\s+", "");
@@ -290,7 +370,7 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
     }
 
     private String generateBodyOfNotesCertificate(Level level, GroupPerson gp) {
-        return ", curso y aprobo el nivel del programa en idioma Extranjero "
+        return ", cursó y aprobó el nivel del programa en idioma Extranjero "
                 + level.getId_course().getCourse_name() + " " + level.getLevel_name()
                 + " con una nota de " + gp.getCalification()
                 + " y con una intensidad de " + gp.getLevel_duration() + " horas.";
@@ -298,27 +378,22 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
 
     private String generateLevelCertificateText(Person person, String type, LocalDate endDate,
             Level level, GroupPerson gp) {
+
+        validateLevelCertificate(person, type, endDate, level, gp);
+
         StringBuilder sb = new StringBuilder(generateTitle(person));
+
         if (type.equalsIgnoreCase("basic")) {
             if (endDate.isAfter(LocalDate.now())) {
                 sb.append(", actualmente se encuentra matriculado(a) y esta cursando el idioma Extranjero ");
-            } else if (gp.getCalification() >= 3.0) {
-                sb.append(", curso y aprobo el nivel del programa en idioma Extranjero ");
             } else {
-                return "No se puede generar un certificado si no se aprobó el curso";
+                sb.append(", cursó y aprobó el nivel del programa en idioma Extranjero ");
             }
             sb.append(generateBodyOfBasicCertificate(level, gp));
         } else if (type.equalsIgnoreCase("notes")) {
-            if (gp.getCalification() == null) {
-                return "No se puede generar un certificado de notas si el docente no ha subido notas";
-            } else if (gp.getCalification() < 3.0) {
-                return "No se puede generar un certificado de notas si no se aprobó el curso";
-            } else if (endDate.isAfter(LocalDate.now())) {
-                return "No se puede generar un certificado de notas si no se ha culminado el curso";
-            }
             sb.append(generateBodyOfNotesCertificate(level, gp));
         } else {
-            return "No se pudo generar el certificado. Ha ocurrido un error.";
+            throw new RuntimeException("No se pudo generar el certificado. Ha ocurrido un error con el tipo de certificado.");
         }
         return sb.toString();
     }
@@ -337,15 +412,23 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
         boolean match = false, finished = false, approved = false;
         List<String> levels = new ArrayList<>();
         int hours = 0;
+        int nullCalificationCount = 0;
+
         for (GroupPerson gp : groups) {
             Level lvl = gp.getGroup_id().getLevel_id();
             Course course = lvl.getId_course();
+
             if (course.getCourse_name().equalsIgnoreCase(courseName)) {
                 match = true;
                 LocalDate end = gp.getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
                 if (end.isBefore(LocalDate.now())) {
                     finished = true;
-                    if (gp.getCalification() >= 3.0) {
+
+                    Float calification = gp.getCalification();
+                    if (calification == null) {
+                        nullCalificationCount++;
+                    } else if (calification >= 3.0) {
                         approved = true;
                         levels.add(lvl.getLevel_name());
                         hours += Integer.parseInt(gp.getLevel_duration());
@@ -353,24 +436,35 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
                 }
             }
         }
+
         if (!match) {
-            return "No se generó el certificado, porque el usuario no tiene ningún curso asociado con el nombre proporcionado.";
+            throw new RuntimeException("No se generó el certificado, porque el usuario no tiene ningún curso asociado con el nombre proporcionado.");
         }
+
         if (!finished) {
-            return "No se generó el certificado, porque el usuario no ha finalizado ningún curso asociado.";
+            throw new RuntimeException("No se generó el certificado, porque el usuario no ha finalizado ningún curso asociado.");
         }
+
         if (!approved) {
-            return "No se generó el certificado, porque el usuario debe aprobar al menos un nivel del curso para generar el certificado.";
+            if (nullCalificationCount > 0) {
+                String msg = nullCalificationCount == 1
+                    ? "No se generó el certificado, porque no se ha calificado el curso."
+                    : "No se generó el certificado, porque no se han calificado los cursos.";
+                throw new RuntimeException(msg);
+            } else {
+                throw new RuntimeException("No se generó el certificado, porque el usuario debe aprobar al menos un nivel del curso para generar el certificado.");
+            }
         }
+
         return buildCertificateText(person, courseName, levels, hours);
     }
 
     private String buildCertificateText(Person person, String courseName,
-            List<String> approvedLevels, int hours) {
+        List<String> approvedLevels, int hours) {
         StringBuilder sb = new StringBuilder(generateTitle(person));
         sb.append(", cursó y aprobó el curso de idioma Extranjero ").append(courseName);
         sb.append(approvedLevels.size() > 1 ? " en los niveles " : " en el nivel ")
-          .append(String.join(", ", approvedLevels));
+            .append(String.join(", ", approvedLevels));
         sb.append(" con una intensidad total de ").append(hours).append(" horas.");
         return sb.toString();
     }
@@ -401,7 +495,7 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
             doc.add(new Paragraph("__________________________\nCoordinador Instituto de Idiomas")
                     .setFontSize(10).setTextAlignment(TextAlignment.CENTER));
 
-            String qr = "https://certigestdev.click/certificate/validateCertificate/" + code;
+            String qr = "https://app.certigestdev.click/certificate/validateCertificate/" + code;
             PdfFormXObject qrObj = new BarcodeQRCode(qr).createFormXObject(ColorConstants.BLACK, pdf);
             Image qrImage = new Image(qrObj).scaleAbsolute(80, 80);
             float x = pdf.getDefaultPageSize().getWidth() - 100, y = 40;

@@ -46,17 +46,40 @@ public class CertificateController {
      *         generado.
      */
     @PostMapping("/generateLevelCertificate")
-    public ResponseEntity<Map<String, String>> generateLevelCertificate(@AuthenticationPrincipal Jwt jwt,
-            @RequestBody Map<String, Object> data) {
-        String username = jwt.getClaim("preferred_username");
-        Integer levelId = null;
-        if (data.get("levelId").getClass().equals("string".getClass()))
-            levelId = Integer.parseInt((String) data.get("levelId"));
-        else
-            levelId = ((Number) data.get("levelId")).intValue();
-        String certificateType = (String) data.get("certificateType");
-        String code = certificateService.generateLevelCertificateCode(username, certificateType, levelId);
-        return ResponseEntity.ok(Collections.singletonMap("code", code));
+    public ResponseEntity<Map<String, String>> generateLevelCertificate(@AuthenticationPrincipal Jwt jwt, @RequestBody Map<String, Object> data) {
+        try {
+            String username = jwt.getClaim("preferred_username");
+            Integer levelId = null;
+            if (data.get("levelId").getClass().equals("string".getClass()))
+                levelId = Integer.parseInt((String) data.get("levelId"));
+            else
+                levelId = ((Number) data.get("levelId")).intValue();
+            String certificateType = (String) data.get("certificateType");
+            String code = certificateService.generateLevelCertificateCode(username, certificateType, levelId);
+            return ResponseEntity.ok(Collections.singletonMap("code", code));
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error interno al generar el certificado."));
+        }
+    }
+    @PostMapping("/generateLevelCertificateAdmin")
+    public ResponseEntity<Map<String, String>> generateLevelCertificateAdmin(@RequestBody Map<String, Object> data) {
+        try {
+            String personDocument = (String) data.get("personDocument");
+            Integer levelId = null;
+            if (data.get("levelId").getClass().equals("string".getClass()))
+                levelId = Integer.parseInt((String) data.get("levelId"));
+            else
+                levelId = ((Number) data.get("levelId")).intValue();
+            String certificateType = (String) data.get("certificateType");
+            String code = certificateService.generateLevelCertificateCodeAdmin(personDocument, certificateType, levelId);
+            return ResponseEntity.ok(Collections.singletonMap("code", code));
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error interno al generar el certificado."));
+        }
     }
 
     /**
@@ -69,16 +92,55 @@ public class CertificateController {
      *         generado.
      */
     @PostMapping("/generateAllLevelsCertificate")
-    public ResponseEntity<Map<String, String>> generateAllLevelsCertificate(@AuthenticationPrincipal Jwt jwt,
-            @RequestBody Map<String, Integer> data) {
-        String username = jwt.getClaim("preferred_username");
-        Integer courseId = data.get("courseId");
-        String code = certificateService.generateAllLevelsCertificateAndSave(username, courseId);
-        Map<String, String> response = new HashMap<>();
-        response.put("code", code);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Map<String, String>> generateAllLevelsCertificate(@AuthenticationPrincipal Jwt jwt, @RequestBody Map<String, Integer> data) {
+        try {
+            String username = jwt.getClaim("preferred_username");
+            
+            Object rawCourseId = data.get("courseId");
+            Integer courseId;
+            if (rawCourseId instanceof String) {
+                courseId = Integer.valueOf((String) rawCourseId);
+            } else if (rawCourseId instanceof Number) {
+                courseId = ((Number) rawCourseId).intValue();
+            } else {
+                throw new IllegalArgumentException("courseId inválido: " + rawCourseId);
+            }
+            
+            String code = certificateService.generateAllLevelsCertificateAndSave(username, courseId);
+            Map<String, String> response = new HashMap<>();
+            response.put("code", code);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error interno al generar el certificado."));
+        }
     }
+    @PostMapping("/generateAllLevelsCertificateAdmin")
+    public ResponseEntity<Map<String, String>> generateAllLevelsCertificateAdmin(@RequestBody Map<String, Object> data) {
+        try {
+            String personDocument = (String) data.get("personDocument");
 
+            Object rawCourseId = data.get("courseId");
+            Integer courseId;
+            if (rawCourseId instanceof String) {
+                courseId = Integer.valueOf((String) rawCourseId);
+            } else if (rawCourseId instanceof Number) {
+                courseId = ((Number) rawCourseId).intValue();
+            } else {
+                throw new IllegalArgumentException("courseId inválido: " + rawCourseId);
+            }
+
+            String code = certificateService.generateAllLevelsCertificateAndSaveAdmin(personDocument, courseId);
+            Map<String, String> response = new HashMap<>();
+            response.put("code", code);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error interno al generar el certificado."));
+        }
+    }
     /**
      * Genera un certificado para un curso específico asociado al usuario
      * autenticado.
@@ -113,11 +175,17 @@ public class CertificateController {
      * @return ResponseEntity con el PDF del certificado y encabezados adecuados.
      */
     @GetMapping("/validateCertificate/{id}")
-    public ResponseEntity<byte[]> validateCertificate(@PathVariable String id) {
-        byte[] pdfBytes = certificateService.validateCertificatePdf(id);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDisposition(ContentDisposition.inline().filename("certificado.pdf").build());
-        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+    public ResponseEntity<?> validateCertificate(@PathVariable String id) {
+        try {
+            byte[] pdfBytes = certificateService.validateCertificatePdf(id);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDisposition(ContentDisposition.inline().filename("certificado.pdf").build());
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error interno al generar el certificado."));
+        }
     }
 }
