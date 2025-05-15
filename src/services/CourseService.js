@@ -135,6 +135,14 @@ export async function getStudentsByGroupId(groupId, token) {
   return response.data;
 }
 
+export async function getGroupsByPerson(personId, token) {
+  const response = await axios.get(
+    `${GROUP_URL}/groupsByPerson/${personId}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+}
+
 export async function getGroupsByStudent(token) {
   const response = await axios.get(`${GROUP_URL}/groupsStudent`, {
     headers: {

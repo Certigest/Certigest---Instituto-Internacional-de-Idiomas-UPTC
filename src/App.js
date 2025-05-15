@@ -31,6 +31,7 @@ import PublicValidatePage from './pages/PublicValidatePage';
 import ViewStudentCertificates from './pages/ViewStudentCertificates';
 import ExcelUploader from './pages/InscripcionArchivo';
 import AdministratorCertificateView from './pages/AdministratorCertificateView';
+import GenerarCertificadosAdmin from './pages/GenerarCertificadosAdmin';
 
 import GroupStudentsRate from './pages/CalificarAdmin';
 
@@ -96,6 +97,7 @@ function LayoutWithRoles() {
                 <Route path="/inscribir/:courseId/:levelId/:groupId" element={<EnrollStudents />} />
                 <Route path="/inscripcion-masiva" element={<ExcelUploader />} />
                 <Route path="/calificar-admin/:courseId/:levelId/:groupId" element={<GroupStudentsRate />} />
+                <Route path="/generarCertificadosAdmin" element={<GenerarCertificadosAdmin />} />
               </>
             )}
 

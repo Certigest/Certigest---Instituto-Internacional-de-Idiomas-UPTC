@@ -1,0 +1,6 @@
+/* Danger oscuro para alertas de error */
+.alert-danger.custom-dark {
+    background-color: #3a021f;
+    border-color:  #df3030;
+    color:         #ffcdd2;
+}

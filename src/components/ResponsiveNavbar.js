@@ -84,14 +84,17 @@ function ResponsiveNavbar({ children }) {
             <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/cursos")}>
               Cursos
             </button>
-            <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/certificados-admin")}>
-              Certificados
-            </button>
             <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/inscripcion")}>
               Inscripción
             </button>
             <button className="nav-link sidebar-btn text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/reportes")}>
               Reportes
+            </button>
+            <button className="nav-link sidebar-btn-large text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/certificados-admin")}>
+              Historial Certificados
+            </button>
+            <button className="nav-link sidebar-btn-large text-start btn btn-link" onClick={() => closeOffcanvasAndNavigate("/generarCertificadosAdmin")}>
+              Generar Certificados
             </button>
           </>
         );

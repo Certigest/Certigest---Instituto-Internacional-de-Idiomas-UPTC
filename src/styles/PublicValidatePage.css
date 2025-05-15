@@ -246,3 +246,17 @@
         transform: translateY(0);
     }
 }
+
+/* Tono oscuro para warning */
+.alert-warning.custom-dark {
+  background-color: #3a3000;   /* Ajusta hasta que te guste */
+  border-color:  #d3b000;      /* Borde amarillo fuerte */
+  color:         #fff9c4;      /* Texto claro, ajusta si quieres */
+}
+
+/* Tono oscuro para danger */
+.alert-danger.custom-dark {
+  background-color: #3a021f;   /* Fondo vino oscuro */
+  border-color:  #df3030;      /* Borde rojo vibrante */
+  color:         #ffcdd2;      /* Texto rosado claro */
+}
