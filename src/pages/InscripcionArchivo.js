@@ -55,7 +55,6 @@ function ExcelUploader() {
       const studentsData = rows.map((row) => {
         const formatDate = (value) => {
           if (typeof value === 'number') {
-          // Evita problemas de desfase por zona horaria
           const parsed = XLSX.SSF.parse_date_code(value);
           if (parsed) {
             const year = parsed.y;
@@ -64,7 +63,7 @@ function ExcelUploader() {
             return `${year}-${month}-${day}`;
           }
         }
-          return ''; // Si el valor no es válido
+          return '';
         };
 
         return {

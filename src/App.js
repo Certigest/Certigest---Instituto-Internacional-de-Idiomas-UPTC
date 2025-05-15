@@ -14,7 +14,6 @@ import Home from './pages/Home';
 import Usuarios from './pages/Usuarios';
 import Cursos from './pages/Cursos';
 import Inscripcion from './pages/Inscripcion';
-import Reportes from './pages/Reportes';
 import Cuenta from './pages/Cuenta';
 import EditPersonalAccount from './pages/ModifyAccount';
 import ViewStudentCourses from './pages/ViewStudentCourses';
@@ -87,7 +86,6 @@ function LayoutWithRoles() {
                 <Route path="/editar-cuenta" element={<EditPersonalAccount />} />
                 <Route path="/editar-contraseña" element={<EditPassword />} />
                 <Route path="/usuarios" element={<Usuarios />} />
-                <Route path="/reportes" element={<Reportes />} />
                 <Route path="/cursos" element={<Cursos />} />
                 <Route path="/niveles-curso/:id" element={<LevelList />} />
                 <Route path="/grupos-nivel/:courseId/:levelId" element={<GroupListLevel />} />

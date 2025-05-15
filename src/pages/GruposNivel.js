@@ -38,7 +38,7 @@ export default function GroupListLevel() {
             </button>
           </li>
           <li className="nav-item">
-            <button className="nav-link" onClick={() => navigate(`/niveles-curso/${courseId}/${levelId}`)}>
+            <button className="nav-link" onClick={() => navigate(`/niveles-curso/${courseId}`)}>
               Niveles
             </button>
           </li>

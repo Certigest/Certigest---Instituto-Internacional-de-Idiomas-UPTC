@@ -3,18 +3,19 @@ import { useKeycloak } from '@react-keycloak/web';
 import { getStudentsByGroupId, sendCalifications } from '../services/CourseService';
 import ModalConfirm from '../components/ModalConfirm';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Toast, ToastContainer } from "react-bootstrap";
 
 export default function GroupStudentsRate() {
   const { courseId, levelId, groupId } = useParams();
   const { keycloak } = useKeycloak();
   const [students, setStudents] = useState([]);
   const [califications, setCalifications] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState(() => () => {});
   const [modalMessage, setModalMessage] = useState("");
   const navigate = useNavigate();
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const handleCloseToast = () => setMessage({ ...message, show: false });
 
   const openConfirmModal = (action, message) => {
     setConfirmAction(() => action);
@@ -43,7 +44,7 @@ export default function GroupStudentsRate() {
             }))
           );
         } catch (err) {
-          console.error('Error al obtener los estudiantes:', err);
+          setMessage({type: "danger", text: "Error al cargar los estudiantes"});
         }
       }
     };
@@ -58,24 +59,41 @@ export default function GroupStudentsRate() {
   };
 
   const handleSubmit = async () => {
-    const invalid = califications.some((c) => c.calification === '' || isNaN(c.calification) || c.calification < 0 || c.calification > 5);
+    const invalid = califications.some((c) => c.calification === '' || c.calification === null || isNaN(c.calification) || c.calification < 0 || c.calification > 5);
     if (invalid) {
-      setErrorMessage('Por favor, ingrese calificaciones válidas entre 0 y 5.');
+      setMessage({type: "danger", text: "Por favor, ingrese calificaciones válidas entre 0 y 5."});
       return;
     }
 
     try {
       await sendCalifications(groupId, keycloak.token, califications);
-      setSuccessMessage('Calificaciones enviadas correctamente');
-      setErrorMessage('');
+      setMessage({type: "success", text: "Calificaciones enviadas correctamente"});
     } catch (err) {
-      console.error('Error al enviar calificaciones:', err);
-      setErrorMessage('Error al enviar calificaciones.');
+      setMessage({type: "danger", text: "Error al enviar calificaciones"});
     }
   };
 
   return (
     <div className="container mt-4">
+      {message.text && (
+        <ToastContainer position="bottom-end" className="p-3">
+          <Toast
+            show={message.show}
+            onClose={handleCloseToast}
+            delay={3000}
+            autohide
+            className={`border-0 shadow-lg rounded-3 bg-${message.type} position-relative`}
+            style={{
+              minHeight: "80px",
+            }}
+          >
+            <Toast.Body className="text-white px-4 py-3 fs-6 w-100" style={{ fontSize: "1rem" }}>
+              {message.text}
+            </Toast.Body>
+          </Toast>
+          <style>{`@media (min-width: 768px) {.toast {max-width: 400px;}.toast-body {font-size: 1.25rem;}}`}</style>
+        </ToastContainer>
+      )}
       <div className="mb-4">
         <ul className="nav nav-tabs">
           <li className="nav-item">
@@ -96,10 +114,6 @@ export default function GroupStudentsRate() {
         </ul>
       </div>
       <h2 className="fw-bold mb-4">Calificar Estudiantes - Grupo</h2>
-
-      {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
-      {successMessage && <div className="alert alert-success">{successMessage}</div>}
-
       <div className="table-responsive">
         <table className="table table-bordered table-striped shadow">
           <thead className="table-dark">

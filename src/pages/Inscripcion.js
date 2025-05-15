@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useKeycloak } from '@react-keycloak/web';
-import { getAllCourses } from '../services/CourseService';
+import { getAllActiveCourses } from '../services/CourseService';
 import { useNavigate } from 'react-router-dom';
 
 export default function CourseList() {
@@ -12,7 +12,7 @@ export default function CourseList() {
     const fetchCourses = async () => {
       if (keycloak?.authenticated) {
         try {
-          const data = await getAllCourses(keycloak.token);
+          const data = await getAllActiveCourses(keycloak.token);
           setCourses(data);
         } catch (error) {
           console.error('Error al obtener los cursos:', error);

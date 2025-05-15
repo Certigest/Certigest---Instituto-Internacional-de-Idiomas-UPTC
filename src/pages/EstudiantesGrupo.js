@@ -3,17 +3,20 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
 import { getStudentsByGroupId, removeStudentFromGroup } from '../services/CourseService';
 import ModalConfirm from '../components/ModalConfirm';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { Toast, ToastContainer } from "react-bootstrap";
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 export default function GroupStudents() {
   const { courseId, levelId, groupId } = useParams();
   const { keycloak } = useKeycloak();
   const [students, setStudents] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState(() => () => {});
   const [modalMessage, setModalMessage] = useState("");
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const handleCloseToast = () => setMessage({ ...message, show: false });
 
   const openConfirmModal = (action, message) => {
     setConfirmAction(() => action);
@@ -33,8 +36,7 @@ export default function GroupStudents() {
           const data = await getStudentsByGroupId(groupId, keycloak.token);
           setStudents(data);
         } catch (err) {
-          setErrorMessage('Error al obtener los estudiantes');
-          console.error('Error al obtener los estudiantes:', err);
+          setMessage({type: "danger", text: "Error al cargar los estudiantes"});
         }
       }
     };
@@ -47,8 +49,7 @@ export default function GroupStudents() {
       await removeStudentFromGroup(groupId, studentId, keycloak.token);
 
       setStudents(students.filter((s) => s.studentId !== studentId));
-      setSuccessMessage('Estudiante eliminado con éxito');
-      setErrorMessage('');
+      setMessage({type: "success", text: "Estudiante eliminado correctamente"});
     } catch (err) {
       setErrorMessage('Error al eliminar el estudiante');
       console.error('Error al eliminar el estudiante:', err);
@@ -57,6 +58,25 @@ export default function GroupStudents() {
 
   return (
     <div className="container mt-4">
+      {message.text && (
+        <ToastContainer position="bottom-end" className="p-3">
+          <Toast
+            show={message.show}
+            onClose={handleCloseToast}
+            delay={3000}
+            autohide
+            className={`border-0 shadow-lg rounded-3 bg-${message.type} position-relative`}
+            style={{
+              minHeight: "80px",
+            }}
+          >
+            <Toast.Body className="text-white px-4 py-3 fs-6 w-100" style={{ fontSize: "1rem" }}>
+              {message.text}
+            </Toast.Body>
+          </Toast>
+          <style>{`@media (min-width: 768px) {.toast {max-width: 400px;}.toast-body {font-size: 1.25rem;}}`}</style>
+        </ToastContainer>
+      )}
       <div className="mb-4">
         <ul className="nav nav-tabs">
           <li className="nav-item">
@@ -77,9 +97,6 @@ export default function GroupStudents() {
         </ul>
       </div>
       <h2 className="fw-bold mb-4">Estudiantes del Grupo</h2>
-
-      {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
-      {successMessage && <div className="alert alert-success">{successMessage}</div>}
 
       <div className="table-responsive">
         <table className="table table-bordered table-striped shadow">
