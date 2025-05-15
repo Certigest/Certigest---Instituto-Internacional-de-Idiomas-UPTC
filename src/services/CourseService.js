@@ -78,6 +78,15 @@ export async function getAllCourses(token) {
   return response.data;
 }
 
+export async function getAllActiveCourses(token) {
+  const response = await axios.get(`${COURSE_URL}/allActive`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
+
 export async function getAllLevels(token) {
   const response = await axios.get(`${LEVEL_URL}/all`, {
     headers: {
@@ -231,4 +240,13 @@ export async function enrollStudentsMassive(token, studentsList) {
       return { error: "Error de conexión al servidor" };
     }
   }
+}
+
+export async function getGroupById(token, grouId) {
+  const response = await axios.get(`${GROUP_URL}/${grouId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
 }

@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { useKeycloak } from '@react-keycloak/web';
 import { useNavigate } from 'react-router-dom';
 import { modifyPassword } from '../services/UserService';
+import { Toast, ToastContainer } from "react-bootstrap";
 
 export default function EditarContraseña() {
   const { keycloak } = useKeycloak();
   const navigate = useNavigate();
   const [passwords, setPasswords] = useState({ newPassword: '', confirmPassword: '' });
   const [loading, setLoading] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const handleCloseToast = () => setMessage({ ...message, show: false });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,11 +27,10 @@ export default function EditarContraseña() {
     setError('');
     try {
       await modifyPassword(keycloak.token, passwords.newPassword);
-      setShowNotification(true);
+      setMessage({type: "success", text: "Contraseña cambiada con éxito"});
       setTimeout(() => navigate('/cuenta'), 2000);
     } catch (err) {
-      console.error('Error al modificar la contraseña:', err);
-      setError('No se pudo cambiar la contraseña. Intenta nuevamente.');
+      setMessage({type: "danger", text: "Error al cambiar la contraseña"});
     } finally {
       setLoading(false);
     }
@@ -40,6 +41,25 @@ export default function EditarContraseña() {
 
   return (
     <div className="container mt-4">
+      {message.text && (
+        <ToastContainer position="bottom-end" className="p-3">
+          <Toast
+            show={message.show}
+            onClose={handleCloseToast}
+            delay={3000}
+            autohide
+            className={`border-0 shadow-lg rounded-3 bg-${message.type} position-relative`}
+            style={{
+              minHeight: "80px",
+            }}
+          >
+            <Toast.Body className="text-white px-4 py-3 fs-6 w-100" style={{ fontSize: "1rem" }}>
+              {message.text}
+            </Toast.Body>
+          </Toast>
+          <style>{`@media (min-width: 768px) {.toast {max-width: 400px;}.toast-body {font-size: 1.25rem;}}`}</style>
+        </ToastContainer>
+      )}
       <h2 className="mb-4 fw-bold">Cambiar Contraseña</h2>
       <div className="row bg-white p-4 rounded shadow">
         <div className="col-md-6 mb-3">
@@ -79,12 +99,6 @@ export default function EditarContraseña() {
           {loading ? 'Guardando...' : 'Cambiar Contraseña'}
         </button>
       </div>
-
-      {showNotification && (
-        <div className="alert alert-success mt-3" role="alert">
-          Contraseña cambiada correctamente
-        </div>
-      )}
     </div>
   );
 }

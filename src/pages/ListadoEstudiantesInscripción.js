@@ -1,28 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Toast, ToastContainer } from "react-bootstrap";
 import { useKeycloak } from '@react-keycloak/web';
-import { getStudentsWhoHaveNotTakenLevel, enrollStudentToGroup } from '../services/CourseService';
+import {
+  getStudentsWhoHaveNotTakenLevel,
+  enrollStudentToGroup,
+  getGroupById,
+} from '../services/CourseService';
 
 export default function EnrollStudents() {
   const { courseId, levelId, groupId } = useParams();
   const { keycloak } = useKeycloak();
   const [students, setStudents] = useState([]);
+  const [group, setGroup] = useState(null);
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const handleCloseToast = () => setMessage({ ...message, show: false });
 
   useEffect(() => {
-    const fetchStudents = async () => {
+    const fetchData = async () => {
       if (keycloak?.authenticated) {
         try {
-          const data = await getStudentsWhoHaveNotTakenLevel(keycloak.token, levelId);
-          setStudents(data);
+          const [studentsData, groupData] = await Promise.all([
+            getStudentsWhoHaveNotTakenLevel(keycloak.token, levelId),
+            getGroupById(keycloak.token, groupId),
+          ]);
+          setStudents(studentsData);
+          setGroup(groupData);
         } catch (err) {
-          console.error('Error al obtener los estudiantes:', err);
+          console.error('Error al cargar datos:', err);
         }
       }
     };
 
-    fetchStudents();
+    fetchData();
   }, [keycloak, courseId, levelId, groupId]);
 
   const filteredStudents = students.filter((student) => {
@@ -36,19 +48,50 @@ export default function EnrollStudents() {
 
   const handleEnroll = async (student) => {
     try {
-      await enrollStudentToGroup(keycloak.token, student.personId, groupId);
-      alert('Estudiante inscrito correctamente');
-      setStudents((prevStudents) =>
-        prevStudents.filter((s) => s.personId !== student.personId)
-      );
+      if (!group) {
+        alert('Información del grupo no disponible.');
+        return;
+      }
+
+      const today = new Date();
+      const startDate = new Date(group.start_date);
+      const endDate = new Date(group.end_date);
+
+      if (today >= startDate && today <= endDate) {
+        await enrollStudentToGroup(keycloak.token, student.personId, groupId);
+        setMessage({type: "success", text: "Estudiante inscrito correctamente."});
+        setStudents((prevStudents) =>
+          prevStudents.filter((s) => s.personId !== student.personId)
+        );
+      } else {
+        setMessage({type: "danger", text: "El grupo no está activo en este momento. Modifique las fechas de inicio y finalización del grupo para inscribir al estudiante."});
+      }
     } catch (error) {
-      console.error('Error al inscribir:', error);
-      alert('Error al inscribir al estudiante');
+      setMessage({type: "danger", text: "Error al inscribir al estudiante."});
     }
   };
 
   return (
     <div className="container mt-4">
+      {message.text && (
+        <ToastContainer position="bottom-end" className="p-3">
+          <Toast
+            show={message.show}
+            onClose={handleCloseToast}
+            delay={3000}
+            autohide
+            className={`border-0 shadow-lg rounded-3 bg-${message.type} position-relative`}
+            style={{
+              minHeight: "80px",
+            }}
+          >
+            <Toast.Body className="text-white px-4 py-3 fs-6 w-100" style={{ fontSize: "1rem" }}>
+              {message.text}
+            </Toast.Body>
+          </Toast>
+          <style>{`@media (min-width: 768px) {.toast {max-width: 400px;}.toast-body {font-size: 1.25rem;}}`}</style>
+        </ToastContainer>
+      )}
       <div className="mb-4">
         <ul className="nav nav-tabs">
           <li className="nav-item">

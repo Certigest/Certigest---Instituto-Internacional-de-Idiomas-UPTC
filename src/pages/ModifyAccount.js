@@ -3,18 +3,20 @@ import { useKeycloak } from '@react-keycloak/web';
 import { getAccountInfo, modifyAccountInfo, uploadProfileImage, getProfileImage } from '../services/UserService';
 import { useNavigate } from 'react-router-dom';
 import ModalConfirm from '../components/ModalConfirm';
+import { Toast, ToastContainer } from "react-bootstrap";
 
 export default function Cuenta() {
   const { keycloak } = useKeycloak();
   const [editedUser, setEditedUser] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewImageUrl, setPreviewImageUrl] = useState(null);
-  const [showNotification, setShowNotification] = useState(false);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState(() => () => {});
   const [modalMessage, setModalMessage] = useState("");
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const handleCloseToast = () => setMessage({ ...message, show: false });
 
   const openConfirmModal = (action, message) => {
     setConfirmAction(() => action);
@@ -36,7 +38,7 @@ export default function Cuenta() {
           const imageUrl = await getProfileImage(keycloak.token);
           if (imageUrl) setPreviewImageUrl(imageUrl);
         } catch (error) {
-          console.error('Error al obtener la información de cuenta o imagen:', error);
+          setMessage({ type: "danger", text: "Error al cargar la información de cuenta" });
         }
       }
     };
@@ -53,7 +55,7 @@ export default function Cuenta() {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert('La imagen excede el tamaño máximo permitido de 5MB');
+        setMessage({ type: "danger", text: "El tamaño de la imagen no puede ser mayor a 5MB" });
         return;
       }
       if (file.type.startsWith('image/')) {
@@ -99,13 +101,12 @@ export default function Cuenta() {
         setPreviewImageUrl(URL.createObjectURL(selectedImage));
       }
 
-      setShowNotification(true);
+      setMessage({ type: "success", text: "Cambios guardados" });
       setTimeout(() => {
-        setShowNotification(false);
         navigate('/cuenta');
       }, 2000);
     } catch (err) {
-      console.error('Error actualizando usuario o subiendo imagen:', err);
+      setMessage({ type: "danger", text: "Error al guardar los cambios" });
     }
   };
 
@@ -117,6 +118,25 @@ export default function Cuenta() {
 
   return (
     <div className="container mt-4">
+      {message.text && (
+        <ToastContainer position="bottom-end" className="p-3">
+          <Toast
+            show={message.show}
+            onClose={handleCloseToast}
+            delay={3000}
+            autohide
+            className={`border-0 shadow-lg rounded-3 bg-${message.type} position-relative`}
+            style={{
+              minHeight: "80px",
+            }}
+          >
+            <Toast.Body className="text-white px-4 py-3 fs-6 w-100" style={{ fontSize: "1rem" }}>
+              {message.text}
+            </Toast.Body>
+          </Toast>
+          <style>{`@media (min-width: 768px) {.toast {max-width: 400px;}.toast-body {font-size: 1.25rem;}}`}</style>
+        </ToastContainer>
+      )}
       <h2 className="mb-4 fw-bold">Información Personal</h2>
       <div className="row bg-white p-4 rounded shadow">
         <div className="col-md-3 d-flex flex-column align-items-center justify-content-center text-center mb-3 mb-md-0">
@@ -210,12 +230,6 @@ export default function Cuenta() {
           Guardar Cambios
         </button>
       </div>
-
-      {showNotification && (
-        <div className="alert alert-success mt-3" role="alert">
-          Cambios guardados
-        </div>
-      )}
 
       {isModalOpen && (
         <ModalConfirm
