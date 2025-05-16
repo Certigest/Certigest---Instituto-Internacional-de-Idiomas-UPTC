@@ -15,12 +15,42 @@ function ExcelUploader() {
   const [modalMessage, setModalMessage] = useState("");
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const [showInfo, setShowInfo] = useState(false);
 
   const openConfirmModal = (action, message) => {
     setConfirmAction(() => action);
     setModalMessage(message);
     setIsModalOpen(true);
   };
+
+  const restriccionesInfo = (
+    <div className="p-3 border bg-light rounded">
+      <p>📌 <strong>Restricciones para cargar estudiantes desde Excel:</strong></p>
+      <p><strong>El botón de cargar estudiantes se habilitará solo después de cumplir con las siguiente condiciones</strong></p>
+      <ol>
+        <li>Solo se pueden cargar un <strong>máximo de 30 estudiantes</strong> por archivo.</li>
+        <li>El archivo debe tener <strong>extensión .xlsx</strong>.</li>
+        <li><strong>Todas las columnas son obligatorias</strong>, excepto el <strong>Costo del material</strong>.</li>
+        <li>Las columnas deben estar en <strong>este orden</strong>:
+          <ul>
+            <li>Nombres y Apellidos</li>
+            <li>Número de documento</li>
+            <li>Curso</li>
+            <li>Nivel</li>
+            <li>Nota</li>
+            <li>Costo Nivel</li>
+            <li>Costo Material</li>
+            <li>Fecha inicio</li>
+            <li>Fecha fin</li>
+          </ul>
+        </li>
+        <li>La <strong>nota</strong> debe estar entre <strong>0 y 5</strong> y puede contener decimales (ej. "4.5").</li>
+        <li>El <strong>Costo Nivel</strong> y el <strong>Costo del Material</strong> deben ser <strong>números enteros</strong>, sin letras ni símbolos especiales.</li>
+        <li>Las <strong>fechas</strong> deben estar en el siguiente formato dentro del documento de excel <strong>dd/mm/yyyy</strong> (por ejemplo: "10/03/2015").</li>
+      </ol>
+      <p>⚠️ En lo posible no dejar espacios al inicio o al final de los textos.</p>
+    </div>
+  );
 
   const closeConfirmModal = () => {
     setIsModalOpen(false);
@@ -69,9 +99,9 @@ function ExcelUploader() {
         return {
           fullName: row[0],
           documentNumber: row[1],
-          course: row[2],
-          level: row[3],
-          grade: parseFloat(row[4]),
+          course: typeof row[2] === 'string' ? row[2].trim() : row[2],
+          level: typeof row[3] === 'string' ? row[3].trim() : row[3],
+          grade: parseFloat(String(row[4]).replace(',', '.')),
           levelCost: parseFloat(row[5]),
           materialCost: parseFloat(row[6]),
           startDate: formatDate(row[7]),
@@ -108,17 +138,18 @@ function ExcelUploader() {
       student.fullName &&
       student.documentNumber &&
       student.course &&
-      student.level !== null &&
-      !isNaN(student.grade) &&
+      student.level &&
+      Number.isFinite(student.grade) &&
       student.grade >= 0 && student.grade <= 5 &&
-      !isNaN(student.levelCost) &&
-      (student.materialCost === '' || isNaN(student.materialCost)) &&
+      Number.isInteger(student.levelCost) &&
+      (student.materialCost === '' ||  isNaN(student.materialCost) || Number.isInteger(student.materialCost)) &&
       student.startDate &&
       student.endDate &&
       /^\d{4}-\d{2}-\d{2}$/.test(student.startDate) &&
       /^\d{4}-\d{2}-\d{2}$/.test(student.endDate)
     );
   };
+
 
   return (
     <div className="container my-5">
@@ -127,6 +158,18 @@ function ExcelUploader() {
         <button className="btn btn-secondary me-2" onClick={() => navigate("/inscripcion")}>
           ← Regresar
         </button>
+        <button
+          className="btn btn-info"
+          type="button"
+          onClick={() => setShowInfo(!showInfo)}
+          aria-expanded={showInfo}
+          aria-controls="restriccionesCollapse"
+        >
+          {showInfo ? "Ocultar restricciones" : "Mostrar restricciones"}
+        </button>
+      </div>
+      <div className={`collapse ${showInfo ? "show" : ""}`} id="restriccionesCollapse">
+          {restriccionesInfo}
       </div>
       <div className="text-center mb-4">
         <input

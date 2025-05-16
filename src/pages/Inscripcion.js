@@ -54,9 +54,9 @@ export default function CourseList() {
         ))}
       </div>
       <div className="text-center mt-3">
-        <p className="mt-2 mb-1">¿Tiene un archivo con la lista de niveles que han visto los estudiantes?</p>
+        <p className="mt-2 mb-1">¿Tiene un archivo con la lista de niveles que yan han visto los estudiantes?</p>
         <button className="btn btn-warning fw-bold px-4 py-2 rounded-pill shadow" onClick={() => navigate('/inscripcion-masiva')}>
-          Cargar Estudiantes Inscritos
+          Cargar Estudiantes
         </button>
       </div>
     </div>

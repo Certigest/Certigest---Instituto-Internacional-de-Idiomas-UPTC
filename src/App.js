@@ -35,6 +35,7 @@ import GenerarCertificadosAdmin from './pages/GenerarCertificadosAdmin';
 import GroupStudentsRate from './pages/CalificarAdmin';
 
 import './styles/global.css';
+import Reports from './pages/Reportes';
 
 
 
@@ -96,6 +97,7 @@ function LayoutWithRoles() {
                 <Route path="/inscripcion-masiva" element={<ExcelUploader />} />
                 <Route path="/calificar-admin/:courseId/:levelId/:groupId" element={<GroupStudentsRate />} />
                 <Route path="/generarCertificadosAdmin" element={<GenerarCertificadosAdmin />} />
+                <Route path="/reportes" element={<Reports />} />
               </>
             )}
 

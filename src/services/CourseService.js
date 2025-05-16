@@ -241,10 +241,8 @@ export async function enrollStudentsMassive(token, studentsList) {
     return response.data;
   } catch (error) {
     if (error.response) {
-      // Respuesta con error del servidor
       return { error: error.response.data.error || "Error desconocido del servidor" };
     } else {
-      // Error en la conexión o configuración
       return { error: "Error de conexión al servidor" };
     }
   }
@@ -252,6 +250,15 @@ export async function enrollStudentsMassive(token, studentsList) {
 
 export async function getGroupById(token, grouId) {
   const response = await axios.get(`${GROUP_URL}/${grouId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
+
+export async function getCourseReport(token, grouId) {
+  const response = await axios.get(`${GROUP_URL}/coursesReport`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
