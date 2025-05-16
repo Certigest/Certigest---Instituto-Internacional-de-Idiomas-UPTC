@@ -367,3 +367,24 @@
   /* playsinline evita que en iOS el video pase a fullscreen nativo */
   playsinline: true;
 }
+/* ------------------------------------------------ */
+/*   1) Recolorear o quitar la imagen del placeholder  */
+/* ------------------------------------------------ */
+
+/* 1A) Para recolorear el SVG a blanco: */
+.html5-qrcode-element__placeholder svg path {
+  stroke: #fff !important;
+  fill: #fff !important;
+}
+
+/* 1B) Si tu versión de la librería usa otras clases, prueba también: */
+.html5-qrcode-element .html5-qrcode-icon svg path {
+  stroke: #fff !important;
+  fill: #fff !important;
+}
+
+/* 1C) O, si prefieres eliminar por completo ese cuadro antes de arrancar la cámara: */
+.html5-qrcode-element__placeholder,
+.html5-qrcode-element__placeholder * {
+  display: none !important;
+}
