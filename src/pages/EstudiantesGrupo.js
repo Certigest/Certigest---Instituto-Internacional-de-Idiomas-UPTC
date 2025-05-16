@@ -1,11 +1,9 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
 import { getStudentsByGroupId, removeStudentFromGroup } from '../services/CourseService';
 import ModalConfirm from '../components/ModalConfirm';
-import Dropdown from 'react-bootstrap/Dropdown';
 import { Toast, ToastContainer } from "react-bootstrap";
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 export default function GroupStudents() {
   const { courseId, levelId, groupId } = useParams();
@@ -51,8 +49,7 @@ export default function GroupStudents() {
       setStudents(students.filter((s) => s.studentId !== studentId));
       setMessage({type: "success", text: "Estudiante eliminado correctamente"});
     } catch (err) {
-      setErrorMessage('Error al eliminar el estudiante');
-      console.error('Error al eliminar el estudiante:', err);
+      setMessage({type: "danger", text: "Error al eliminar el estudiante"});
     }
   };
 

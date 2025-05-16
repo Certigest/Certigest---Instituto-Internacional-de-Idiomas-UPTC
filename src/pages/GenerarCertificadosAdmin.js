@@ -18,7 +18,6 @@ export default function GenerarCertificadosAdmin() {
     const [error, setError] = useState('');
 
     const API = process.env.REACT_APP_API_HOST;
-    const now = new Date();
 
     // Auto-ocultar alerta tras 2s
     useEffect(() => {
