@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import com.uptc.idiomas.certigest.dto.CourseReportDTO;
 import com.uptc.idiomas.certigest.dto.GroupInstDTO;
 import com.uptc.idiomas.certigest.dto.GroupPersonDTO;
 import com.uptc.idiomas.certigest.service.GroupService;
@@ -218,5 +219,10 @@ public class GroupController {
     @GetMapping("/groupsByPerson/{personId}")
     public ResponseEntity<List<GroupPersonDTO>> getGroupsByPerson(@PathVariable Integer personId) {
         return ResponseEntity.ok(groupService.getGroupsByStudentByPersonId(personId));
+    }
+
+    @GetMapping("/coursesReport")
+    public ResponseEntity<List<CourseReportDTO>> getCoursesReport() {
+        return ResponseEntity.ok(groupService.getCoursesReport());
     }
 }

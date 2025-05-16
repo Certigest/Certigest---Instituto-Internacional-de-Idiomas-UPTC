@@ -14,8 +14,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import com.uptc.idiomas.certigest.dto.CertificateHistoryDTO;
+import com.uptc.idiomas.certigest.dto.CourseReportDTO;
 import com.uptc.idiomas.certigest.dto.GroupInstDTO;
 import com.uptc.idiomas.certigest.dto.GroupPersonDTO;
+import com.uptc.idiomas.certigest.dto.LevelReportDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
 import com.uptc.idiomas.certigest.dto.PersonEnrollInfo;
 import com.uptc.idiomas.certigest.entity.Certificate;
@@ -361,5 +363,41 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
         return groups.stream()
                 .map(group -> GroupPersonMapper.INSTANCE.mapGroupPersonToGroupPersonDTO(group))
                 .collect(Collectors.toList());
+    }
+
+    public List<CourseReportDTO> getCoursesReport() {
+        List<Course> courses = courseService.getAllActiveCourse();
+        List<CourseReportDTO> courseReportList = new ArrayList<>();
+
+        for (Course course : courses) {
+            CourseReportDTO courseReport = new CourseReportDTO();
+            courseReport.setId_course(course.getId_course());
+            courseReport.setCourse_name(course.getCourse_name());
+            courseReport.setCourse_description(course.getCourse_description());
+            courseReport.setCourse_type(course.getCourse_type());
+
+            List<Level> levels = levelService.findActiveLevelsByCourseId(course.getId_course());
+            List<LevelReportDTO> levelReports = new ArrayList<>();
+
+            for (Level level : levels) {
+                LevelReportDTO levelReport = new LevelReportDTO();
+                levelReport.setLevel_id(level.getLevel_id());
+                levelReport.setLevel_name(level.getLevel_name());
+                levelReport.setLevel_description(level.getLevel_description());
+                levelReport.setLevel_cost(level.getLevel_cost());
+                levelReport.setMaterial_cost(level.getMaterial_cost());
+
+                long activeStudentsCount = levelService.countActiveStudentsByLevel(level.getLevel_id());
+                levelReport.setStudentsActive((int) activeStudentsCount);
+                int levelCost = level.getLevel_cost() != null ? level.getLevel_cost() : 0;
+                levelReport.setTotalEarnings(levelCost * activeStudentsCount);
+                levelReports.add(levelReport);
+            }
+
+            courseReport.setLevels(levelReports);
+            courseReportList.add(courseReport);
+        }
+
+        return courseReportList;
     }
 }
