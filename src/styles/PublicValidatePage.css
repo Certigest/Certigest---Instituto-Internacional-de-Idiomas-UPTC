@@ -260,3 +260,110 @@
   border-color:  #df3030;      /* Borde rojo vibrante */
   color:         #ffcdd2;      /* Texto rosado claro */
 }
+
+/* ---------------------------------- */
+/*   CONTENEDOR DEL HTML5QRCODESCANNER   */
+/* ---------------------------------- */
+.html5-qrcode {
+  background-color: rgba(16, 19, 38, 0.95) !important; /* fondo semitransparente oscuro */
+  border-radius: 12px;
+  padding: 1rem !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  max-width: 500px;
+  margin: auto;
+}
+
+/* Panel interior donde aparecen cámara + controles */
+.html5-qrcode-element {
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+/* Área de video */
+.html5-qrcode-element video {
+  width: 100% !important;
+  height: auto !important;
+  border-radius: 8px;
+}
+
+/* Caja del QR (overlay) */
+.html5-qrcode-scanning .html5-qrcode-video-canvas {
+  background: none !important;
+}
+
+/* Línea marco de lectura */
+.html5-qrcode-scanning .html5-qrcode-overlay {
+  border: 3px dashed #1CA673;    /* borde verde acorde a tu tema */
+  border-radius: 12px;
+}
+
+/* Mensaje de estado */
+.html5-qrcode-status {  
+  color: #fff !important;
+  font-size: 0.9rem;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  bottom: 8px !important;
+}
+
+/* Botones internos de Html5QrcodeScanner */
+.html5-qrcode-button {
+  background-color: #1CA673 !important;  /* verde de tu tema */
+  color: #000 !important;
+  border: none !important;
+  border-radius: 30px !important;
+  padding: 0.5rem 1.2rem !important;
+  font-weight: bold;
+  cursor: pointer !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.2s;
+  margin: 0.5rem !important;
+}
+.html5-qrcode-button:hover {
+  background-color: #15885A !important;
+}
+
+/* Ocultar logo o watermark por defecto si aparece */
+.html5-qrcode-logo {
+  display: none !important;
+}
+
+/* Ajustes responsive */
+@media (max-width: 576px) {
+  .html5-qrcode {
+    padding: 0.5rem !important;
+  }
+  .html5-qrcode-button {
+    width: 100% !important;
+    margin: 0.3rem 0 !important;
+  }
+}
+
+/* 1) Asegura que el video realmente ocupe todo el contenedor y se vea */
+.html5-qrcode-element video {
+  width: 100% !important;
+  height: auto !important;
+  background-color: #000 !important;    /* fondo negro sólido para el video real */
+  object-fit: cover !important;
+}
+
+/* 2) Si el placeholder (icono antes de arrancar cámara) desaparece en tu fondo:
+   invertimos los colores del SVG/icono para que sea blanco */
+.html5-qrcode-element .html5-qrcode-icon {
+  filter: invert(1) !important;
+}
+
+/* 3) Centrar el botón “Cerrar escáner” */
+.btn-red {
+  display: block;    /* de inline-block a block */
+  margin: 20px auto; /* centrado horizontal, y algo de separación arriba */
+}
+
+/* 4) Ajuste para que en móviles use la cámara trasera y reproduzca inline */
+.html5-qrcode video {
+  /* si tu Html5QrcodeScanner lo soporta, añade estos atributos al <video> */
+  object-fit: cover;
+  /* playsinline evita que en iOS el video pase a fullscreen nativo */
+  playsinline: true;
+}
