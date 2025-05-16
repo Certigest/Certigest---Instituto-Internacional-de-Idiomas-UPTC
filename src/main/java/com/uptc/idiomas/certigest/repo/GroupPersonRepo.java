@@ -32,6 +32,9 @@ public interface GroupPersonRepo extends JpaRepository<GroupPerson, GroupPersonI
     @Query("DELETE FROM GroupPerson gp WHERE gp.group_id.group_id = :groupId")
     void deleteByGroupId(@Param("groupId") Integer groupId);
 
+    @Query("SELECT gp FROM GroupPerson gp WHERE gp.group_id.group_id = :groupId")
+    List<GroupPerson> findByGroupId(@Param("groupId") Integer groupId);
+
     @Modifying
     @Transactional
     @Query("DELETE FROM GroupPerson gp WHERE gp.person_id.personId = :personId")
