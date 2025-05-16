@@ -2,7 +2,6 @@ package com.uptc.idiomas.certigest.service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,7 +19,6 @@ import com.uptc.idiomas.certigest.dto.GroupPersonDTO;
 import com.uptc.idiomas.certigest.dto.LevelReportDTO;
 import com.uptc.idiomas.certigest.dto.PersonDTONote;
 import com.uptc.idiomas.certigest.dto.PersonEnrollInfo;
-import com.uptc.idiomas.certigest.entity.Certificate;
 import com.uptc.idiomas.certigest.entity.Course;
 import com.uptc.idiomas.certigest.entity.GroupInst;
 import com.uptc.idiomas.certigest.entity.GroupPerson;
@@ -47,9 +45,9 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
     private GroupInstRepo groupRepo;
     @Autowired
     private GroupPersonRepo groupPersonRepo;
-    @Autowired 
+    @Autowired
     private CourseRepo courseService;
-    @Autowired 
+    @Autowired
     private LevelRepo levelService;
 
     private final GroupInstMapper mapper = GroupInstMapper.INSTANCE;
@@ -75,6 +73,35 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
                 .stream()
                 .map(mapper::mapGroupInstToGroupInstDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public GroupInstDTO update(GroupInstDTO dto) {
+        GroupInst entity = toEntity(dto);
+
+        GroupInst currentGroup = groupRepo.findById(dto.getGroup_id())
+                .orElseThrow(() -> new IllegalArgumentException("Grupo no encontrado"));
+
+        LocalDate localEndDate = currentGroup.getEnd_date()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        boolean groupStillActive = localEndDate.isAfter(LocalDate.now());
+
+        GroupInst updated = groupRepo.save(entity);
+
+        if (groupStillActive) {
+            List<GroupPerson> groupPersons = groupPersonRepo.findByGroupId(updated.getGroup_id());
+
+            for (GroupPerson gp : groupPersons) {
+                gp.setEnd_date(updated.getEnd_date());
+            }
+
+            groupPersonRepo.saveAll(groupPersons);
+        }
+
+        return toDTO(updated);
     }
 
     @Override
@@ -216,7 +243,7 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
          * groupPerson.setLEVEL_MODALITY(GroupPerson.LevelModality.valueOf(group.
          * getLevel_id().getLevel_modality().name()));
          */
-        
+
         groupPerson.setLevel_duration("" + group.getLevel_id().getLevel_duration());
         groupPersonRepo.save(groupPerson);
     }
@@ -240,7 +267,7 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
         for (GroupPerson gp : groupPersonRepo.findAll()) {
             if (gp.getPerson_id().getPersonId().equals(personId))
                 groupPersonList.add(gp);
-        } 
+        }
         return groupPersonList;
     }
 
@@ -287,7 +314,8 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
 
                 // Inscribir al estudiante en un grupo genérico si no lo ha visto
                 try {
-                    PersonEnrollInfo result = enrollStudentToGenericGroup(personOpt.get().getPersonId(), courseId, levelId, student);
+                    PersonEnrollInfo result = enrollStudentToGenericGroup(personOpt.get().getPersonId(), courseId,
+                            levelId, student);
                     if (!"Agregado".equals(result.getDescription())) {
                         failEnrollStudents.add(result);
                     }
@@ -305,15 +333,17 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
         return failEnrollStudents;
     }
 
-    public PersonEnrollInfo enrollStudentToGenericGroup(Integer personId, Integer courseId, Integer levelId, PersonEnrollInfo student) {
+    public PersonEnrollInfo enrollStudentToGenericGroup(Integer personId, Integer courseId, Integer levelId,
+            PersonEnrollInfo student) {
         try {
             System.out.println("Buscando grupo existente para curso y nivel: " + student.getFullName());
 
             // Obtener el primer grupo ordenado por group_id
             GroupInst newGroupInst = groupRepo.findAllByCourseIdAndLevelIdOrderByGroupId(courseId, levelId)
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No se encontró un grupo para el curso ID " + courseId + " y nivel ID " + levelId));
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException(
+                            "No se encontró un grupo para el curso ID " + courseId + " y nivel ID " + levelId));
 
             GroupPersonId newId = new GroupPersonId(personId, newGroupInst.getGroup_id());
             Optional<GroupPerson> existing = groupPersonRepo.findById(newId);
@@ -343,8 +373,6 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
             groupPerson.setLevel_cost(student.getLevelCost());
             groupPerson.setMaterial_cost(student.getMaterialCost());
             groupPerson.setLevel_duration("40");
-
-
 
             groupPersonRepo.save(groupPerson);
             student.setDescription("Agregado");
