@@ -991,7 +991,7 @@ const Cursos = () => {
                                     </button>
                                     {!isOnlyLevelInCourse && (
                                       <button
-                                        className="btn btn-sm btn-success me-2"
+                                        className="btn btn-sm btn-danger me-2"
                                         onClick={() =>
                                           openConfirmModal(
                                             () => handleDeleteLevel(level.level_id),
@@ -1025,9 +1025,6 @@ const Cursos = () => {
                                             <div>
                                               {editingGroupId === group.group_id ? (
                                                 <>
-                                                  <button className="btn btn-sm btn-success me-2" onClick={handleSaveGroup}>
-                                                    Guardar
-                                                  </button>
                                                   <button
                                                     className="btn btn-sm btn-success me-2"
                                                     onClick={() =>
@@ -1054,7 +1051,7 @@ const Cursos = () => {
                                                   </button>
                                                   {!isOnlyGroupInLevel && (
                                                     <button
-                                                      className="btn btn-sm btn-success me-2"
+                                                      className="btn btn-sm btn-danger me-2"
                                                       onClick={() =>
                                                         openConfirmModal(
                                                           () => handleDeleteGroup(group.group_id),
