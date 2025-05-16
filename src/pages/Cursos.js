@@ -233,7 +233,8 @@ const Cursos = () => {
       level_duration: 0,
       group_name: "",
       schedule: "",
-      start_date: "", end_date: "",
+      start_date: "",
+      end_date: "",
       group_teacher: null,
     });
   };
@@ -248,7 +249,8 @@ const Cursos = () => {
       level_modality: "In_person",
       level_duration: 0,
       group_name: "",
-      start_date: "", end_date: "",
+      start_date: "",
+      end_date: "",
       schedule: "",
       group_teacher: null,
     });
@@ -350,7 +352,7 @@ const Cursos = () => {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">Descripción del Curso</label>
+                    <label className="form-label">{courseForm.course_type === "SKILLS" ? "Habilidades del Curso" : "Descripción del Curso"}</label>
                     <textarea name="course_description" className="form-control border-secondary" rows="3" value={courseForm.course_description} onChange={handleInputChange} required></textarea>
                   </div>
 
@@ -709,7 +711,9 @@ const Cursos = () => {
             group_name: "",
             schedule: "",
             group_teacher: null,
-            start_date: "", end_date: "", state: true,
+            start_date: "",
+            end_date: "",
+            state: true,
           });
         };
 
@@ -719,7 +723,9 @@ const Cursos = () => {
             group_name: "",
             schedule: "",
             group_teacher: null,
-            start_date: "", end_date: "", state: true
+            start_date: "",
+            end_date: "",
+            state: true,
           });
         };
 
@@ -784,7 +790,19 @@ const Cursos = () => {
                     <div className="d-flex">
                       {editingCourseId === course.id_course ? (
                         <>
-                          <button className="btn btn-sm btn-success me-2" onClick={handleSaveCourse}>
+                          <button
+                            className="btn btn-sm btn-success me-2"
+                            onClick={() =>
+                              openConfirmModal(
+                                () => handleSaveCourse,
+                                <>
+                                  Esta accion podria afectara la informacion que tengan los certificados de los estudiantes relacionados al Curso.
+                                  <br />
+                                  Se recomienda crear un curso nuevo en vez de modificar uno ya existente.
+                                </>
+                              )
+                            }
+                          >
                             Guardar
                           </button>
                           <button className="btn btn-sm btn-secondary" onClick={handleCancelEdit}>
@@ -796,7 +814,19 @@ const Cursos = () => {
                           <button className="btn btn-sm btn-primary me-2" onClick={() => handleEditCourse(course)}>
                             Modificar
                           </button>
-                          <button className="btn btn-sm btn-danger" onClick={() => openConfirmModal(() => handleDeleteCourse(course.id_course), `¿Estás seguro de que quieres eliminar el curso "${course.course_name}"?`)}>
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={() =>
+                              openConfirmModal(
+                                () => handleDeleteCourse(course.id_course),
+                                <>
+                                  ¿Estás seguro de que quieres eliminar el curso "<strong>{course.course_name}</strong>"?
+                                  <br />
+                                  Esta no afectará ni eliminará a los estudiantes ya finalizaron alguno de los niveles de este curso.
+                                </>
+                              )
+                            }
+                          >
                             Eliminar
                           </button>
                         </>
@@ -947,7 +977,7 @@ const Cursos = () => {
                               <div className="d-flex me-3">
                                 {isEditing ? (
                                   <>
-                                    <button className="btn btn-sm btn-success me-2" onClick={handleSaveLevel}>
+                                    <button className="btn btn-sm btn-success me-2" onClick={() => openConfirmModal(() => handleSaveLevel, <>Esta accion podria afectar a los estudiantes que ya finalizaron el nivel.</>)}>
                                       Guardar
                                     </button>
                                     <button className="btn btn-sm btn-secondary" onClick={handleCancelEdit}>
@@ -960,7 +990,19 @@ const Cursos = () => {
                                       Modificar
                                     </button>
                                     {!isOnlyLevelInCourse && (
-                                      <button className="btn btn-sm btn-danger" onClick={() => openConfirmModal(() => handleDeleteLevel(level.level_id), `¿Estás seguro de que quieres eliminar el nivel "${level.level_name}"?`)}>
+                                      <button
+                                        className="btn btn-sm btn-success me-2"
+                                        onClick={() =>
+                                          openConfirmModal(
+                                            () => handleDeleteLevel(level.level_id),
+                                            <>
+                                              ¿Estás seguro de que quieres eliminar el nivel "${level.level_name}"?
+                                              <br />
+                                              Esto no afectará ni eliminará a los estudiantes que ya finalizaron el nivel.
+                                            </>
+                                          )
+                                        }
+                                      >
                                         Eliminar
                                       </button>
                                     )}
@@ -986,6 +1028,21 @@ const Cursos = () => {
                                                   <button className="btn btn-sm btn-success me-2" onClick={handleSaveGroup}>
                                                     Guardar
                                                   </button>
+                                                  <button
+                                                    className="btn btn-sm btn-success me-2"
+                                                    onClick={() =>
+                                                      openConfirmModal(
+                                                        () => handleSaveGroup,
+                                                        <>
+                                                          Esta accion podria afectara a los estudiantes relacionados.
+                                                          <br />
+                                                          Modificar las fechas solamente afectará a los estudiantes que no hayan finalizado el grupo.
+                                                        </>
+                                                      )
+                                                    }
+                                                  >
+                                                    Guardar
+                                                  </button>
                                                   <button className="btn btn-sm btn-secondary" onClick={handleCancelEdit}>
                                                     Cancelar
                                                   </button>
@@ -996,7 +1053,19 @@ const Cursos = () => {
                                                     Modificar
                                                   </button>
                                                   {!isOnlyGroupInLevel && (
-                                                    <button className="btn btn-sm btn-danger" onClick={() => openConfirmModal(() => handleDeleteGroup(group.group_id), `¿Estás seguro de que quieres eliminar el grupo "${group.group_name}"?`)}>
+                                                    <button
+                                                      className="btn btn-sm btn-success me-2"
+                                                      onClick={() =>
+                                                        openConfirmModal(
+                                                          () => handleDeleteGroup(group.group_id),
+                                                          <>
+                                                            ¿Estás seguro de que quieres eliminar el grupo "${group.group_name}"?
+                                                            <br />
+                                                            Esta accion anulará la inscripción de todos los estudiantes actuales.
+                                                          </>
+                                                        )
+                                                      }
+                                                    >
                                                       Eliminar
                                                     </button>
                                                   )}
