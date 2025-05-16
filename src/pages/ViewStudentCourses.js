@@ -12,9 +12,7 @@ const StudentGroupsTable = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const API_HOST = process.env.REACT_APP_API_HOST;
-  const now = new Date();
 
-  // Auto-ocultar la alerta a los 2s
   useEffect(() => {
     if (!errorMessage) return;
     const t = setTimeout(() => setErrorMessage(''), 3000);
