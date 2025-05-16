@@ -794,7 +794,7 @@ const Cursos = () => {
                             className="btn btn-sm btn-success me-2"
                             onClick={() =>
                               openConfirmModal(
-                                () => handleSaveCourse,
+                                () => handleSaveCourse(),
                                 <>
                                   Esta accion podria afectara la informacion que tengan los certificados de los estudiantes relacionados al Curso.
                                   <br />
@@ -977,7 +977,7 @@ const Cursos = () => {
                               <div className="d-flex me-3">
                                 {isEditing ? (
                                   <>
-                                    <button className="btn btn-sm btn-success me-2" onClick={() => openConfirmModal(() => handleSaveLevel, <>Esta accion podria afectar a los estudiantes que ya finalizaron el nivel.</>)}>
+                                    <button className="btn btn-sm btn-success me-2" onClick={() => openConfirmModal(() => handleSaveLevel(), <>Esta accion podria afectar a los estudiantes que ya finalizaron el nivel.</>)}>
                                       Guardar
                                     </button>
                                     <button className="btn btn-sm btn-secondary" onClick={handleCancelEdit}>
@@ -1029,7 +1029,7 @@ const Cursos = () => {
                                                     className="btn btn-sm btn-success me-2"
                                                     onClick={() =>
                                                       openConfirmModal(
-                                                        () => handleSaveGroup,
+                                                        () => handleSaveGroup(),
                                                         <>
                                                           Esta accion podria afectara a los estudiantes relacionados.
                                                           <br />
