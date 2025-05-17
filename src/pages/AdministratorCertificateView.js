@@ -8,7 +8,6 @@ const AdministratorCertificateView = () => {
     const [certificates, setCertificates] = useState([]);
     const [filtroPersona, setFiltroPersona] = useState("");
     const [filtroCodigo, setFiltroCodigo] = useState("");
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
     const API_HOST = process.env.REACT_APP_API_HOST;
 
@@ -27,14 +26,6 @@ const AdministratorCertificateView = () => {
         };
 
         fetchCertificates();
-
-        // Detectar cambios en el tamaño de pantalla
-        const handleResize = () => {
-            setIsMobile(window.innerWidth < 768);
-        };
-
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
     }, [API_HOST]);
 
     // 1. Filtrado por persona
@@ -76,76 +67,29 @@ const AdministratorCertificateView = () => {
         }
     };
 
-    // Renderizar certificados como tarjetas para móvil
-    const renderCertificadosMobile = () => {
-        if (certificadosFiltrados.length === 0) {
-            return (
-                <div className="text-center text-muted py-4">
-                    No se encontraron certificados.
-                </div>
-            );
-        }
+    return (
+        <div className="container mt-4 bg-white p-4 border rounded shadow-sm">
+            <h5 className="fw-bold mb-4 text-primary">Certificados generados</h5>
 
-        return certificadosFiltrados.map((cert, idx) => {
-            const tipoTraducido = {
-                BASIC: "Básico",
-                NOTES: "Notas",
-                ALL_LEVEL: "Curso Completo",
-                ABILITIES: "Habilidades",
-            }[cert.certificateType] || cert.certificateType;
+            {/* Campo para buscar por persona */}
+            <input
+                type="text"
+                className="form-control mb-2"
+                placeholder="Buscar por nombre, apellido o ID"
+                value={filtroPersona}
+                onChange={(e) => setFiltroPersona(e.target.value)}
+            />
 
-            return (
-                <div key={idx} className="card mb-3">
-                    <div className="card-body">
-                        <h5 className="card-title">{cert.fullName}</h5>
-                        <h6 className="card-subtitle mb-2 text-muted">ID: {cert.personId}</h6>
-                        
-                        <div className="row my-2">
-                            <div className="col-6 fw-bold">Curso:</div>
-                            <div className="col-6">{cert.courseName}</div>
-                        </div>
-                        
-                        <div className="row mb-2">
-                            <div className="col-6 fw-bold">Nivel:</div>
-                            <div className="col-6">{cert.levelName}</div>
-                        </div>
-                        
-                        <div className="row mb-2">
-                            <div className="col-6 fw-bold">Tipo:</div>
-                            <div className="col-6">{tipoTraducido}</div>
-                        </div>
-                        
-                        <div className="row mb-2">
-                            <div className="col-6 fw-bold">Fecha:</div>
-                            <div className="col-6">
-                                {cert.generationDate
-                                    ? new Intl.DateTimeFormat("es-CO").format(
-                                        new Date(cert.generationDate)
-                                    )
-                                    : ""}
-                            </div>
-                        </div>
-                        
-                        <div className="row mb-3">
-                            <div className="col-6 fw-bold">Código:</div>
-                            <div className="col-6 text-break">{cert.code}</div>
-                        </div>
-                        
-                        <button
-                            className="btn btn-primary w-100"
-                            onClick={() => verCertificado(cert.code)}
-                        >
-                            <i className="bi bi-eye-fill me-2"></i>Ver Certificado
-                        </button>
-                    </div>
-                </div>
-            );
-        });
-    };
+            {/* Campo para buscar por código */}
+            <input
+                type="text"
+                className="form-control mb-4"
+                placeholder="Buscar por código del certificado"
+                value={filtroCodigo}
+                onChange={(e) => setFiltroCodigo(e.target.value)}
+                disabled={filtradoPorPersona.length === 0}
+            />
 
-    // Renderizar tabla para pantallas grandes
-    const renderTabla = () => {
-        return (
             <div className="table-responsive">
                 <table className="table table-bordered table-striped align-middle text-center">
                     <thead className="table-light">
@@ -208,40 +152,6 @@ const AdministratorCertificateView = () => {
                         )}
                     </tbody>
                 </table>
-            </div>
-        );
-    };
-
-    return (
-        <div className="container-fluid mt-4 px-3 px-md-4">
-            <div className="bg-white p-3 p-md-4 border rounded shadow-sm">
-                <h5 className="fw-bold mb-3 mb-md-4 text-primary">Certificados generados</h5>
-
-                {/* Filtros */}
-                <div className="row g-2 mb-3">
-                    <div className="col-12">
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Buscar por nombre, apellido o ID"
-                            value={filtroPersona}
-                            onChange={(e) => setFiltroPersona(e.target.value)}
-                        />
-                    </div>
-                    <div className="col-12">
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Buscar por código del certificado"
-                            value={filtroCodigo}
-                            onChange={(e) => setFiltroCodigo(e.target.value)}
-                            disabled={filtradoPorPersona.length === 0}
-                        />
-                    </div>
-                </div>
-
-                {/* Vista condicional basada en tamaño de pantalla */}
-                {isMobile ? renderCertificadosMobile() : renderTabla()}
             </div>
         </div>
     );

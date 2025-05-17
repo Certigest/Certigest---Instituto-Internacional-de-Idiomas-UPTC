@@ -72,13 +72,13 @@ const PublicValidatePage = () => {
 
         const qrCodeSuccessCallback = (decodedText) => {
             // Procesar QR escaneado
+            console.log(decodedText);
             const prefix = `${API_HOST}/certificate/validateCertificate/`;
             let code = decodedText;
-            
             if (decodedText.startsWith(prefix)) {
                 code = decodedText.substring(prefix.length);
             }
-            
+            console.log(code);
             if (code.match(/^[A-Za-z0-9-]+$/)) {
                 stopScanner();
                 fetchAndOpenPdf(code);
