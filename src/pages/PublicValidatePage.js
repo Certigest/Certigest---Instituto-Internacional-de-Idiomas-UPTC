@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Html5Qrcode } from 'html5-qrcode'; // Solo importamos Html5Qrcode, no el scanner
 import logo from '../assets/Logo.png';
 import acreditacion from '../assets/logo_Acreditacion.png';
 import '../styles/PublicValidatePage.css';
@@ -9,7 +9,11 @@ const PublicValidatePage = () => {
     const [certificateId, setCertificateId] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [showQrScanner, setShowQrScanner] = useState(false);
-    const scannerRef = useRef(null);
+    const [scanning, setScanning] = useState(false);
+    const [cameraId, setCameraId] = useState('');
+    const [cameras, setCameras] = useState([]);
+    const qrScannerRef = useRef(null);
+    const videoRef = useRef(null);
     const navigate = useNavigate();
     const API_HOST = process.env.REACT_APP_API_HOST;
 
@@ -17,7 +21,7 @@ const PublicValidatePage = () => {
     const alertType = isAlfa ? 'alert-warning' : 'alert-danger';
     const customClass = 'custom-dark';
 
-    // Validación y apertura de PDF (memoizada para el useEffect)
+    // Validación y apertura de PDF
     const fetchAndOpenPdf = useCallback(async (code) => {
         try {
             const response = await fetch(`${API_HOST}/certificate/validateCertificate/${code}`);
@@ -34,12 +38,104 @@ const PublicValidatePage = () => {
         }
     }, [API_HOST]);
 
-    // Auto-cierre de alerta
+    // Obtener lista de cámaras disponibles
     useEffect(() => {
-        if (!errorMessage) return;
-        const timer = setTimeout(() => setErrorMessage(''), 3000);
-        return () => clearTimeout(timer);
-    }, [errorMessage]);
+        if (!showQrScanner) return;
+
+        Html5Qrcode.getCameras()
+            .then(devices => {
+                if (devices && devices.length) {
+                    setCameras(devices);
+                    
+                    // Preferir cámara trasera
+                    const backCamera = devices.find(device => 
+                        device.label.toLowerCase().includes('back') || 
+                        device.label.toLowerCase().includes('trasera') ||
+                        device.label.toLowerCase().includes('rear')
+                    );
+                    
+                    // Si hay cámara trasera, usar esa, sino usar la primera
+                    setCameraId(backCamera ? backCamera.id : devices[0].id);
+                } else {
+                    setErrorMessage('No se detectaron cámaras disponibles');
+                }
+            })
+            .catch(err => {
+                console.error('Error al obtener cámaras:', err);
+                setErrorMessage('No se pudo acceder a la cámara. Revisa los permisos.');
+            });
+    }, [showQrScanner]);
+
+    // Iniciar y detener el escáner
+    useEffect(() => {
+        if (!showQrScanner || !cameraId) return;
+
+        const html5QrCode = new Html5Qrcode("qr-reader");
+        qrScannerRef.current = html5QrCode;
+
+        const qrCodeSuccessCallback = (decodedText) => {
+            // Procesar QR escaneado
+            const prefix = `${API_HOST}/certificate/validateCertificate/`;
+            let code = decodedText;
+            
+            if (decodedText.startsWith(prefix)) {
+                code = decodedText.substring(prefix.length);
+            }
+            
+            if (code.match(/^[A-Za-z0-9-]+$/)) {
+                stopScanner();
+                fetchAndOpenPdf(code);
+            } else {
+                setErrorMessage('El código QR no es válido o no corresponde a un certificado.');
+            }
+        };
+
+        const config = {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0,
+        };
+
+        const startScanner = () => {
+            html5QrCode.start(
+                cameraId,
+                config,
+                qrCodeSuccessCallback,
+                () => {} // Ignoramos errores para que no muestre mensajes molestos
+            )
+            .then(() => {
+                setScanning(true);
+                console.log('Escáner QR iniciado');
+            })
+            .catch((err) => {
+                console.error('Error al iniciar escáner:', err);
+                setErrorMessage('No se pudo iniciar la cámara. Revisa los permisos.');
+            });
+        };
+
+        startScanner();
+
+        return () => {
+            if (qrScannerRef.current && qrScannerRef.current.isScanning) {
+                qrScannerRef.current.stop()
+                    .then(() => console.log('Escáner QR detenido'))
+                    .catch(err => console.error('Error al detener escáner:', err));
+            }
+        };
+    }, [showQrScanner, cameraId, fetchAndOpenPdf, API_HOST]);
+
+    const stopScanner = () => {
+        if (qrScannerRef.current && qrScannerRef.current.isScanning) {
+            qrScannerRef.current.stop()
+                .then(() => {
+                    setScanning(false);
+                    setShowQrScanner(false);
+                })
+                .catch(err => console.error('Error al detener escáner:', err));
+        } else {
+            setShowQrScanner(false);
+        }
+    };
 
     const handleAlphanumericValidate = () => {
         if (!certificateId.trim()) {
@@ -50,49 +146,12 @@ const PublicValidatePage = () => {
         fetchAndOpenPdf(certificateId);
     };
 
-    const handleValidateQR = () => setShowQrScanner(true);
-
-    const handleCloseScanner = () => {
-        if (scannerRef.current) {
-            scannerRef.current.clear().catch(console.error);
-            scannerRef.current = null;
-        }
-        setShowQrScanner(false);
-    };
-
-    // Iniciar el escáner QR
+    // Auto-cierre de alerta
     useEffect(() => {
-        if (!showQrScanner) return;
-
-        const qrRegionId = 'qr-reader-id';
-        const scanner = new Html5QrcodeScanner(
-            qrRegionId,
-            { fps: 10, qrbox: 250 },
-            false
-        );
-        scannerRef.current = scanner;
-
-        scanner.render(
-            (decodedText) => {
-                handleCloseScanner();
-
-                const prefix = `${API_HOST}/certificate/validateCertificate/`;
-                if (decodedText.startsWith(prefix)) {
-                    const code = decodedText.substring(prefix.length);
-                    fetchAndOpenPdf(code);
-                } else {
-                    setErrorMessage('El código QR no es válido o no corresponde a un certificado.');
-                }
-            },
-        );
-
-        return () => {
-            if (scannerRef.current) {
-                scannerRef.current.clear().catch(console.error);
-                scannerRef.current = null;
-            }
-        };
-    }, [showQrScanner, fetchAndOpenPdf, API_HOST]);
+        if (!errorMessage) return;
+        const timer = setTimeout(() => setErrorMessage(''), 3000);
+        return () => clearTimeout(timer);
+    }, [errorMessage]);
 
     return (
         <div className="public-validate-container">
@@ -124,15 +183,21 @@ const PublicValidatePage = () => {
                         <button className="btn-green" onClick={handleAlphanumericValidate}>
                             Código Alfanumérico
                         </button>
-                        <button className="btn-green" onClick={handleValidateQR}>
+                        <button className="btn-green" onClick={() => setShowQrScanner(true)}>
                             Escanear Código QR
                         </button>
                     </div>
                 </>
             ) : (
                 <div className="qr-scanner-container">
-                    <div id="qr-reader-id" style={{ width: '300px' }}></div>
-                    <button className="btn-red mt-2" onClick={handleCloseScanner}>
+                    <div id="qr-reader" className="qr-reader-simple">
+                        {/* Aquí se renderizará el lector de QR */}
+                    </div>
+                    <div className="scanner-overlay">
+                        <div className="scan-region-highlight"></div>
+                        <p className="scan-message">Posiciona un código QR dentro del marco</p>
+                    </div>
+                    <button className="btn-green mt-4" onClick={stopScanner}>
                         Cerrar escáner
                     </button>
                 </div>
