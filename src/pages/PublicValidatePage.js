@@ -76,7 +76,7 @@ const PublicValidatePage = () => {
             (decodedText) => {
                 handleCloseScanner();
 
-                const prefix = 'https://auth.certigestdev.click:8443/certificate/validateCertificate/';
+                const prefix = 'https://auth.certigestdev.click/certificate/validateCertificate/';
                 if (decodedText.startsWith(prefix)) {
                     const code = decodedText.substring(prefix.length);
                     fetchAndOpenPdf(code);
