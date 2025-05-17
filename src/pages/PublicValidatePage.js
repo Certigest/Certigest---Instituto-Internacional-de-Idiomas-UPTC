@@ -92,7 +92,7 @@ const PublicValidatePage = () => {
                 scannerRef.current = null;
             }
         };
-    }, [showQrScanner, fetchAndOpenPdf]);
+    }, [showQrScanner, fetchAndOpenPdf, API_HOST]);
 
     return (
         <div className="public-validate-container">
