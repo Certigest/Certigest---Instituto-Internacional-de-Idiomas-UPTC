@@ -75,11 +75,15 @@ const PublicValidatePage = () => {
         scanner.render(
             (decodedText) => {
                 handleCloseScanner();
-                fetchAndOpenPdf(decodedText);
+
+                const prefix = 'https://auth.certigestdev.click:8443/certificate/validateCertificate/';
+                if (decodedText.startsWith(prefix)) {
+                    const code = decodedText.substring(prefix.length);
+                    fetchAndOpenPdf(code);
+                } else{
+                    setErrorMessage('El código QR no es válido o no corresponde a un certificado.');
+                }
             },
-            (error) => {
-                // Ignorar errores de escaneo
-            }
         );
 
         return () => {
