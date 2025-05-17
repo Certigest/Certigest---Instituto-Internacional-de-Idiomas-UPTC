@@ -77,6 +77,12 @@ const PublicValidatePage = () => {
             if (decodedText.startsWith(prefix)) {
                 code = decodedText.substring(prefix.length);
                 fetchAndOpenPdf(code);
+                qrScannerRef.current.stop()()
+                    .then(() => {
+                        console.log('Escáner QR detenido');
+                        setShowQrScanner(false);
+                    })
+                    .catch(err => console.error('Error al detener escáner:', err));
             } else {
                 setErrorMessage('El código QR no es válido o no corresponde a un certificado.');
             }
