@@ -365,7 +365,6 @@
   /* si tu Html5QrcodeScanner lo soporta, añade estos atributos al <video> */
   object-fit: cover;
   /* playsinline evita que en iOS el video pase a fullscreen nativo */
-  playsinline: true;
 }
 /* ------------------------------------------------ */
 /*   1) Recolorear o quitar la imagen del placeholder  */
