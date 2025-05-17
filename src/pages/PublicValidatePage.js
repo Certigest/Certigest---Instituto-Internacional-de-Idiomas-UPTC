@@ -9,11 +9,8 @@ const PublicValidatePage = () => {
     const [certificateId, setCertificateId] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [showQrScanner, setShowQrScanner] = useState(false);
-    const [scanning, setScanning] = useState(false);
     const [cameraId, setCameraId] = useState('');
-    const [cameras, setCameras] = useState([]);
     const qrScannerRef = useRef(null);
-    const videoRef = useRef(null);
     const navigate = useNavigate();
     const API_HOST = process.env.REACT_APP_API_HOST;
 
@@ -45,7 +42,7 @@ const PublicValidatePage = () => {
         Html5Qrcode.getCameras()
             .then(devices => {
                 if (devices && devices.length) {
-                    setCameras(devices);
+                    // setCameras(devices);
                     
                     // Preferir cámara trasera
                     const backCamera = devices.find(device => 
@@ -104,7 +101,7 @@ const PublicValidatePage = () => {
                 () => {} // Ignoramos errores para que no muestre mensajes molestos
             )
             .then(() => {
-                setScanning(true);
+                // setScanning(true);
                 console.log('Escáner QR iniciado');
             })
             .catch((err) => {
@@ -128,7 +125,7 @@ const PublicValidatePage = () => {
         if (qrScannerRef.current && qrScannerRef.current.isScanning) {
             qrScannerRef.current.stop()
                 .then(() => {
-                    setScanning(false);
+                    // setScanning(false);
                     setShowQrScanner(false);
                 })
                 .catch(err => console.error('Error al detener escáner:', err));
