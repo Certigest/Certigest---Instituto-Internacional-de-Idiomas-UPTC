@@ -93,7 +93,7 @@ public class LevelController {
      */
     @GetMapping("/by-course/{id_course}")
     public ResponseEntity<List<LevelDTO>> getLevelsByCourseId(@PathVariable Integer id_course) {
-        List<LevelDTO> levels = levelService.findByCourseId(id_course);
+        List<LevelDTO> levels = levelService.findActiveByCourseId(id_course);
         return ResponseEntity.ok(levels);
     }
 }

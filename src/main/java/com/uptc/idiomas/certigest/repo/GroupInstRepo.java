@@ -36,4 +36,7 @@ public interface GroupInstRepo extends JpaRepository<GroupInst, Integer> {
     ORDER BY g.group_id ASC
   """)
   List<GroupInst> findAllByCourseIdAndLevelIdOrderByGroupId(@Param("courseId") Integer courseId, @Param("levelId") Integer levelId);
+
+  @Query("SELECT g FROM GroupInst g WHERE g.group_teacher.personId = :teacherId AND g.state = true")
+  List<GroupInst> findActiveByTeacherId(@Param("teacherId") Integer teacherId);
 }

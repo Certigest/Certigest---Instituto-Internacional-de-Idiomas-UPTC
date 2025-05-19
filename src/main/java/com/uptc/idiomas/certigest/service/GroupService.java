@@ -143,16 +143,11 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
 
     public List<GroupInstDTO> getGroupsByTeacher(String username) {
         Person teacher = personService.getPersonByUserName(username);
-        List<GroupInstDTO> groupTeacherList = new ArrayList<>();
-        List<GroupInst> groups = getGroupActiveByDateRange();
-        if (groups != null && !groups.isEmpty()) {
-            for (GroupInst group : groups) {
-                if (teacher.getDocument().equals(group.getGroup_teacher().getDocument())) {
-                    groupTeacherList.add(GroupInstMapper.INSTANCE.mapGroupInstToGroupInstDTO(group));
-                }
-            }
-        }
-        return groupTeacherList;
+        List<GroupInst> groups = getGroupsByTeacherId(teacher.getPersonId());
+        return groups
+                .stream()
+                .map(mapper::mapGroupInstToGroupInstDTO)
+                .collect(Collectors.toList());
     }
 
     public List<GroupPersonDTO> getGroupsByStudentUsername(String username) {
@@ -185,6 +180,11 @@ public class GroupService extends BasicServiceImpl<GroupInstDTO, GroupInst, Inte
     public List<GroupInst> getGroupActiveByDateRange() {
         List<GroupInst> groupPerson = groupPersonRepo.findActiveGroupInstsByDate(new Date());
         return groupPerson;
+    }
+
+    public List<GroupInst> getGroupsByTeacherId(Integer teacherId) {
+        List<GroupInst> groups = groupRepo.findActiveByTeacherId(teacherId);
+        return groups;
     }
 
     public void updateCalification(Integer personId, Integer groupId, Float newCalification) {

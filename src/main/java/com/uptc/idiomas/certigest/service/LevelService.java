@@ -89,6 +89,19 @@ public class LevelService extends BasicServiceImpl<LevelDTO, Level, Integer> {
     }
 
     /**
+     * Obtiene todos los niveles asociados a un curso específico.
+     *
+     * @param id_course ID del curso.
+     * @return Lista de {@link LevelDTO}.
+     */
+    public List<LevelDTO> findActiveByCourseId(Integer id_course) {
+        return levelRepo.findActiveLevelsByCourseId(id_course)
+                .stream()
+                .map(mapper::mapLevelToLevelDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Busca un nivel por su ID.
      *
      * @param levelId ID del nivel.
