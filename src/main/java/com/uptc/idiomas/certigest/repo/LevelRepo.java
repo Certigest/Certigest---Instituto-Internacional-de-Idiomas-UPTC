@@ -33,7 +33,6 @@ public interface LevelRepo extends JpaRepository<Level, Integer> {
     """)
     Long countActiveStudentsByLevel(@Param("levelId") Integer levelId);
 
-
-    @Query("SELECT l FROM Level l WHERE l.id_course.id_course = :courseId AND l.state = true")
+    @Query("SELECT l FROM Level l WHERE l.id_course.id_course = :courseId AND (l.state = true OR l.state IS NULL)")
     List<Level> findActiveLevelsByCourseId(@Param("courseId") Integer courseId);
 }
