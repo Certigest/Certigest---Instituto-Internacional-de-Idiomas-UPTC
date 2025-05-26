@@ -29,15 +29,24 @@ public interface PersonRepo extends JpaRepository<Person, Integer> {
               WHERE gp.person_id = p
                 AND gp.group_id.level_id.level_id = :levelId
             )
-            OR EXISTS (
-              SELECT gp FROM GroupPerson gp
-              WHERE gp.person_id = p
-                AND gp.group_id.level_id.level_id = :levelId
-                AND gp.calification < 3.0
-                AND gp.end_date < CURRENT_DATE
+            OR (
+              EXISTS (
+                SELECT gp FROM GroupPerson gp
+                WHERE gp.person_id = p
+                  AND gp.group_id.level_id.level_id = :levelId
+                  AND gp.calification < 3.0
+                  AND gp.end_date < CURRENT_DATE
+              )
             )
           )
+          AND NOT EXISTS (
+            SELECT gp FROM GroupPerson gp
+            WHERE gp.person_id = p
+              AND gp.group_id.level_id.level_id = :levelId
+              AND gp.end_date >= CURRENT_DATE
+          )
     """)
+
     List<Person> findStudentsWhoHaveNotTakenLevelOrFailed(@Param("levelId") Integer levelId);
 
 
