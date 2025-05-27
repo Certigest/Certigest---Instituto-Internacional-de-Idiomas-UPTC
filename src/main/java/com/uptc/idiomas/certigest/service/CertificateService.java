@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -528,11 +529,17 @@ public class CertificateService extends BasicServiceImpl<CertificateDTO, Certifi
     }
 
     private String formatearFechaEstiloCertificado(Date fecha) {
-        SimpleDateFormat dia = new SimpleDateFormat("d");
-        SimpleDateFormat mes = new SimpleDateFormat("MMMM");
-        SimpleDateFormat anio = new SimpleDateFormat("yyyy");
-        return String.format("Tunja, Colombia, %s de %s del año %s",
-                dia.format(fecha), mes.format(fecha), anio.format(fecha));
+        Locale localeEsCo = Locale.forLanguageTag("es-CO");
+        SimpleDateFormat dia   = new SimpleDateFormat("dd",   localeEsCo);
+        SimpleDateFormat mes   = new SimpleDateFormat("MMMM",localeEsCo);
+        SimpleDateFormat anio  = new SimpleDateFormat("yyyy",localeEsCo);
+
+        return String.format(
+            "Tunja, Colombia, %s de %s del año %s",
+            dia.format(fecha),
+            mes.format(fecha),
+            anio.format(fecha)
+        );
     }
 
     public String normalizeText(String input) {
