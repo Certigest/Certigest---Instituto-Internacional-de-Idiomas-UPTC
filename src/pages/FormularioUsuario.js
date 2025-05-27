@@ -87,6 +87,16 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
       setMensajeColor("error");
       return false;
     }
+    if (nombres.length < 2 || nombres.length > 50 || apellidos.length < 2 || apellidos.length > 50) {
+      setMensaje("Nombres y apellidos deben tener entre 2 y 50 caracteres.");
+      setMensajeColor("error");
+      return false;
+    }
+    if (documento.length < 5 || documento.length > 20) {
+      setMensaje("El documento debe tener entre 5 y 20 caracteres.");
+      setMensajeColor("error");
+      return false;
+    }
     return true;
   };
 
@@ -99,6 +109,11 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
       setMensaje("Ingrese un correo electrónico válido.");
+      setMensajeColor("error");
+      return false;
+    }
+    if (correo.length > 100) {
+      setMensaje("El correo no debe superar los 100 caracteres.");
       setMensajeColor("error");
       return false;
     }
@@ -249,6 +264,7 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
         />
       </div>
       <div className="col-md-6 mb-3">
+        <label className="form-label">Fecha de nacimiento</label>
         <input
           type="date"
           name="birthDate"
@@ -262,6 +278,7 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
         <input type="checkbox" name="status" checked={formData.status} onChange={manejarCambio} />
       </div>
       <div className="col-md-12 mb-3">
+        <label className="form-label">Ubicación de residencia</label>
         <LocationSelector
           onSelect={(ciudad) => setFormData(prev => ({
             ...prev,
@@ -273,6 +290,7 @@ const FormularioUsuario = ({ rolesSeleccionados, volver }) => {
           onLocationChange={manejarCambio}
         />
       </div>
+
     </div>
   );
 
