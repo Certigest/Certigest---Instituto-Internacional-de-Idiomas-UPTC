@@ -27,8 +27,8 @@ const PublicValidatePage = () => {
                 return;
             }
             const blob = await response.blob();
-            const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
-            window.open(url);
+            const fileURL = window.URL.createObjectURL(blob);
+            window.open(fileURL, '_blank');
         } catch (error) {
             console.error(error);
             setErrorMessage('Ocurrió un error al intentar validar el certificado.');
