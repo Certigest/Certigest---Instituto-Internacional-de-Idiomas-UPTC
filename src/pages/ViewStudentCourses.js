@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { getGroupsByStudent } from '../services/CourseService';
 import { useKeycloak } from '@react-keycloak/web';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -48,9 +48,29 @@ const StudentGroupsTable = () => {
   const formatDate = (date) => new Date(date).toLocaleDateString('es-CO');
 
   // Abrir PDF y gestionar error
-  const openPdf = (code) => {
-    window.open(`${API_HOST}/certificate/validateCertificate/${code}`, '_blank');
-  };
+  const openPdf = useCallback(async (code) => {
+    try {
+      const resp = await fetch(
+        `${API_HOST}/certificate/validateCertificate/${code}`,
+        {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${keycloak.token}` },
+        }
+      );
+
+      if (!resp.ok) {
+        const msg = await extractErrorMessage(resp);
+        throw new Error(msg);
+      }
+
+      const blob = await resp.blob();
+      const fileURL = URL.createObjectURL(blob);
+      window.open(fileURL, '_blank');
+    } catch (err) {
+      console.error(err);
+      setErrorMessage(err.message || 'No se pudo abrir el certificado.');
+    }
+  }, [API_HOST, keycloak.token]);
 
   // Generar certificado de nivel
   const handleLevelCertificate = async (group_id, type) => {

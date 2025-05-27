@@ -1,5 +1,5 @@
 // src/pages/GenerarCertificadosAdmin.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useKeycloak } from '@react-keycloak/web';
 import { getGroupsByPerson } from '../services/CourseService';
@@ -44,7 +44,10 @@ export default function GenerarCertificadosAdmin() {
     // Normalización y filtrado
     const normalize = str =>
         str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-    const usuariosFiltrados = users.filter(u => {
+
+    const usuariosFiltrados = users
+        .filter(u => u.roles?.some(r => r.name === 'STUDENT'))
+        .filter(u => {
         const t = normalize(filtro);
         const d = documentoFiltro.toLowerCase();
         return (
@@ -74,7 +77,7 @@ export default function GenerarCertificadosAdmin() {
     }, [selectedUser, keycloak]);
 
     // Abre PDF o muestra error en alerta
-    const openPdf = async code => {
+    const openPdf = useCallback(async code => {
         try {
         const resp = await fetch(
             `${API}/certificate/validateCertificate/${code}`,
@@ -83,18 +86,28 @@ export default function GenerarCertificadosAdmin() {
             headers: { Authorization: `Bearer ${keycloak.token}` },
             }
         );
+
         if (!resp.ok) {
-            const { error: msg } = await resp.json();
-            throw new Error(msg || 'Certificado no válido');
+            let msg = 'Certificado no válido';
+            try {
+            const body = await resp.json();
+            msg = body.error || msg;
+            } catch {
+            // JSON inválido, usar mensaje genérico
+            }
+            throw new Error(msg);
         }
-        const pdf = await resp.blob();
-        const url = URL.createObjectURL(new Blob([pdf], { type: 'application/pdf' }));
-        window.open(url, '_blank');
+
+        const blob = await resp.blob();
+        const fileURL = URL.createObjectURL(blob);
+        window.open(fileURL, '_blank');
+
         } catch (e) {
-        console.error(e);
-        setError(e.message);
+            console.error(e);
+            setError(e.message);
         }
-    };
+    }, [API, keycloak.token, setError]);
+
 
     // Generar certificado por nivel
     const generarCertificado = async (payload, endpoint) => {
