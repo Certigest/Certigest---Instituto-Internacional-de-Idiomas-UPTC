@@ -170,7 +170,7 @@ function ResponsiveNavbar({ children }) {
         <header className="border-bottom shadow-sm py-2 px-3 bg-white d-flex justify-content-between align-items-center">
           <div className="d-none d-md-block header-banner text-center mx-auto me-5">
             <h4 className="mb-0 fw-bold text-dark" style={{ fontSize: "clamp(0.8rem, 3vw, 2rem)" }}>
-              Gestión de certificados Instituto Internacional de Idiomas
+              Gestión académica de cursos de extensión del Instituto Internacional de Idiomas
             </h4>
           </div>
           {selectedRole && (
