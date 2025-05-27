@@ -183,6 +183,25 @@ public class PersonController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    /**
+     * Verifica la contraseña de un usuario.
+     *
+     * @param jwt        Token JWT del usuario autenticado.
+     * @param credential Objeto que contiene la  contraseña.
+     * @return {@code 200 OK} con el cuerpo {@code true} si la contraseña es válida,
+     *         {@code false} si es incorrecta, o {@code 500 Internal Server Error} en caso de error inesperado.
+     */
+    @PostMapping("/verifyPassword")
+    public ResponseEntity<Boolean> verifyCurrentPassword(@AuthenticationPrincipal Jwt jwt,
+                                                         @RequestBody CredentialDTO credential) {
+        try {
+            String username = jwt.getClaimAsString("preferred_username");
+            boolean isValid = credentialsKeycloakService.isCurrentPasswordValid(username, credential.getPassword());
+            return ResponseEntity.ok(isValid);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(false);
+        }
+    }
 
     /**
      * Obtiene la información de un estudiante por su ID.

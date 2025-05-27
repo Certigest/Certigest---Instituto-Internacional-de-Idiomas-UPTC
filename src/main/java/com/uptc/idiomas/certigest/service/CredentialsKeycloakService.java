@@ -105,4 +105,37 @@ public class CredentialsKeycloakService {
                 request
         );
     }
+
+    /**
+     * Verifica si la contraseña actual de un usuario es válida intentando autenticarse con ella.
+     *
+     * @param username nombre de usuario del usuario a validar.
+     * @param currentPassword contraseña actual ingresada por el usuario.
+     * @return true si la contraseña es válida, false si es incorrecta.
+     */
+    public boolean isCurrentPasswordValid(String username, String currentPassword) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("client_id", "springboot-app");
+        body.add("grant_type", "password");
+        body.add("username", username);
+        body.add("password", currentPassword);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                keycloakAuthUrl + "/realms/inst_idiomas_realm/protocol/openid-connect/token",
+                request,
+                Map.class
+            );
+            return response.getStatusCode().is2xxSuccessful();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }
