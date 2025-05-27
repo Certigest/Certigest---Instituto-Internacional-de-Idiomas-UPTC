@@ -28,8 +28,8 @@ const PublicHomePage = () => {
                     />
                     <div className="header-banner-public-home text-center">
                         <h5 className="mb-0 fw-bold text-dark">
-                            Gestión de certificados Instituto <br />
-                            Internacional de Idiomas
+                            Gestión académica de cursos de extensión del <br />
+                        Instituto Internacional de Idiomas
                         </h5>
                     </div>
                 </div>
