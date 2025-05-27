@@ -56,6 +56,25 @@ export const modifyPassword = async (token, newPassword) => {
   return await response.text();
 };
 
+export const verifyPassword = async (token, currentPassword) => {
+  const API_HOST = process.env.REACT_APP_API_HOST;
+
+  const response = await fetch(`${API_HOST}/person/verifyPassword`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ password: currentPassword }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al verificar la contraseña');
+  }
+
+  return await response.json();
+};
+
 export async function getProfileImage() {
   const API_HOST = process.env.REACT_APP_API_HOST;
   const token = keycloak.token;
