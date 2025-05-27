@@ -1,6 +1,5 @@
-/* ---------------------------------- */
-/*  CONTENEDOR PRINCIPAL  */
-/* ---------------------------------- */
+
+/* Estilos originales - mantenemos */
 .public-validate-container {
   background-color: #101326;
   color: #fff;
@@ -9,17 +8,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 30px 20px;
+  padding: 30px 20px 2rem 20px;
 }
 
-/* ---------------------------------- */
-/*  HEADER                           */
-/* ---------------------------------- */
+/* Header y elementos existentes - mantenemos */
 .header-validate {
   background-color: #101326;
   width: 100%;
   padding: 20px 0;
-}X
+}
 
 .header-content {
   position: relative;
@@ -29,7 +26,6 @@
   align-items: center;
 }
 
-/* Logo grande y solapado */
 .header-logo-overlay-public-home {
   position: absolute;
   left: -75px;
@@ -42,9 +38,8 @@
   z-index: 2;
 }
 
-/* El “pill” de mensaje */
 .header-banner-validate {
-  background-color: #1CA673;  /* antes #ffcc00 */
+  background-color: #1CA673;
   border-radius: 50px;
   padding: 20px 60px 20px 120px;
   min-width: 500px;
@@ -61,12 +56,10 @@
   line-height: 1.2;
   font-size: 1.6rem;
   font-weight: bold;
-  color: #000;  /* texto oscuro */
+  color: #000;
 }
 
-/* ---------------------------------- */
-/*  BOTONES                          */
-/* ---------------------------------- */
+/* Botones - mantenemos */
 .public-buttons {
   display: flex;
   gap: 30px;
@@ -76,7 +69,7 @@
 }
 
 .btn-green {
-  background-color: #1CA673;  /* antes #f1c40f */
+  background-color: #1CA673;
   color: #000;
   font-size: 1.15em;
   width: 200px;
@@ -89,15 +82,14 @@
   cursor: pointer;
   font-weight: bold;
   text-align: center;
+  transition: background-color 0.3s;
 }
 
 .btn-green:hover {
-  background-color: #15885A; 
+  background-color: #15885A;
 }
 
-/* ---------------------------------- */
-/*  FOOTER                           */
-/* ---------------------------------- */
+/* Footer - mantenemos */
 .public-footer {
   display: flex !important;
   align-items: center;
@@ -115,83 +107,29 @@
   margin: 0 auto;
 }
 
-/* ---------------------------------- */
-/*  RESPONSIVE                       */
-/* ---------------------------------- */
-@media (max-width: 992px) {
-  .header-content {
-    flex-direction: column;
-    width: 100%;
-  }
-  .header-logo-overlay-public-home {
-    position: static;
-    transform: none;
-    margin: 0 auto 15px;
-    width: 120px;
-    height: 120px;
-  }
-  .header-banner {
-    width: 90%;
-    padding: 15px 30px;
-    min-width: auto;
-    padding-left: 30px; /* reducimos para móviles */
-    padding-right: 30px;
-  }
-  .header-banner h5 {
-    font-size: 1.4rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .header-logo-overlay-public-home {
-    width: 100px;
-    height: 100px;
-    margin-bottom: 10px;
-  }
-  .header-banner {
-    padding: 12px 20px;
-  }
-  .header-banner h5 {
-    font-size: 1.2rem;
-  }
-  .btn-yellow {
-    font-size: 1em;
-    padding: 14px 25px;
-    width: 160px;
-    height: 50px;
-  }
-}
-
+/* Inputs - mantenemos */
 .validate-input-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 2rem auto; /* más espacio arriba y centrado horizontalmente */
-    padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2rem auto;
+  padding: 1rem;
 }
 
 .validate-input {
-    padding: 0.5rem;
-    width: 400px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
+  padding: 0.5rem;
+  width: 400px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
 }
 
 .validate-input::placeholder {
-  color: #145a24; 
-  font-weight: 500; 
-
-}
-.public-validate-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding-top: 2rem;
+  color: #145a24;
+  font-weight: 500;
 }
 
-
+/* Botón volver - mantenemos */
 .btn-back {
   position: absolute;
   top: 16px;
@@ -201,7 +139,6 @@
   color: white;
   font-size: 1.1em;
   font-weight: bold;
-  border: none;
   border-radius: 30px;
   cursor: pointer;
   transition: color 0.3s;
@@ -212,51 +149,227 @@
   color: white;
 }
 
+/* Mensajes de error - mantenemos */
 .error-message {
-    margin-top: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #15885A;
-    background-color: rgb(182, 255, 239);
-    border: 1px solid rgb(15, 191, 153);
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    animation: fadeIn 0.4s ease-in-out;
-    width: 100%;
-    max-width: 300px;
-    box-sizing: border-box;
-    justify-content: center;
-    text-align: center;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #15885A;
+  background-color: rgb(182, 255, 239);
+  border: 1px solid rgb(15, 191, 153);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  animation: fadeIn 0.4s ease-in-out;
+  width: 100%;
+  max-width: 300px;
+  box-sizing: border-box;
+  justify-content: center;
+  text-align: center;
 }
 
 .error-icon {
-    font-weight: bold;
-    font-size: 1.2rem;
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Tono oscuro para warning */
+/* Alertas - mantenemos */
 .alert-warning.custom-dark {
-  background-color: #3a3000;   /* Ajusta hasta que te guste */
-  border-color:  #d3b000;      /* Borde amarillo fuerte */
-  color:         #fff9c4;      /* Texto claro, ajusta si quieres */
+  background-color: #3a3000;
+  border-color: #d3b000;
+  color: #fff9c4;
 }
 
-/* Tono oscuro para danger */
 .alert-danger.custom-dark {
-  background-color: #3a021f;   /* Fondo vino oscuro */
-  border-color:  #df3030;      /* Borde rojo vibrante */
-  color:         #ffcdd2;      /* Texto rosado claro */
+  background-color: #3a021f;
+  border-color: #df3030;
+  color: #ffcdd2;
+}
+
+/* NUEVO: Estilos para escáner simplificado */
+.qr-scanner-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px auto;
+  padding: 10px;
+}
+
+.qr-reader-simple {
+  width: 100%;
+  height: 350px;
+  overflow: hidden;
+  border-radius: 12px;
+  position: relative;
+  background-color: #1a1f3a;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.qr-reader-simple video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* Superposición con guía de escaneo */
+.scanner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.scan-region-highlight {
+  width: 220px;
+  height: 220px;
+  border: 2px dashed #1CA673;
+  border-radius: 12px;
+  box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.scan-region-highlight::before,
+.scan-region-highlight::after {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-color: #1CA673;
+  border-style: solid;
+  border-width: 0;
+}
+
+.scan-region-highlight::before {
+  top: -5px;
+  left: -5px;
+  border-top-width: 3px;
+  border-left-width: 3px;
+  border-top-left-radius: 8px;
+}
+
+.scan-region-highlight::after {
+  bottom: -5px;
+  right: -5px;
+  border-bottom-width: 3px;
+  border-right-width: 3px;
+  border-bottom-right-radius: 8px;
+}
+
+.scan-message {
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 30px;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 8px 16px;
+  border-radius: 20px;
+}
+
+/* Ocultar elementos de la librería html5-qrcode que no queremos mostrar */
+#qr-reader__dashboard {
+  display: none !important;
+}
+
+#qr-reader__scan_region {
+  padding: 0 !important;
+}
+
+#qr-reader__status {
+  display: none !important;
+}
+
+#qr-reader canvas {
+  border-radius: 10px;
+}
+
+/* Estilos responsive */
+@media (max-width: 992px) {
+  .header-content {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .header-logo-overlay-public-home {
+    position: static;
+    transform: none;
+    margin: 0 auto 15px;
+    width: 120px;
+    height: 120px;
+  }
+
+  .header-banner-validate {
+    width: 90%;
+    padding: 15px 30px;
+    min-width: auto;
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+
+  .header-banner-validate h5 {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .header-logo-overlay-public-home {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 10px;
+  }
+
+  .header-banner-validate {
+    padding: 12px 20px;
+  }
+
+  .header-banner-validate h5 {
+    font-size: 1.2rem;
+  }
+
+  .btn-green {
+    font-size: 1em;
+    padding: 14px 25px;
+    width: 160px;
+    height: 50px;
+  }
+
+  .validate-input {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .qr-reader-simple {
+    height: 280px;
+  }
+
+  .scan-region-highlight {
+    width: 180px;
+    height: 180px;
+  }
+
+  .scan-message {
+    font-size: 14px;
+    margin-top: 20px;
+  }
 }
