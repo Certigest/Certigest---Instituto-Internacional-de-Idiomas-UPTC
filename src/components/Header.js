@@ -72,8 +72,8 @@ function Header() {
 
         <div className="header-banner text-center mx-auto">
           <h5 className="mb-0 fw-bold text-dark">
-            Gestión de certificados Instituto <br />
-            Internacional de Idiomas
+            Gestión académica de cursos de extensión del <br />
+            Instituto Internacional de Idiomas
           </h5>
         </div>
 
