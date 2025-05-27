@@ -181,7 +181,6 @@ const Cursos = () => {
     async function fetchTeachers() {
       try {
         const teachersData = await getAllTeachers(keycloak.token);
-        console.log("Profesores obtenidos:", teachersData);
         setTeachers(teachersData);
       } catch (error) {
         console.error("Error al obtener profesores:", error);
@@ -281,7 +280,6 @@ const Cursos = () => {
       };
       const createdLevel = await createLevel(levelToCreate, keycloak.token);
 
-      console.log("Nivel Creado" + createdLevel.level_id);
 
       //Crear grupo asociado (grupo inicial)
       await createGroup(
@@ -635,8 +633,6 @@ const Cursos = () => {
             });
             setGroupData(updated);
             handleCancelEdit();
-            console.log(editedLevel);
-            console.log(updated);
             setMessage({ type: "success", text: "Nivel Actualizado Correctamente." });
           } catch (err) {
             console.error("Error actualizando nivel:", err);
